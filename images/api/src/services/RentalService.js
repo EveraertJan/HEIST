@@ -59,7 +59,18 @@ class RentalService {
       status: 'requested'
     });
 
-    return await this.rentalRepository.findByUuid(rental.uuid);
+    // Get the complete rental object with relationships
+    const completeRental = await this.rentalRepository.findByUuid(rental.uuid);
+
+    // Send email notification to admin
+    try {
+      await this.emailService.sendNewRentalRequestEmail(user, artwork, completeRental, 'jan@tastbaar.studio');
+    } catch (emailError) {
+      console.error('Failed to send admin notification email:', emailError);
+      // Don't throw error - rental was created successfully
+    }
+
+    return completeRental;
   }
 
   /**

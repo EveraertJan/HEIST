@@ -42,7 +42,6 @@ router.get('/', asyncHandler(async (req, res) => {
 
   const artworkService = container.get('artworkService');
   const artworks = await artworkService.getAllArtworks(limit, offset);
-  console.log(artworks)
   res.status(HTTP_STATUS.OK).json({
     success: true,
     data: artworks,
