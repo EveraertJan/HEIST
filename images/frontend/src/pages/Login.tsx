@@ -2,7 +2,6 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import Button from '../components/common/Button'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -40,13 +39,13 @@ export default function Login() {
   }
 
   return (
-    <div className="museum-section">
-      <div className="container">
-        <div className="museum-card" style={{ maxWidth: '500px', margin: '0 auto' }}>
-          <h2 style={{ textAlign: 'center', marginBottom: '40px' }}>Member Access</h2>
-          {error && <p style={{ color: 'var(--museum-burgundy)', textAlign: 'center', marginBottom: '20px' }}>{error}</p>}
+    <div className=" single_container container">
+      <div className="row">
+        <div className="six columns offset-by-three">
+          <h2>Login</h2>
+          {error && <p style={{ color: 'red' }}>{error}</p>}
           <form onSubmit={handleSubmit}>
-            <label htmlFor="email" style={{ fontFamily: '"Inter", sans-serif', fontWeight: '500', marginBottom: '8px', display: 'block' }}>Email</label>
+            <label htmlFor="email">Email</label>
             <input
               className="u-full-width"
               type="email"
@@ -54,17 +53,9 @@ export default function Login() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              style={{ 
-                border: '1px solid var(--museum-stone)',
-                borderRadius: '4px',
-                padding: '12px',
-                fontFamily: '"Crimson Text", serif',
-                fontSize: '1.1rem',
-                marginBottom: '20px'
-              }}
             />
 
-            <label htmlFor="password" style={{ fontFamily: '"Inter", sans-serif', fontWeight: '500', marginBottom: '8px', display: 'block' }}>Password</label>
+            <label htmlFor="password">Password</label>
             <input
               className="u-full-width"
               type="password"
@@ -72,22 +63,14 @@ export default function Login() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              style={{ 
-                border: '1px solid var(--museum-stone)',
-                borderRadius: '4px',
-                padding: '12px',
-                fontFamily: '"Crimson Text", serif',
-                fontSize: '1.1rem',
-                marginBottom: '30px'
-              }}
             />
 
-            <Button type="submit" variant="primary" size="large" disabled={loading} style={{ width: '100%' }}>
-              {loading ? 'Entering Gallery...' : 'Enter Gallery'}
-            </Button>
+            <button className="button-primary u-full-width" type="submit" disabled={loading}>
+              {loading ? 'Logging in...' : 'Login'}
+            </button>
           </form>
-          <p style={{ textAlign: 'center', marginTop: '30px', fontFamily: '"Crimson Text", serif' }}>
-            New to our museum? <Link to="/register" style={{ color: 'var(--museum-burgundy)' }}>Request membership</Link>
+          <p>
+            Don't have an account? <Link to="/register">Register here</Link>
           </p>
         </div>
       </div>

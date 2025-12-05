@@ -5,17 +5,16 @@ import Landing from './pages/Landing'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Home from './pages/Home'
+import ClassroomDetail from './pages/ClassroomDetail'
+import Metrics from './pages/Metrics'
+import JoinClassroom from './pages/JoinClassroom'
 import Profile from './pages/Profile'
-import ArtworkDetail from './pages/ArtworkDetail'
-import AdminArtworks from './pages/AdminArtworks'
-import AdminMediums from './pages/AdminMediums'
-import AdminRentals from './pages/AdminRentals'
-import RentArtwork from './pages/RentArtwork'
-import MyRentals from './pages/MyRentals'
+import Contact from './pages/Contact'
 import FAQ from './pages/FAQ'
 import Terms from './pages/Terms'
 import Privacy from './pages/Privacy'
 import GDPR from './pages/GDPR'
+import Notifications from './pages/Notifications'
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth()
@@ -75,21 +74,29 @@ function AppRoutes() {
               </PublicRoute>
             }
           />
-          <Route path="/home" element={<Home />} />
-          <Route path="/artworks/:uuid" element={<ArtworkDetail />} />
           <Route
-            path="/rent/:uuid"
+            path="/home"
             element={
               <PrivateRoute>
-                <RentArtwork />
+                <Home />
               </PrivateRoute>
             }
           />
           <Route
-            path="/my-rentals"
+            path="/classroom/:uuid"
             element={
               <PrivateRoute>
-                <MyRentals />
+                <div className="fullscreenContainer">
+                  <ClassroomDetail />
+                </div>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/classroom/:uuid/metrics"
+            element={
+              <PrivateRoute>
+                <Metrics />
               </PrivateRoute>
             }
           />
@@ -101,34 +108,20 @@ function AppRoutes() {
               </PrivateRoute>
             }
           />
-          <Route
-            path="/admin/artworks"
-            element={
-              <PrivateRoute>
-                <AdminArtworks />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/admin/mediums"
-            element={
-              <PrivateRoute>
-                <AdminMediums />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/admin/rentals"
-            element={
-              <PrivateRoute>
-                <AdminRentals />
-              </PrivateRoute>
-            }
-          />
+          <Route path="/join/:invite_code" element={<JoinClassroom />} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/gdpr" element={<GDPR />} />
+          <Route
+            path="/notifications"
+            element={
+              <PrivateRoute>
+                <Notifications />
+              </PrivateRoute>
+            }
+          />
         </Routes>
       </div>
       <Footer />

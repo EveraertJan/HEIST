@@ -8,8 +8,8 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantStyles: Record<string, React.CSSProperties> = {
-  primary: {color: colors.white},
-  secondary: { color: colors.white, border: 'none' },
+  primary: {},
+  secondary: { backgroundColor: colors.white, color: colors.black, border: 'none' },
   danger: { backgroundColor: colors.danger, color: colors.white, border: 'none' },
   warning: { backgroundColor: colors.warning, color: colors.black, border: 'none' },
   success: { backgroundColor: colors.success, color: colors.white, border: 'none' },
@@ -20,7 +20,7 @@ const variantStyles: Record<string, React.CSSProperties> = {
 const sizeStyles: Record<string, React.CSSProperties> = {
   small: { fontSize: typography.fontSizeSm, padding: '2px 8px' },
   medium: {},
-  large: { fontSize: typography.fontSizeSm }
+  large: { fontSize: typography.fontSizeLg, padding: '12px 24px' }
 }
 
 export default function Button({

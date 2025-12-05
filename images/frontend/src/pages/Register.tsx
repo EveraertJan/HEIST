@@ -2,7 +2,6 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import Button from '../components/common/Button'
 
 export default function Register() {
   const [firstName, setFirstName] = useState('')
@@ -36,15 +35,15 @@ export default function Register() {
   }
 
   return (
-    <div className="museum-section">
-      <div className="container">
-        <div className="museum-card" style={{ maxWidth: '600px', margin: '0 auto' }}>
-          <h2 style={{ textAlign: 'center', marginBottom: '40px' }}>Request Membership</h2>
-          {error && <p style={{ color: 'var(--museum-burgundy)', textAlign: 'center', marginBottom: '20px' }}>{error}</p>}
+    <div className="container">
+      <div className="row">
+        <div className="six columns offset-by-three">
+          <h2>Register as teacher</h2>
+          {error && <p style={{ color: 'red' }}>{error}</p>}
           <form onSubmit={handleSubmit}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
-              <div>
-                <label htmlFor="firstName" style={{ fontFamily: '"Inter", sans-serif', fontWeight: '500', marginBottom: '8px', display: 'block' }}>First Name</label>
+            <div className="row">
+              <div className="six columns">
+                <label htmlFor="firstName">First Name</label>
                 <input
                   className="u-full-width"
                   type="text"
@@ -52,17 +51,10 @@ export default function Register() {
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   required
-                  style={{ 
-                    border: '1px solid var(--museum-stone)',
-                    borderRadius: '4px',
-                    padding: '12px',
-                    fontFamily: '"Crimson Text", serif',
-                    fontSize: '1.1rem'
-                  }}
                 />
               </div>
-              <div>
-                <label htmlFor="lastName" style={{ fontFamily: '"Inter", sans-serif', fontWeight: '500', marginBottom: '8px', display: 'block' }}>Last Name</label>
+              <div className="six columns">
+                <label htmlFor="lastName">Last Name</label>
                 <input
                   className="u-full-width"
                   type="text"
@@ -70,18 +62,11 @@ export default function Register() {
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
                   required
-                  style={{ 
-                    border: '1px solid var(--museum-stone)',
-                    borderRadius: '4px',
-                    padding: '12px',
-                    fontFamily: '"Crimson Text", serif',
-                    fontSize: '1.1rem'
-                  }}
                 />
               </div>
             </div>
 
-            <label htmlFor="email" style={{ fontFamily: '"Inter", sans-serif', fontWeight: '500', marginBottom: '8px', display: 'block' }}>Email</label>
+            <label htmlFor="email">Email</label>
             <input
               className="u-full-width"
               type="email"
@@ -89,17 +74,9 @@ export default function Register() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              style={{ 
-                border: '1px solid var(--museum-stone)',
-                borderRadius: '4px',
-                padding: '12px',
-                fontFamily: '"Crimson Text", serif',
-                fontSize: '1.1rem',
-                marginBottom: '20px'
-              }}
             />
 
-            <label htmlFor="password" style={{ fontFamily: '"Inter", sans-serif', fontWeight: '500', marginBottom: '8px', display: 'block' }}>Password</label>
+            <label htmlFor="password">Password</label>
             <input
               className="u-full-width"
               type="password"
@@ -107,22 +84,14 @@ export default function Register() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              style={{ 
-                border: '1px solid var(--museum-stone)',
-                borderRadius: '4px',
-                padding: '12px',
-                fontFamily: '"Crimson Text", serif',
-                fontSize: '1.1rem',
-                marginBottom: '30px'
-              }}
             />
 
-            <Button type="submit" variant="primary" size="large" disabled={loading} style={{ width: '100%' }}>
-              {loading ? 'Processing Application...' : 'Submit Application'}
-            </Button>
+            <button className="button-primary u-full-width" type="submit" disabled={loading}>
+              {loading ? 'Registering...' : 'Register'}
+            </button>
           </form>
-          <p style={{ textAlign: 'center', marginTop: '30px', fontFamily: '"Crimson Text", serif' }}>
-            Already a member? <Link to="/login" style={{ color: 'var(--museum-burgundy)' }}>Sign in here</Link>
+          <p>
+            Already have an account? <Link to="/login">Login here</Link>
           </p>
         </div>
       </div>

@@ -1,121 +1,87 @@
-import { useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
+import { getFeedbackRequestCount } from '../../services/api'
+import icon from "./../../assets/icon.svg"
 
 export default function Navbar() {
   const { user, logout } = useAuth()
-  const location = useLocation()
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [notificationCount, setNotificationCount] = useState(0)
 
-  const isActive = (path: string) => location.pathname === path
+  useEffect(() => {
+    if (user) {
+      fetchNotificationCount()
+      // Poll for new notifications every 30 seconds
+      const interval = setInterval(fetchNotificationCount, 30000)
+      return () => clearInterval(interval)
+    }
+  }, [user])
 
-  const navLinkStyle = (active: boolean) => ({
-    color: active ? 'var(--accent-color)' : 'var(--secondary-text)',
-    fontSize: '14px',
-    fontWeight: '500' as const,
-    textTransform: 'uppercase' as const,
-    letterSpacing: '0.1em',
-    transition: 'color 0.2s ease',
-    cursor: 'pointer',
-    padding: '8px 0',
-    borderBottom: active ? '2px solid var(--accent-color)' : '2px solid transparent'
-  })
+  const fetchNotificationCount = async () => {
+    try {
+      // Fetch request count (when students request feedback from teachers)
+      const requestResponse = await getFeedbackRequestCount().catch(() => ({ data: { count: 0 } }))
+      setNotificationCount(requestResponse.data.count)
+    } catch (err) {
+      console.error('Error fetching notification count:', err)
+    }
+  }
+
+  if (!user) {
+    return null
+  }
 
   return (
     <nav style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
+      position: 'sticky',
+      top: '0px',
       zIndex: 1000,
-      backgroundColor: 'rgba(10, 10, 10, 0.95)',
-      backdropFilter: 'blur(10px)',
-      borderBottom: '1px solid var(--border-color)'
+      backgroundColor: '#ffe700'
     }}>
-      <div className="container">
+      <div className="container navbar">
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
-          alignItems: 'center',
-          padding: '16px 0'
+          alignItems: 'center'
         }}>
-          {/* Logo */}
-          <Link
-            to={user ? "/home" : "/"}
-            style={{
-              fontSize: '1.5rem',
-              fontWeight: '700',
-              letterSpacing: '-0.03em',
-              color: 'var(--accent-color)',
-              textDecoration: 'none'
-            }}
-          >
-            HEIST
-          </Link>
+          <div>
+            <Link to="/" className="subtleLink" style={{float: 'left'}}>
+              <img className="logo" src={icon} />
+            </Link>
 
-          {/* Desktop Navigation */}
-          <div style={{
-            display: 'flex',
-            gap: '32px',
-            alignItems: 'center'
-          }}>
-            {!user ? (
-              <>
-                <Link to="/" style={navLinkStyle(isActive('/'))}>
-                  Home
-                </Link>
-                <Link to="/login" style={navLinkStyle(isActive('/login'))}>
-                  Login
-                </Link>
-                <Link
-                  to="/register"
-                  style={{
-                    ...navLinkStyle(isActive('/register')),
-                    backgroundColor: 'var(--accent-color)',
-                    color: 'var(--primary-bg)',
-                    padding: '10px 20px',
-                    borderRadius: '4px',
-                    border: 'none'
-                  }}
-                >
-                  Register
-                </Link>
-              </>
-            ) : (
-              <>
-                <Link to="/home" style={navLinkStyle(isActive('/home'))}>
-                  Gallery
-                </Link>
-                <Link to="/my-rentals" style={navLinkStyle(isActive('/my-rentals'))}>
-                  My Rentals
-                </Link>
-                {user.is_admin && (
-                  <>
-                    <Link to="/admin/artworks" style={navLinkStyle(isActive('/admin/artworks'))}>
-                      Manage Artworks
-                    </Link>
-                    <Link to="/admin/mediums" style={navLinkStyle(isActive('/admin/mediums'))}>
-                      Manage Mediums
-                    </Link>
-                    <Link to="/admin/rentals" style={navLinkStyle(isActive('/admin/rentals'))}>
-                      Manage Rentals
-                    </Link>
-                  </>
-                )}
-                <Link to="/profile" style={navLinkStyle(isActive('/profile'))}>
-                  {user.first_name} {user.last_name}
-                </Link>
-                <a
-                  onClick={logout}
-                  style={{
-                    ...navLinkStyle(false),
-                    cursor: 'pointer'
-                  }}
-                >
-                  Logout
-                </a>
-              </>
-            )}
+            <Link to="/home" style={{top: '7px', display: 'block', float: 'left', marginTop: '2px'}}>Classrooms</Link>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+            <Link to="/profile">
+              {user.first_name} {user.last_name}
+            </Link>
+            <Link to="/notifications" style={{ position: 'relative',padding: '0px',margin: '0px', height: '21px', marginRight: '20px' }}>
+              <div className='flag icon'>&nbsp;</div>
+              {notificationCount > 0 && (
+                <span style={{
+                  position: 'absolute',
+                  top: '-8px',
+                  right: '-10px',
+                  backgroundColor: '#dc3545',
+                  color: 'white',
+                  borderRadius: '50%',
+                  width: '20px',
+                  height: '20px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '11px',
+                  fontWeight: 'bold'
+                }}>
+                  {notificationCount > 9 ? '9+' : notificationCount}
+                </span>
+              )}
+            </Link>
+            <a
+              onClick={logout}
+            >
+              Logout
+            </a>
           </div>
         </div>
       </div>
