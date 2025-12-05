@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { searchArtworks, getAllMediums } from '../services/api'
+import { getImageUrl } from '../utils'
 import type { Artwork, Medium } from '../types'
 import Button from '../components/common/Button'
 
@@ -317,7 +318,7 @@ export default function Home() {
           </p>
         )}
 
-        {/* Artworks Table */}
+        {/* Artworks Grid */}
         {!loading && (
           <>
             {artworks.length === 0 ? (
@@ -334,55 +335,149 @@ export default function Home() {
                 </p>
               </div>
             ) : (
-              <div className="table-container">
-                <div className="table-responsive">
-                  <table className="table">
-                    <thead>
-                      <tr>
-                        <th>Title</th>
-                        <th>Description</th>
-                        <th>Size</th>
-                        <th>Medium</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {artworks.map(artwork => (
-                        <tr key={artwork.uuid}>
-                          <td>
-                            <Link
-                              to={`/artworks/${artwork.uuid}`}
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+                gap: '24px'
+              }}>
+                {artworks.map(artwork => {
+                  const firstImage = artwork.images && artwork.images.length > 0
+                    ? artwork.images.sort((a, b) => a.sort_order - b.sort_order)[0]
+                    : null
+
+                  return (
+                    <Link
+                      key={artwork.uuid}
+                      to={`/artworks/${artwork.uuid}`}
+                      style={{
+                        textDecoration: 'none',
+                        color: 'inherit'
+                      }}
+                    >
+                      <div style={{
+                        backgroundColor: 'var(--card-bg)',
+                        border: '1px solid var(--border-color)',
+                        borderRadius: '8px',
+                        overflow: 'hidden',
+                        transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                        height: '100%',
+                        display: 'flex',
+                        flexDirection: 'column'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'translateY(-4px)'
+                        e.currentTarget.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.15)'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'translateY(0)'
+                        e.currentTarget.style.boxShadow = 'none'
+                      }}
+                      >
+                        {/* Image */}
+                        <div style={{
+                          width: '100%',
+                          height: '250px',
+                          backgroundColor: 'var(--secondary-bg)',
+                          position: 'relative',
+                          overflow: 'hidden'
+                        }}>
+                          {firstImage ? (
+                            <img
+                              src={getImageUrl(firstImage.filename)}
+                              alt={artwork.title}
                               style={{
-                                textDecoration: 'none',
-                                color: 'var(--accent-blue)',
-                                fontWeight: '600',
-                                fontSize: '16px'
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'cover',
+                                display: 'block'
                               }}
-                            >
-                              {artwork.title}
-                            </Link>
-                          </td>
-                          <td>
-                            <span style={{ color: 'var(--secondary-text)', fontSize: '14px' }}>
-                              {artwork.description && artwork.description.length > 100
+                            />
+                          ) : (
+                            <div style={{
+                              width: '100%',
+                              height: '100%',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              color: 'var(--secondary-text)',
+                              fontSize: '14px'
+                            }}>
+                              No image
+                            </div>
+                          )}
+                          {artwork.images && artwork.images.length > 1 && (
+                            <div style={{
+                              position: 'absolute',
+                              top: '8px',
+                              right: '8px',
+                              backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                              color: 'white',
+                              padding: '4px 8px',
+                              borderRadius: '12px',
+                              fontSize: '12px',
+                              fontWeight: '600'
+                            }}>
+                              +{artwork.images.length - 1}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Content */}
+                        <div style={{ padding: '20px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                          <h3 style={{
+                            fontSize: '20px',
+                            fontWeight: '600',
+                            marginBottom: '8px',
+                            color: 'var(--accent-blue)'
+                          }}>
+                            {artwork.title}
+                          </h3>
+
+                          {artwork.description && (
+                            <p style={{
+                              fontSize: '14px',
+                              color: 'var(--secondary-text)',
+                              lineHeight: '1.6',
+                              marginBottom: '12px',
+                              flex: 1
+                            }}>
+                              {artwork.description.length > 100
                                 ? `${artwork.description.substring(0, 100)}...`
-                                : artwork.description || '-'}
-                            </span>
-                          </td>
-                          <td>
-                            <span style={{ color: 'var(--secondary-text)', fontSize: '14px' }}>
-                              {artwork.size || '-'}
-                            </span>
-                          </td>
-                          <td>
-                            <span style={{ color: 'var(--secondary-text)', fontSize: '14px' }}>
-                              {artwork.medium?.name || '-'}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                                : artwork.description}
+                            </p>
+                          )}
+
+                          {/* Mediums */}
+                          {artwork.mediums && artwork.mediums.length > 0 && (
+                            <div style={{
+                              display: 'flex',
+                              flexWrap: 'wrap',
+                              gap: '8px',
+                              marginTop: 'auto'
+                            }}>
+                              {artwork.mediums.map(medium => (
+                                <span
+                                  key={medium.uuid}
+                                  style={{
+                                    padding: '4px 12px',
+                                    backgroundColor: 'var(--secondary-bg)',
+                                    border: '1px solid var(--border-color)',
+                                    borderRadius: '12px',
+                                    fontSize: '12px',
+                                    color: 'var(--accent-purple)',
+                                    fontWeight: '500'
+                                  }}
+                                >
+                                  {medium.name}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </Link>
+                  )
+                })}
               </div>
             )}
           </>

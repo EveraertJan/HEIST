@@ -12,7 +12,10 @@ const api = axios.create({
 // Add auth token to requests
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token')
-  config.headers['Content-Type'] = "application/json"
+  // Don't set Content-Type if the data is FormData - let the browser handle it
+  if (!(config.data instanceof FormData)) {
+    config.headers['Content-Type'] = "application/json"
+  }
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }
@@ -75,6 +78,30 @@ export const updateArtwork = (uuid: string, data: { title?: string; description?
 
 export const deleteArtwork = (uuid: string) =>
   api.delete(`/artworks/${uuid}`)
+
+export const uploadArtworkImages = (artworkUuid: string, files: FileList, descriptions?: string[]) => {
+  const formData = new FormData()
+
+  // Add files
+  Array.from(files).forEach(file => {
+    formData.append('images', file)
+  })
+
+  // Add descriptions if provided
+  if (descriptions) {
+    descriptions.forEach(desc => {
+      formData.append('descriptions', desc)
+    })
+  }
+
+  return api.post<{ success: boolean; data: any[] }>(`/artworks/${artworkUuid}/images`, formData)
+}
+
+export const deleteArtworkImage = (artworkUuid: string, imageUuid: string) =>
+  api.delete(`/artworks/${artworkUuid}/images/${imageUuid}`)
+
+export const updateArtworkImage = (artworkUuid: string, imageUuid: string, data: { description?: string; sort_order?: number }) =>
+  api.put<{ success: boolean; data: any }>(`/artworks/${artworkUuid}/images/${imageUuid}`, data)
 
 // Medium APIs
 export const getAllMediums = () =>

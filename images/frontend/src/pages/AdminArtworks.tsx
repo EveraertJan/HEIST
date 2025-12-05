@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { updateArtwork, deleteArtwork, getAllArtworks } from '../services/api'
+import { updateArtwork, deleteArtwork, getAllArtworks, getArtworkByUuid, uploadArtworkImages, deleteArtworkImage, updateArtworkImage } from '../services/api'
+import { getImageUrl } from '../utils'
 import type { Artwork } from '../types'
 import Button from '../components/common/Button'
+import ImageModal from '../components/common/ImageModal'
 
 export default function AdminArtworks() {
   const { user } = useAuth()
@@ -22,6 +24,12 @@ export default function AdminArtworks() {
   const [width, setWidth] = useState('')
   const [height, setHeight] = useState('')
   const [depth, setDepth] = useState('')
+  const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null)
+  const [imageDescriptions, setImageDescriptions] = useState<string[]>([])
+  const [isUploading, setIsUploading] = useState(false)
+  const [selectedImage, setSelectedImage] = useState<string | null>(null)
+  const [editingArtwork, setEditingArtwork] = useState<Artwork | null>(null)
+  const [imageDescriptionEdits, setImageDescriptionEdits] = useState<Record<string, string>>({})
 
   useEffect(() => {
     if (!user?.is_admin) {
@@ -69,11 +77,15 @@ export default function AdminArtworks() {
   const handleEdit = (artwork: Artwork) => {
     setIsEditing(true)
     setEditingUuid(artwork.uuid)
+    setEditingArtwork(artwork)
     setTitle(artwork.title)
     setDescription(artwork.description || '')
     setWidth(artwork.width || '')
     setHeight(artwork.height || '')
     setDepth(artwork.depth || '')
+    setSelectedFiles(null)
+    setImageDescriptions([])
+    setImageDescriptionEdits({})
     window.scrollTo(0, 0)
   }
 
@@ -92,11 +104,99 @@ export default function AdminArtworks() {
   const resetForm = () => {
     setIsEditing(false)
     setEditingUuid(null)
+    setEditingArtwork(null)
     setTitle('')
     setDescription('')
     setWidth('')
     setHeight('')
     setDepth('')
+    setSelectedFiles(null)
+    setImageDescriptions([])
+    setImageDescriptionEdits({})
+  }
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (files) {
+      setSelectedFiles(files)
+      setImageDescriptions(Array.from(files).map(() => ''))
+    }
+  }
+
+  const handleDescriptionChange = (index: number, description: string) => {
+    setImageDescriptions(prev => {
+      const newDescriptions = [...prev]
+      newDescriptions[index] = description
+      return newDescriptions
+    })
+  }
+
+  const handleImageUpload = async () => {
+    if (!selectedFiles || !editingUuid) return
+
+    try {
+      setIsUploading(true)
+      await uploadArtworkImages(editingUuid, selectedFiles, imageDescriptions)
+      setSuccess('Images uploaded successfully')
+      setSelectedFiles(null)
+      setImageDescriptions([])
+      await loadData()
+      // Update the editing artwork with the latest data
+      const updatedArtwork = await getArtworkByUuid(editingUuid)
+      setEditingArtwork(updatedArtwork.data.data)
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Failed to upload images')
+    } finally {
+      setIsUploading(false)
+    }
+  }
+
+  const handleDeleteImage = async (imageUuid: string) => {
+    if (!editingUuid) return
+
+    if (!confirm('Are you sure you want to delete this image?')) return
+
+    try {
+      await deleteArtworkImage(editingUuid, imageUuid)
+      setSuccess('Image deleted successfully')
+      await loadData()
+      // Update the editing artwork with the latest data
+      const updatedArtwork = await getArtworkByUuid(editingUuid)
+      setEditingArtwork(updatedArtwork.data.data)
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Failed to delete image')
+    }
+  }
+
+  const handleImageDescriptionChange = (imageUuid: string, description: string) => {
+    setImageDescriptionEdits(prev => ({
+      ...prev,
+      [imageUuid]: description
+    }))
+  }
+
+  const handleUpdateImageDescription = async (imageUuid: string) => {
+    if (!editingUuid) return
+
+    const description = imageDescriptionEdits[imageUuid]
+    if (description === undefined) return
+
+    try {
+      await updateArtworkImage(editingUuid, imageUuid, { description })
+      setSuccess('Image description updated successfully')
+      await loadData()
+      // Update the editing artwork with the latest data
+      const updatedArtwork = await getArtworkByUuid(editingUuid)
+      setEditingArtwork(updatedArtwork.data.data)
+      // Clear the edit state for this image
+      setImageDescriptionEdits(prev => {
+        const newEdits = { ...prev }
+        delete newEdits[imageUuid]
+        return newEdits
+      })
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Failed to update image description')
+    }
   }
 
   if (loading) {
@@ -221,6 +321,211 @@ export default function AdminArtworks() {
                 </div>
               </div>
 
+              {/* Image Management Section */}
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', marginBottom: '12px', color: 'var(--secondary-text)', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                  Image Management
+                </label>
+
+                {/* Existing Images */}
+                {editingArtwork?.images && editingArtwork.images.length > 0 && (
+                  <div style={{ marginBottom: '24px' }}>
+                    <h4 style={{ fontSize: '16px', marginBottom: '16px', color: 'var(--primary-text)' }}>
+                      Existing Images ({editingArtwork.images.length})
+                    </h4>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px' }}>
+                      {editingArtwork.images
+                        .sort((a, b) => a.sort_order - b.sort_order)
+                        .map((image) => (
+                          <div key={image.uuid} style={{
+                            border: '1px solid var(--border-color)',
+                            borderRadius: '8px',
+                            padding: '16px',
+                            backgroundColor: 'var(--hover-bg)'
+                          }}>
+                            <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
+                              <img
+                                src={getImageUrl(image.filename)}
+                                alt={image.description || 'Artwork image'}
+                                style={{
+                                  width: '80px',
+                                  height: '80px',
+                                  objectFit: 'cover',
+                                  borderRadius: '4px',
+                                  cursor: 'pointer',
+                                  border: '1px solid var(--border-color)'
+                                }}
+                                onClick={() => setSelectedImage(getImageUrl(image.filename))}
+                              />
+                              <div style={{ flex: 1 }}>
+                                <p style={{ 
+                                  margin: '0 0 8px 0', 
+                                  fontSize: '12px', 
+                                  color: 'var(--secondary-text)',
+                                  wordBreak: 'break-all'
+                                }}>
+                                  {image.original_filename}
+                                </p>
+                                <p style={{ 
+                                  margin: '0 0 8px 0', 
+                                  fontSize: '12px', 
+                                  color: 'var(--secondary-text)'
+                                }}>
+                                  {(image.file_size / 1024 / 1024).toFixed(2)} MB
+                                </p>
+                              </div>
+                            </div>
+                            <input
+                              type="text"
+                              placeholder="Image description"
+                              value={imageDescriptionEdits[image.uuid] !== undefined ? imageDescriptionEdits[image.uuid] : (image.description || '')}
+                              onChange={(e) => handleImageDescriptionChange(image.uuid, e.target.value)}
+                              onBlur={() => handleUpdateImageDescription(image.uuid)}
+                              style={{
+                                width: '100%',
+                                padding: '8px 12px',
+                                fontSize: '14px',
+                                border: '1px solid var(--border-color)',
+                                borderRadius: '4px',
+                                backgroundColor: 'var(--card-bg)',
+                                marginBottom: '12px'
+                              }}
+                            />
+                            <Button
+                              onClick={() => handleDeleteImage(image.uuid)}
+                              variant="danger"
+                              size="small"
+                              style={{ width: '100%' }}
+                            >
+                              Delete Image
+                            </Button>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Add New Images */}
+                <div>
+                  <h4 style={{ fontSize: '16px', marginBottom: '16px', color: 'var(--primary-text)' }}>
+                    Add New Images
+                  </h4>
+                  <div style={{
+                    border: '2px dashed var(--border-color)',
+                    borderRadius: '8px',
+                    padding: '24px',
+                    textAlign: 'center',
+                    backgroundColor: 'var(--hover-bg)',
+                    marginBottom: '16px'
+                  }}>
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                      onChange={handleFileSelect}
+                      style={{ display: 'none' }}
+                      id="admin-image-upload"
+                    />
+                    <label 
+                      htmlFor="admin-image-upload"
+                      style={{
+                        cursor: 'pointer',
+                        display: 'inline-block',
+                        padding: '12px 24px',
+                        backgroundColor: 'var(--accent-blue)',
+                        color: 'white',
+                        borderRadius: '4px',
+                        fontSize: '14px',
+                        transition: 'all 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = 'var(--accent-purple)'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'var(--accent-blue)'
+                      }}
+                    >
+                      Choose Images
+                    </label>
+                    <p style={{ 
+                      margin: '12px 0 0 0', 
+                      color: 'var(--secondary-text)', 
+                      fontSize: '14px' 
+                    }}>
+                      {selectedFiles 
+                        ? `${selectedFiles.length} file(s) selected` 
+                        : 'Select up to 10 images (JPEG, PNG, GIF, WebP - Max 10MB each)'
+                      }
+                    </p>
+                  </div>
+
+                  {/* Image Previews and Descriptions */}
+                  {selectedFiles && (
+                    <div style={{ marginBottom: '16px' }}>
+                      {Array.from(selectedFiles).map((file, index) => (
+                        <div key={index} style={{
+                          display: 'flex',
+                          gap: '16px',
+                          alignItems: 'center',
+                          padding: '16px',
+                          backgroundColor: 'var(--card-bg)',
+                          border: '1px solid var(--border-color)',
+                          borderRadius: '8px',
+                          marginBottom: '12px'
+                        }}>
+                          <img
+                            src={URL.createObjectURL(file)}
+                            alt={file.name}
+                            style={{
+                              width: '60px',
+                              height: '60px',
+                              objectFit: 'cover',
+                              borderRadius: '4px',
+                              border: '1px solid var(--border-color)'
+                            }}
+                          />
+                          <div style={{ flex: 1 }}>
+                            <p style={{ 
+                              margin: '0 0 8px 0', 
+                              fontSize: '14px', 
+                              fontWeight: '600',
+                              color: 'var(--primary-text)'
+                            }}>
+                              {file.name}
+                            </p>
+                            <input
+                              type="text"
+                              placeholder="Image description (optional)"
+                              value={imageDescriptions[index] || ''}
+                              onChange={(e) => handleDescriptionChange(index, e.target.value)}
+                              style={{
+                                width: '100%',
+                                padding: '8px 12px',
+                                fontSize: '14px',
+                                border: '1px solid var(--border-color)',
+                                borderRadius: '4px',
+                                backgroundColor: 'var(--hover-bg)'
+                              }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {selectedFiles && selectedFiles.length > 0 && (
+                    <Button
+                      onClick={handleImageUpload}
+                      variant="primary"
+                      size="medium"
+                      disabled={isUploading}
+                    >
+                      {isUploading ? 'Uploading...' : `Upload ${selectedFiles.length} Image(s)`}
+                    </Button>
+                  )}
+                </div>
+              </div>
+
               <div style={{ display: 'flex', gap: '16px' }}>
                 <Button type="submit" variant="primary" size="large">
                   Update Artwork
@@ -318,6 +623,15 @@ export default function AdminArtworks() {
               </table>
             </div>
           </div>
+        )}
+
+        {/* Image Modal */}
+        {selectedImage && (
+          <ImageModal
+            imageUrl={selectedImage}
+            altText="Artwork image"
+            onClose={() => setSelectedImage(null)}
+          />
         )}
       </div>
     </div>

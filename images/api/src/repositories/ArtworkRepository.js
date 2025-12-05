@@ -19,11 +19,23 @@ class ArtworkRepository {
    * @returns {Promise<Array>} Array of artwork objects
    */
   async findAll(limit = 50, offset = 0) {
-    return await this.db('artworks')
-      .select('*')
+    const artworks = await this.db('artworks as a')
+      .select('a.*', 'r.status')
       .limit(limit)
       .offset(offset)
-      .orderBy('created_at', 'desc');
+      .leftJoin('rentals as r', 'r.artwork_id', 'a.id')
+      .orderBy('a.created_at', 'desc');
+
+    // Get images for each artwork
+    for (const artwork of artworks) {
+      const images = await this.db('artwork_images')
+        .where('artwork_id', artwork.id)
+        .select('*')
+        .orderBy('sort_order', 'asc');
+      artwork.images = images;
+    }
+
+    return artworks;
   }
 
   /**
@@ -52,10 +64,17 @@ class ArtworkRepository {
       .where('am.artwork_id', artwork.id)
       .select('m.uuid', 'm.name');
 
+    // Get associated images
+    const images = await this.db('artwork_images')
+      .where('artwork_id', artwork.id)
+      .select('*')
+      .orderBy('sort_order', 'asc');
+
     return {
       ...artwork,
       artists,
-      mediums
+      mediums,
+      images
     };
   }
 
@@ -96,6 +115,15 @@ class ArtworkRepository {
       .limit(limit)
       .offset(offset)
       .orderBy('a.created_at', 'desc')
+
+    // Get images for each artwork
+    for (const artwork of artworks) {
+      const images = await this.db('artwork_images')
+        .where('artwork_id', artwork.id)
+        .select('*')
+        .orderBy('sort_order', 'asc');
+      artwork.images = images;
+    }
 
     return artworks;
   }
