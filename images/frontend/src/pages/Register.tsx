@@ -38,7 +38,7 @@ export default function Register() {
     <div className="container">
       <div className="row">
         <div className="six columns offset-by-three">
-          <h2>Register as teacher</h2>
+          <h2>Register</h2>
           {error && <p style={{ color: 'red' }}>{error}</p>}
           <form onSubmit={handleSubmit}>
             <div className="row">
