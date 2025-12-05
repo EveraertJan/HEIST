@@ -79,7 +79,7 @@ export default function MediumFilter({
   }
 
   return (
-    <div>
+    <div style={{display: 'flex', alignItems: 'center', justifyContent: 'left', gap: '20px'}}>
       <h3 style={{
         fontSize: '14px',
         textTransform: 'uppercase',

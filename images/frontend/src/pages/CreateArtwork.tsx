@@ -1,15 +1,48 @@
-import { Link } from 'react-router-dom'
+/**
+ * CreateArtwork Page
+ *
+ * Unified interface for creating new artworks and editing existing ones.
+ *
+ * Structure:
+ * - Back button and page title (Create/Edit Artwork)
+ * - Success/Error message notifications
+ * - Form with the following sections:
+ *   1. Basic Information: Title, Description
+ *   2. Dimensions: Width, Height, Depth
+ *   3. Artist Selection: Multi-select checkboxes
+ *   4. Medium Selection: Multi-select chips with link to manage mediums
+ *   5. Image Management (context-aware):
+ *      - Edit mode: Shows existing images with delete/update description
+ *      - Edit mode: Separate upload section for adding new images
+ *      - Create mode: Single upload section for initial images
+ * - Submit button (Create/Update) and Cancel button
+ * - Image modal for viewing full-size images
+ *
+ * Features:
+ * - Detects edit mode via :uuid route parameter
+ * - Pre-loads artwork data in edit mode
+ * - Validates at least one artist is selected
+ * - Image upload with descriptions
+ * - Existing image management (edit descriptions, delete)
+ * - Redirects to AdminArtworks on success
+ */
 
+import { Link } from 'react-router-dom'
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { createArtwork, getAllMediums, getAllUsers, uploadArtworkImages } from '../services/api'
-import type { Medium, User } from '../types'
+import { createArtwork, updateArtwork, getAllMediums, getAllUsers, uploadArtworkImages, deleteArtworkImage, updateArtworkImage, getArtworkByUuid } from '../services/api'
+import type { Medium, User, Artwork } from '../types'
 import Button from '../components/common/Button'
+import ImageModal from '../components/common/ImageModal'
+import ExistingImagesSection from '../components/artworks/ExistingImagesSection'
+import NewImageUploadSection from '../components/artworks/NewImageUploadSection'
 
 export default function CreateArtwork() {
   const { user } = useAuth()
   const navigate = useNavigate()
+  const { uuid } = useParams<{ uuid?: string }>()
+  const isEditing = !!uuid
 
   const [mediums, setMediums] = useState<Medium[]>([])
   const [users, setUsers] = useState<User[]>([])
@@ -28,14 +61,40 @@ export default function CreateArtwork() {
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null)
   const [imageDescriptions, setImageDescriptions] = useState<string[]>([])
   const [isUploading, setIsUploading] = useState(false)
+  const [selectedImage, setSelectedImage] = useState<string | null>(null)
+  const [artwork, setArtwork] = useState<Artwork | null>(null)
 
   useEffect(() => {
     if (!user?.is_admin) {
-      navigate('/')
+      navigate('/home')
       return
     }
     loadData()
   }, [user, navigate])
+
+  useEffect(() => {
+    if (isEditing && uuid) {
+      loadArtwork(uuid)
+    }
+  }, [isEditing, uuid])
+
+  const loadArtwork = async (artworkUuid: string) => {
+    try {
+      const response = await getArtworkByUuid(artworkUuid)
+      const artworkData = response.data.data
+      setArtwork(artworkData)
+      setTitle(artworkData.title)
+      setDescription(artworkData.description || '')
+      setWidth(artworkData.width || '')
+      setHeight(artworkData.height || '')
+      setDepth(artworkData.depth || '')
+      setSelectedArtistUuids(artworkData.artists?.map(a => a.uuid) || [])
+      setSelectedMediumUuids(artworkData.mediums?.map(m => m.uuid) || [])
+    } catch (err: any) {
+      setError('Failed to load artwork')
+      console.error(err)
+    }
+  }
 
   const loadData = async () => {
     try {
@@ -71,39 +130,51 @@ export default function CreateArtwork() {
         return
       }
 
-      // Create artwork first
-      const response = await createArtwork({
-        title,
-        description,
-        width,
-        height,
-        depth,
-        artistUuids: selectedArtistUuids,
-        mediumUuids: selectedMediumUuids
-      })
+      if (isEditing && uuid) {
+        // Update existing artwork
+        await updateArtwork(uuid, {
+          title,
+          description,
+          width,
+          height,
+          depth,
+          artistUuids: selectedArtistUuids,
+          mediumUuids: selectedMediumUuids
+        })
+        setSuccess('Artwork updated successfully')
+      } else {
+        // Create new artwork
+        const response = await createArtwork({
+          title,
+          description,
+          width,
+          height,
+          depth,
+          artistUuids: selectedArtistUuids,
+          mediumUuids: selectedMediumUuids
+        })
 
-      const artworkUuid = response.data.data.uuid
+        const artworkUuid = response.data.data.uuid
 
-      // Upload images if any were selected
-      if (selectedFiles && selectedFiles.length > 0) {
-        setIsUploading(true)
-        try {
-          await uploadArtworkImages(artworkUuid, selectedFiles, imageDescriptions)
-        } catch (uploadError: any) {
-          setError(`Artwork created but failed to upload images: ${uploadError.response?.data?.message || 'Upload failed'}`)
-          setIsUploading(false)
-          return
+        // Upload images if any were selected
+        if (selectedFiles && selectedFiles.length > 0) {
+          setIsUploading(true)
+          try {
+            await uploadArtworkImages(artworkUuid, selectedFiles, imageDescriptions)
+          } catch (uploadError: any) {
+            setError(`Artwork created but failed to upload images: ${uploadError.response?.data?.message || 'Upload failed'}`)
+            setIsUploading(false)
+            return
+          }
         }
       }
-
-      setSuccess('Artwork created successfully')
       
-      // Reset form after successful creation
+      // Reset form after successful operation
       setTimeout(() => {
         navigate('/admin/artworks')
       }, 2000)
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to create artwork')
+      setError(err.response?.data?.message || `Failed to ${isEditing ? 'update' : 'create'} artwork`)
     } finally {
       setIsUploading(false)
     }
@@ -146,6 +217,46 @@ export default function CreateArtwork() {
     })
   }
 
+  const handleUpdateImageDescription = async (imageUuid: string, description: string) => {
+    if (!isEditing || !uuid) return
+    
+    try {
+      await updateArtworkImage(uuid, imageUuid, { description })
+      setSuccess('Image description updated successfully')
+      // Update local state
+      if (artwork) {
+        setArtwork(prev => prev ? {
+          ...prev,
+          images: prev.images.map(img => 
+            img.uuid === imageUuid ? { ...img, description } : img
+          )
+        } : null)
+      }
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Failed to update image description')
+    }
+  }
+
+  const handleDeleteImage = async (imageUuid: string) => {
+    if (!isEditing || !uuid) return
+    
+    if (!confirm('Are you sure you want to delete this image?')) return
+    
+    try {
+      await deleteArtworkImage(uuid, imageUuid)
+      setSuccess('Image deleted successfully')
+      // Update local state
+      if (artwork) {
+        setArtwork(prev => prev ? {
+          ...prev,
+          images: prev.images.filter(img => img.uuid !== imageUuid)
+        } : null)
+      }
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Failed to delete image')
+    }
+  }
+
   if (loading) {
     return (
       <div style={{ minHeight: '100vh', paddingTop: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -165,7 +276,9 @@ export default function CreateArtwork() {
           >
             ← Back to Artworks
           </Button>
-          <h1 style={{ margin: 0 }}>Create New Artwork</h1>
+          <h1 style={{ margin: 0 }}>
+            {isEditing ? 'Edit Artwork' : 'Create New Artwork'}
+          </h1>
         </div>
 
         {error && (
@@ -364,118 +477,43 @@ export default function CreateArtwork() {
             {/* Image Upload Section */}
             <div style={{ marginBottom: '20px' }}>
               <label style={{ display: 'block', marginBottom: '12px', color: 'var(--secondary-text)', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                Images (Optional)
+                {isEditing ? 'Image Management' : 'Images (Optional)'}
               </label>
-              
-              <div style={{
-                border: '2px dashed var(--border-color)',
-                borderRadius: '8px',
-                padding: '32px',
-                textAlign: 'center',
-                backgroundColor: 'var(--hover-bg)',
-                transition: 'all 0.2s ease'
-              }}>
-                <input
-                  type="file"
-                  multiple
-                  accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
-                  onChange={handleFileSelect}
-                  style={{ display: 'none' }}
-                  id="image-upload"
-                />
-                <label 
-                  htmlFor="image-upload"
-                  style={{
-                    cursor: 'pointer',
-                    display: 'inline-block',
-                    padding: '12px 24px',
-                    backgroundColor: 'var(--accent-blue)',
-                    color: 'white',
-                    borderRadius: '4px',
-                    fontSize: '14px',
-                    transition: 'all 0.2s ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = 'var(--accent-purple)'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'var(--accent-blue)'
-                  }}
-                >
-                  Choose Images
-                </label>
-                <p style={{ 
-                  margin: '16px 0 0 0', 
-                  color: 'var(--secondary-text)', 
-                  fontSize: '14px' 
-                }}>
-                  {selectedFiles 
-                    ? `${selectedFiles.length} file(s) selected` 
-                    : 'Select up to 10 images (JPEG, PNG, GIF, WebP - Max 10MB each)'
-                  }
-                </p>
-              </div>
 
-              {/* Image Previews and Descriptions */}
-              {selectedFiles && (
-                <div style={{ marginTop: '16px' }}>
-                  {Array.from(selectedFiles).map((file, index) => (
-                    <div key={index} style={{
-                      display: 'flex',
-                      gap: '16px',
-                      alignItems: 'center',
-                      padding: '16px',
-                      backgroundColor: 'var(--card-bg)',
-                      border: '1px solid var(--border-color)',
-                      borderRadius: '8px',
-                      marginBottom: '12px'
-                    }}>
-                      <img
-                        src={URL.createObjectURL(file)}
-                        alt={file.name}
-                        style={{
-                          width: '80px',
-                          height: '80px',
-                          objectFit: 'cover',
-                          borderRadius: '4px',
-                          border: '1px solid var(--border-color)'
-                        }}
-                      />
-                      <div style={{ flex: 1 }}>
-                        <p style={{ 
-                          margin: '0 0 8px 0', 
-                          fontSize: '14px', 
-                          fontWeight: '600',
-                          color: 'var(--primary-text)'
-                        }}>
-                          {file.name}
-                        </p>
-                        <p style={{ 
-                          margin: '0 0 8px 0', 
-                          fontSize: '12px', 
-                          color: 'var(--secondary-text)'
-                        }}>
-                          {(file.size / 1024 / 1024).toFixed(2)} MB
-                        </p>
-                        <input
-                          type="text"
-                          placeholder="Image description (optional)"
-                          value={imageDescriptions[index] || ''}
-                          onChange={(e) => handleDescriptionChange(index, e.target.value)}
-                          style={{
-                            width: '100%',
-                            padding: '8px 12px',
-                            fontSize: '14px',
-                            border: '1px solid var(--border-color)',
-                            borderRadius: '4px',
-                            backgroundColor: 'var(--hover-bg)'
-                          }}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
+              {/* Existing Images - only show in edit mode */}
+              {isEditing && artwork?.images && (
+                <ExistingImagesSection
+                  images={artwork.images}
+                  onUpdateDescription={handleUpdateImageDescription}
+                  onDeleteImage={handleDeleteImage}
+                  onImageClick={setSelectedImage}
+                />
               )}
+
+              {/* New Image Upload */}
+              <NewImageUploadSection
+                selectedFiles={selectedFiles}
+                imageDescriptions={imageDescriptions}
+                isUploading={isUploading}
+                isEditMode={isEditing}
+                onFileSelect={handleFileSelect}
+                onDescriptionChange={handleDescriptionChange}
+                onUpload={isEditing ? async () => {
+                  if (!uuid) return
+                  setIsUploading(true)
+                  try {
+                    await uploadArtworkImages(uuid, selectedFiles!, imageDescriptions)
+                    setSuccess('Images uploaded successfully')
+                    setSelectedFiles(null)
+                    setImageDescriptions([])
+                    await loadArtwork(uuid)
+                  } catch (err: any) {
+                    setError(err.response?.data?.message || 'Failed to upload images')
+                  } finally {
+                    setIsUploading(false)
+                  }
+                } : undefined}
+              />
             </div>
 
             <div style={{ display: 'flex', gap: '16px' }}>
@@ -485,7 +523,7 @@ export default function CreateArtwork() {
                 size="large"
                 disabled={isUploading}
               >
-                {isUploading ? 'Creating Artwork...' : 'Create Artwork'}
+                {isUploading ? (isEditing ? 'Updating Artwork...' : 'Creating Artwork...') : (isEditing ? 'Update Artwork' : 'Create Artwork')}
               </Button>
               <Button 
                 type="button" 
@@ -500,6 +538,16 @@ export default function CreateArtwork() {
           </form>
         </div>
       </div>
+      
+    {/* Image Modal */}
+    {selectedImage && (
+      <ImageModal
+        imageUrl={selectedImage}
+        altText="Artwork image"
+        onClose={() => setSelectedImage(null)}
+      />
+    )}
     </div>
+
   )
 }

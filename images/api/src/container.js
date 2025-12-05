@@ -80,7 +80,8 @@ class Container {
     this.services.rentalService = new RentalService(
       this.services.rentalRepository,
       this.services.artworkRepository,
-      this.services.userRepository
+      this.services.userRepository,
+      this.services.emailService
     );
 
     this.initialized = true;

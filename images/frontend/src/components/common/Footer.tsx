@@ -50,7 +50,7 @@ export default function Footer() {
           <div style={footerSectionStyle}>
             <h4 style={footerTitleStyle}>Visit</h4>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-              <li><Link to="/home" style={footerLinkStyle}>Gallery</Link></li>
+              <li><Link to="/gallery" style={footerLinkStyle}>Gallery</Link></li>
               <li><Link to="/faq" style={footerLinkStyle}>FAQ</Link></li>
               <li><Link to="/contact" style={footerLinkStyle}>Contact</Link></li>
             </ul>

@@ -115,6 +115,14 @@ function AppRoutes() {
             }
           />
           <Route
+            path="/admin/artworks/edit/:uuid"
+            element={
+              <PrivateRoute>
+                <CreateArtwork />
+              </PrivateRoute>
+            }
+          />
+          <Route
             path="/admin/mediums"
             element={
               <PrivateRoute>
