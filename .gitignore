@@ -1,0 +1,6 @@
+_volumes/
+**/.DS_Store
+**/node_modules/
+images/api/uploads/*
+!images/api/uploads/.gitkeep
+.env
