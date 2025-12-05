@@ -1,9 +1,22 @@
-import { useEffect, useState, useRef } from 'react'
-import { Link } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 import { searchArtworks, getAllMediums } from '../services/api'
+import { ArtworkCard } from '../components/artworks'
+import { SearchBar, MediumFilter } from '../components/search'
+import EmptyState from '../components/common/EmptyState'
 import type { Artwork, Medium } from '../types'
-import Button from '../components/common/Button'
 
+/**
+ * Home Page Component
+ *
+ * Main gallery page displaying all artworks with search and filter functionality.
+ * Features:
+ * - Search by title or artist name
+ * - Filter by multiple mediums
+ * - Responsive card grid layout
+ * - Real-time filtering when medium selection changes
+ *
+ * @component
+ */
 export default function Home() {
   const [artworks, setArtworks] = useState<Artwork[]>([])
   const [mediums, setMediums] = useState<Medium[]>([])
@@ -12,24 +25,10 @@ export default function Home() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-  const dropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     loadMediums()
     loadArtworks()
-  }, [])
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsDropdownOpen(false)
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
   }, [])
 
   const loadMediums = async () => {
@@ -57,11 +56,6 @@ export default function Home() {
     } finally {
       setLoading(false)
     }
-  }
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
-    loadArtworks()
   }
 
   const handleMediumToggle = (mediumUuid: string) => {
@@ -116,179 +110,24 @@ export default function Home() {
           padding: '24px',
           marginBottom: '48px'
         }}>
-          <form onSubmit={handleSearch} style={{ marginBottom: mediums.length > 0 ? '24px' : '0' }}>
-            <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search by title or artist name..."
-                style={{
-                  flex: '1',
-                  minWidth: '300px',
-                  fontSize: '16px',
-                  backgroundColor: 'var(--card-bg)',
-                  border: '1px solid var(--border-color)',
-                  borderRadius: '4px',
-                  color: 'var(--primary-text)'
-                }}
-              />
-              <Button type="submit" variant="primary" size="medium">
-                Search
-              </Button>
-            </div>
-          </form>
+          <div style={{ marginBottom: mediums.length > 0 ? '24px' : '0' }}>
+            <SearchBar
+              value={searchTerm}
+              onChange={setSearchTerm}
+              onSubmit={loadArtworks}
+              placeholder="Search by title or artist name..."
+              loading={loading}
+            />
+          </div>
 
-          {/* Medium Filters Dropdown */}
-          {mediums.length > 0 && (
-            <div>
-              <h3 style={{
-                fontSize: '14px',
-                textTransform: 'uppercase',
-                letterSpacing: '0.1em',
-                color: 'var(--secondary-text)',
-                marginBottom: '16px',
-                fontWeight: '600'
-              }}>
-                Filter by Medium:
-              </h3>
-              <div ref={dropdownRef} style={{ position: 'relative' }}>
-                <button
-                  type="button"
-                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    width: '100%',
-                    maxWidth: '300px',
-                    padding: '12px 16px',
-                    backgroundColor: 'var(--card-bg)',
-                    border: '1px solid var(--border-color)',
-                    borderRadius: '8px',
-                    color: 'var(--primary-text)',
-                    fontSize: '14px',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease'
-                  }}
-                >
-                  <span>
-                    {selectedMediums.length === 0 
-                      ? 'All mediums' 
-                      : `${selectedMediums.length} medium${selectedMediums.length > 1 ? 's' : ''} selected`
-                    }
-                  </span>
-                  <span style={{ 
-                    marginLeft: '8px',
-                    transform: isDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-                    transition: 'transform 0.2s ease'
-                  }}>
-                    ▼
-                  </span>
-                </button>
-
-                {isDropdownOpen && (
-                  <div style={{
-                    position: 'absolute',
-                    top: '100%',
-                    left: '0',
-                    right: '0',
-                    zIndex: 1000,
-                    backgroundColor: 'var(--card-bg)',
-                    border: '1px solid var(--border-color)',
-                    borderRadius: '8px',
-                    marginTop: '4px',
-                    maxHeight: '300px',
-                    overflowY: 'auto',
-                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-                  }}>
-                    <div style={{ padding: '8px' }}>
-                      {mediums.map(medium => {
-                        const isActive = selectedMediums.includes(medium.uuid)
-                        return (
-                          <label
-                            key={medium.uuid}
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '12px',
-                              padding: '10px 12px',
-                              cursor: 'pointer',
-                              borderRadius: '4px',
-                              transition: 'background-color 0.2s ease',
-                              ':hover': {
-                                backgroundColor: 'var(--secondary-bg)'
-                              }
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = 'var(--secondary-bg)'
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor = 'transparent'
-                            }}
-                          >
-                            <input
-                              type="checkbox"
-                              checked={isActive}
-                              onChange={() => handleMediumToggle(medium.uuid)}
-                              style={{ cursor: 'pointer', width: 'auto', margin: 0 }}
-                            />
-                            <span style={{ 
-                              color: isActive ? 'var(--accent-blue)' : 'var(--primary-text)',
-                              fontSize: '14px'
-                            }}>
-                              {medium.name}
-                            </span>
-                          </label>
-                        )
-                      })}
-                    </div>
-                    
-                    {selectedMediums.length > 0 && (
-                      <div style={{
-                        padding: '12px',
-                        borderTop: '1px solid var(--border-color)',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center'
-                      }}>
-                        <span style={{ fontSize: '12px', color: 'var(--secondary-text)' }}>
-                          {selectedMediums.length} selected
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSelectedMediums([])
-                            setIsDropdownOpen(false)
-                          }}
-                          style={{
-                            padding: '6px 12px',
-                            backgroundColor: 'transparent',
-                            border: '1px solid var(--border-color)',
-                            borderRadius: '4px',
-                            color: 'var(--secondary-text)',
-                            fontSize: '12px',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s ease'
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = 'var(--secondary-bg)'
-                            e.currentTarget.style.color = 'var(--primary-text)'
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = 'transparent'
-                            e.currentTarget.style.color = 'var(--secondary-text)'
-                          }}
-                        >
-                          Clear all
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
+          <MediumFilter
+            mediums={mediums}
+            selectedMediums={selectedMediums}
+            onToggle={handleMediumToggle}
+            onClearAll={() => setSelectedMediums([])}
+            isOpen={isDropdownOpen}
+            setIsOpen={setIsDropdownOpen}
+          />
         </div>
 
         {/* Error Message */}
@@ -317,72 +156,28 @@ export default function Home() {
           </p>
         )}
 
-        {/* Artworks Table */}
+        {/* Artworks Grid */}
         {!loading && (
           <>
             {artworks.length === 0 ? (
-              <div style={{
-                textAlign: 'center',
-                padding: '80px 20px',
-                color: 'var(--secondary-text)'
-              }}>
-                <p style={{ fontSize: '18px', marginBottom: '16px' }}>No artworks found.</p>
-                <p style={{ fontSize: '14px' }}>
-                  {searchTerm || selectedMediums.length > 0
+              <EmptyState
+                icon="🎨"
+                message="No artworks found."
+                description={
+                  searchTerm || selectedMediums.length > 0
                     ? 'Try adjusting your search or filters'
-                    : 'Check back soon for new artworks'}
-                </p>
-              </div>
+                    : 'Check back soon for new artworks'
+                }
+              />
             ) : (
-              <div className="table-container">
-                <div className="table-responsive">
-                  <table className="table">
-                    <thead>
-                      <tr>
-                        <th>Title</th>
-                        <th>Description</th>
-                        <th>Size</th>
-                        <th>Medium</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {artworks.map(artwork => (
-                        <tr key={artwork.uuid}>
-                          <td>
-                            <Link
-                              to={`/artworks/${artwork.uuid}`}
-                              style={{
-                                textDecoration: 'none',
-                                color: 'var(--accent-blue)',
-                                fontWeight: '600',
-                                fontSize: '16px'
-                              }}
-                            >
-                              {artwork.title}
-                            </Link>
-                          </td>
-                          <td>
-                            <span style={{ color: 'var(--secondary-text)', fontSize: '14px' }}>
-                              {artwork.description && artwork.description.length > 100
-                                ? `${artwork.description.substring(0, 100)}...`
-                                : artwork.description || '-'}
-                            </span>
-                          </td>
-                          <td>
-                            <span style={{ color: 'var(--secondary-text)', fontSize: '14px' }}>
-                              {artwork.size || '-'}
-                            </span>
-                          </td>
-                          <td>
-                            <span style={{ color: 'var(--secondary-text)', fontSize: '14px' }}>
-                              {artwork.medium?.name || '-'}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+                gap: '24px'
+              }}>
+                {artworks.map(artwork => (
+                  <ArtworkCard key={artwork.uuid} artwork={artwork} />
+                ))}
               </div>
             )}
           </>

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { createArtwork, getAllMediums, getAllUsers } from '../services/api'
+import { createArtwork, getAllMediums, getAllUsers, uploadArtworkImages } from '../services/api'
 import type { Medium, User } from '../types'
 import Button from '../components/common/Button'
 
@@ -25,6 +25,9 @@ export default function CreateArtwork() {
   const [depth, setDepth] = useState('')
   const [selectedArtistUuids, setSelectedArtistUuids] = useState<string[]>([])
   const [selectedMediumUuids, setSelectedMediumUuids] = useState<string[]>([])
+  const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null)
+  const [imageDescriptions, setImageDescriptions] = useState<string[]>([])
+  const [isUploading, setIsUploading] = useState(false)
 
   useEffect(() => {
     if (!user?.is_admin) {
@@ -68,7 +71,8 @@ export default function CreateArtwork() {
         return
       }
 
-      await createArtwork({
+      // Create artwork first
+      const response = await createArtwork({
         title,
         description,
         width,
@@ -78,6 +82,20 @@ export default function CreateArtwork() {
         mediumUuids: selectedMediumUuids
       })
 
+      const artworkUuid = response.data.data.uuid
+
+      // Upload images if any were selected
+      if (selectedFiles && selectedFiles.length > 0) {
+        setIsUploading(true)
+        try {
+          await uploadArtworkImages(artworkUuid, selectedFiles, imageDescriptions)
+        } catch (uploadError: any) {
+          setError(`Artwork created but failed to upload images: ${uploadError.response?.data?.message || 'Upload failed'}`)
+          setIsUploading(false)
+          return
+        }
+      }
+
       setSuccess('Artwork created successfully')
       
       // Reset form after successful creation
@@ -86,6 +104,8 @@ export default function CreateArtwork() {
       }, 2000)
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to create artwork')
+    } finally {
+      setIsUploading(false)
     }
   }
 
@@ -106,6 +126,23 @@ export default function CreateArtwork() {
       } else {
         return [...prev, mediumUuid]
       }
+    })
+  }
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (files) {
+      setSelectedFiles(files)
+      // Initialize descriptions array with empty strings
+      setImageDescriptions(Array.from(files).map(() => ''))
+    }
+  }
+
+  const handleDescriptionChange = (index: number, description: string) => {
+    setImageDescriptions(prev => {
+      const newDescriptions = [...prev]
+      newDescriptions[index] = description
+      return newDescriptions
     })
   }
 
@@ -324,15 +361,138 @@ export default function CreateArtwork() {
               </div>
             )}
 
+            {/* Image Upload Section */}
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', marginBottom: '12px', color: 'var(--secondary-text)', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                Images (Optional)
+              </label>
+              
+              <div style={{
+                border: '2px dashed var(--border-color)',
+                borderRadius: '8px',
+                padding: '32px',
+                textAlign: 'center',
+                backgroundColor: 'var(--hover-bg)',
+                transition: 'all 0.2s ease'
+              }}>
+                <input
+                  type="file"
+                  multiple
+                  accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                  onChange={handleFileSelect}
+                  style={{ display: 'none' }}
+                  id="image-upload"
+                />
+                <label 
+                  htmlFor="image-upload"
+                  style={{
+                    cursor: 'pointer',
+                    display: 'inline-block',
+                    padding: '12px 24px',
+                    backgroundColor: 'var(--accent-blue)',
+                    color: 'white',
+                    borderRadius: '4px',
+                    fontSize: '14px',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = 'var(--accent-purple)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'var(--accent-blue)'
+                  }}
+                >
+                  Choose Images
+                </label>
+                <p style={{ 
+                  margin: '16px 0 0 0', 
+                  color: 'var(--secondary-text)', 
+                  fontSize: '14px' 
+                }}>
+                  {selectedFiles 
+                    ? `${selectedFiles.length} file(s) selected` 
+                    : 'Select up to 10 images (JPEG, PNG, GIF, WebP - Max 10MB each)'
+                  }
+                </p>
+              </div>
+
+              {/* Image Previews and Descriptions */}
+              {selectedFiles && (
+                <div style={{ marginTop: '16px' }}>
+                  {Array.from(selectedFiles).map((file, index) => (
+                    <div key={index} style={{
+                      display: 'flex',
+                      gap: '16px',
+                      alignItems: 'center',
+                      padding: '16px',
+                      backgroundColor: 'var(--card-bg)',
+                      border: '1px solid var(--border-color)',
+                      borderRadius: '8px',
+                      marginBottom: '12px'
+                    }}>
+                      <img
+                        src={URL.createObjectURL(file)}
+                        alt={file.name}
+                        style={{
+                          width: '80px',
+                          height: '80px',
+                          objectFit: 'cover',
+                          borderRadius: '4px',
+                          border: '1px solid var(--border-color)'
+                        }}
+                      />
+                      <div style={{ flex: 1 }}>
+                        <p style={{ 
+                          margin: '0 0 8px 0', 
+                          fontSize: '14px', 
+                          fontWeight: '600',
+                          color: 'var(--primary-text)'
+                        }}>
+                          {file.name}
+                        </p>
+                        <p style={{ 
+                          margin: '0 0 8px 0', 
+                          fontSize: '12px', 
+                          color: 'var(--secondary-text)'
+                        }}>
+                          {(file.size / 1024 / 1024).toFixed(2)} MB
+                        </p>
+                        <input
+                          type="text"
+                          placeholder="Image description (optional)"
+                          value={imageDescriptions[index] || ''}
+                          onChange={(e) => handleDescriptionChange(index, e.target.value)}
+                          style={{
+                            width: '100%',
+                            padding: '8px 12px',
+                            fontSize: '14px',
+                            border: '1px solid var(--border-color)',
+                            borderRadius: '4px',
+                            backgroundColor: 'var(--hover-bg)'
+                          }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <div style={{ display: 'flex', gap: '16px' }}>
-              <Button type="submit" variant="primary" size="large">
-                Create Artwork
+              <Button 
+                type="submit" 
+                variant="primary" 
+                size="large"
+                disabled={isUploading}
+              >
+                {isUploading ? 'Creating Artwork...' : 'Create Artwork'}
               </Button>
               <Button 
                 type="button" 
                 onClick={() => navigate('/admin/artworks')} 
                 variant="secondary" 
                 size="large"
+                disabled={isUploading}
               >
                 Cancel
               </Button>
