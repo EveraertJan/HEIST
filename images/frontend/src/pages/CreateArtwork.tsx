@@ -31,7 +31,7 @@ export default function CreateArtwork() {
 
   useEffect(() => {
     if (!user?.is_admin) {
-      navigate('/home')
+      navigate('/')
       return
     }
     loadData()

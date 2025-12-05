@@ -17,7 +17,7 @@ export default function RentalDetail() {
 
   useEffect(() => {
     if (!user?.is_admin) {
-      navigate('/home')
+      navigate('/')
       return
     }
     if (uuid) {

@@ -17,7 +17,7 @@ export default function AdminRentals() {
 
   useEffect(() => {
     if (!user?.is_admin) {
-      navigate('/home')
+      navigate('/')
       return
     }
     loadRentals()

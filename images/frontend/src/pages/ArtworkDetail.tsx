@@ -69,7 +69,7 @@ export default function ArtworkDetail() {
             description="This artwork may have been removed or the link is incorrect."
           />
           <div style={{ textAlign: 'center', marginTop: '24px' }}>
-            <Button onClick={() => navigate('/home')} variant="primary" size="large">
+            <Button onClick={() => navigate('/gallery')} variant="primary" size="large">
               Back to Gallery
             </Button>
           </div>
@@ -83,7 +83,7 @@ export default function ArtworkDetail() {
       <div className="container" style={{ padding: '48px 24px', maxWidth: '1000px' }}>
         {/* Back Button and Actions */}
         <div style={{ marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
-          <Button onClick={() => navigate('/home')} variant="secondary" size="medium">
+          <Button onClick={() => navigate('/gallery')} variant="secondary" size="medium">
             ← Back to Gallery
           </Button>
           <Button onClick={() => navigate(`/rent/${uuid}`)} variant="primary" size="medium">

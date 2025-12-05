@@ -33,7 +33,7 @@ export default function AdminArtworks() {
 
   useEffect(() => {
     if (!user?.is_admin) {
-      navigate('/home')
+      navigate('/')
       return
     }
     loadData()
