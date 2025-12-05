@@ -33,6 +33,19 @@ export interface Artist {
   email: string
 }
 
+export interface ArtworkImage {
+  id: number
+  uuid: string
+  filename: string
+  original_filename: string
+  mime_type: string
+  file_size: number
+  description?: string
+  sort_order: number
+  created_at: string
+  updated_at: string
+}
+
 export interface Artwork {
   id: number
   uuid: string
@@ -46,6 +59,7 @@ export interface Artwork {
   updated_at: string
   artists?: Artist[]
   mediums?: Medium[]
+  images?: ArtworkImage[]
 }
 
 export interface Rental {

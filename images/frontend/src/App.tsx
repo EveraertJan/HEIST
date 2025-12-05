@@ -4,12 +4,14 @@ import { Navbar, Footer } from './components/common'
 import Landing from './pages/Landing'
 import Login from './pages/Login'
 import Register from './pages/Register'
-import Home from './pages/Home'
+import Gallery from './pages/Gallery'
 import Profile from './pages/Profile'
 import ArtworkDetail from './pages/ArtworkDetail'
 import AdminArtworks from './pages/AdminArtworks'
 import AdminMediums from './pages/AdminMediums'
 import AdminRentals from './pages/AdminRentals'
+import CreateArtwork from './pages/CreateArtwork'
+import RentalDetail from './pages/RentalDetail'
 import RentArtwork from './pages/RentArtwork'
 import MyRentals from './pages/MyRentals'
 import FAQ from './pages/FAQ'
@@ -39,7 +41,7 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
   }
 
   if (user) {
-    return <Navigate to="/home" />
+    return <Navigate to="/gallery" />
   }
 
   return <>{children}</>
@@ -51,14 +53,8 @@ function AppRoutes() {
       <Navbar />
       <div style={{ flex: 1 , marginTop: '50px'}}>
         <Routes>
-          <Route
-            path="/"
-            element={
-              <PublicRoute>
-                <Landing />
-              </PublicRoute>
-            }
-          />
+          <Route path="/" element={<Landing />} />
+          <Route path="/gallery" element={<Gallery />} />
           <Route
             path="/login"
             element={
@@ -75,8 +71,9 @@ function AppRoutes() {
               </PublicRoute>
             }
           />
-          <Route path="/home" element={<Home />} />
-          <Route path="/artworks/:uuid" element={<ArtworkDetail />} />
+          <Route path="/artworks/:uuid" element={
+            <ArtworkDetail />
+          } />
           <Route
             path="/rent/:uuid"
             element={
@@ -110,6 +107,14 @@ function AppRoutes() {
             }
           />
           <Route
+            path="/admin/artworks/create"
+            element={
+              <PrivateRoute>
+                <CreateArtwork />
+              </PrivateRoute>
+            }
+          />
+          <Route
             path="/admin/mediums"
             element={
               <PrivateRoute>
@@ -122,6 +127,14 @@ function AppRoutes() {
             element={
               <PrivateRoute>
                 <AdminRentals />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/admin/rentals/:uuid"
+            element={
+              <PrivateRoute>
+                <RentalDetail />
               </PrivateRoute>
             }
           />

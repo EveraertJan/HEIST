@@ -1,9 +1,25 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { getArtworkByUuid } from '../services/api'
-import type { Artwork } from '../types'
+import { ImageGrid } from '../components/artworks'
 import Button from '../components/common/Button'
+import EmptyState from '../components/common/EmptyState'
+import type { Artwork } from '../types'
 
+/**
+ * ArtworkDetail Page Component
+ *
+ * Displays detailed information about a single artwork including:
+ * - Image gallery with click-to-enlarge
+ * - Title and description
+ * - Dimensions (width, height, depth)
+ * - Associated artists
+ * - Associated mediums
+ * - Creation and update timestamps
+ * - Rent artwork button
+ *
+ * @component
+ */
 export default function ArtworkDetail() {
   const { uuid } = useParams<{ uuid: string }>()
   const navigate = useNavigate()
@@ -47,20 +63,16 @@ export default function ArtworkDetail() {
     return (
       <div style={{ minHeight: '100vh', paddingTop: '80px' }}>
         <div className="container" style={{ padding: '48px 24px', maxWidth: '800px' }}>
-          <div className="error-message" style={{
-            padding: '24px',
-            backgroundColor: 'rgba(255, 107, 157, 0.1)',
-            border: '1px solid var(--accent-pink)',
-            borderRadius: '8px',
-            color: 'var(--accent-pink)',
-            marginBottom: '24px',
-            textAlign: 'center'
-          }}>
-            {error || 'Artwork not found'}
+          <EmptyState
+            icon="⚠️"
+            message={error || 'Artwork not found'}
+            description="This artwork may have been removed or the link is incorrect."
+          />
+          <div style={{ textAlign: 'center', marginTop: '24px' }}>
+            <Button onClick={() => navigate('/gallery')} variant="primary" size="large">
+              Back to Gallery
+            </Button>
           </div>
-          <Button onClick={() => navigate('/home')} variant="primary" size="large">
-            Back to Gallery
-          </Button>
         </div>
       </div>
     )
@@ -71,7 +83,7 @@ export default function ArtworkDetail() {
       <div className="container" style={{ padding: '48px 24px', maxWidth: '1000px' }}>
         {/* Back Button and Actions */}
         <div style={{ marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
-          <Button onClick={() => navigate('/home')} variant="secondary" size="medium">
+          <Button onClick={() => navigate('/gallery')} variant="secondary" size="medium">
             ← Back to Gallery
           </Button>
           <Button onClick={() => navigate(`/rent/${uuid}`)} variant="primary" size="medium">
@@ -97,6 +109,16 @@ export default function ArtworkDetail() {
           }}>
             {artwork.title}
           </h1>
+
+          {/* Images */}
+          {artwork.images && artwork.images.length > 0 && (
+            <ImageGrid
+              images={artwork.images}
+              altPrefix={artwork.title}
+              showDescriptions
+              showNumbers
+            />
+          )}
 
           {/* Description */}
           {artwork.description && (
@@ -267,6 +289,7 @@ export default function ArtworkDetail() {
             )}
           </div>
         </div>
+
       </div>
     </div>
   )

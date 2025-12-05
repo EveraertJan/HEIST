@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
+const path = require('path');
 const container = require('../container');
+const config = require('../config');
 const { decodeToken } = require('../helpers/authHelpers');
 const { requireAdmin } = require('../middleware/adminMiddleware');
 const { asyncHandler, HTTP_STATUS } = require('../middleware/errorHandler');
@@ -8,6 +11,22 @@ const {
   validateRequiredFields,
   sanitizeText
 } = require('../middleware/validation');
+
+// Configure multer for image uploads
+const upload = multer({
+  dest: path.join(config.upload.directory, 'temp'),
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Only JPEG, PNG, GIF, and WebP images are allowed.'), false);
+    }
+  }
+});
 
 /**
  * @route GET /artworks
@@ -23,7 +42,7 @@ router.get('/', asyncHandler(async (req, res) => {
 
   const artworkService = container.get('artworkService');
   const artworks = await artworkService.getAllArtworks(limit, offset);
-
+  console.log(artworks)
   res.status(HTTP_STATUS.OK).json({
     success: true,
     data: artworks,
@@ -49,7 +68,7 @@ router.get('/search', asyncHandler(async (req, res) => {
   const { search, mediums } = req.query;
   const limit = parseInt(req.query.limit) || 50;
   const offset = parseInt(req.query.offset) || 0;
-
+  
   const filters = {
     limit,
     offset
@@ -65,7 +84,7 @@ router.get('/search', asyncHandler(async (req, res) => {
 
   const artworkService = container.get('artworkService');
   const artworks = await artworkService.searchArtworks(filters);
-
+  
   res.status(HTTP_STATUS.OK).json({
     success: true,
     data: artworks,
@@ -210,6 +229,110 @@ router.delete(
     res.status(HTTP_STATUS.OK).json({
       success: true,
       message: 'Artwork deleted successfully'
+    });
+  })
+);
+
+/**
+ * @route POST /artworks/:uuid/images
+ * @description Upload images for an artwork
+ * @access Protected (requires authentication)
+ * @headers {string} Authorization - Bearer token
+ * @param {string} uuid - Artwork UUID
+ * @form-data {File[]} images - Array of image files
+ * @form-data {string[]} [descriptions] - Array of image descriptions (optional)
+ * @returns {Object} Uploaded image objects
+ * @throws {ValidationError} 400 - Invalid files or artwork not found
+ * @throws {AuthenticationError} 401 - Invalid or missing token
+ */
+router.post(
+  '/:uuid/images',
+  decodeToken,
+  requireAdmin,
+  upload.array('images', 10), // Allow up to 10 images
+  asyncHandler(async (req, res) => {
+    const { uuid } = req.params;
+    const { descriptions } = req.body;
+    
+    if (!req.files || req.files.length === 0) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        message: 'No images provided'
+      });
+    }
+
+    const artworkService = container.get('artworkService');
+    const images = await artworkService.addArtworkImages(uuid, req.files, descriptions);
+
+    res.status(HTTP_STATUS.CREATED).json({
+      success: true,
+      data: images,
+      message: 'Images uploaded successfully'
+    });
+  })
+);
+
+/**
+ * @route DELETE /artworks/:uuid/images/:imageUuid
+ * @description Delete an artwork image
+ * @access Protected (requires authentication)
+ * @headers {string} Authorization - Bearer token
+ * @param {string} uuid - Artwork UUID
+ * @param {string} imageUuid - Image UUID
+ * @returns {Object} Success message
+ * @throws {NotFoundError} 404 - Artwork or image not found
+ * @throws {AuthenticationError} 401 - Invalid or missing token
+ */
+router.delete(
+  '/:uuid/images/:imageUuid',
+  decodeToken,
+  requireAdmin,
+  asyncHandler(async (req, res) => {
+    const { uuid, imageUuid } = req.params;
+
+    const artworkService = container.get('artworkService');
+    await artworkService.deleteArtworkImage(uuid, imageUuid);
+
+    res.status(HTTP_STATUS.OK).json({
+      success: true,
+      message: 'Image deleted successfully'
+    });
+  })
+);
+
+/**
+ * @route PUT /artworks/:uuid/images/:imageUuid
+ * @description Update artwork image (description, sort order)
+ * @access Protected (requires authentication)
+ * @headers {string} Authorization - Bearer token
+ * @param {string} uuid - Artwork UUID
+ * @param {string} imageUuid - Image UUID
+ * @body {string} [description] - Image description
+ * @body {number} [sort_order] - Sort order
+ * @returns {Object} Updated image object
+ * @throws {NotFoundError} 404 - Artwork or image not found
+ * @throws {AuthenticationError} 401 - Invalid or missing token
+ */
+router.put(
+  '/:uuid/images/:imageUuid',
+  decodeToken,
+  requireAdmin,
+  sanitizeText(['description'], 500),
+  asyncHandler(async (req, res) => {
+    const { uuid, imageUuid } = req.params;
+    const { description, sort_order } = req.body;
+
+    const updates = {};
+    if (description !== undefined) updates.description = description;
+    if (sort_order !== undefined) updates.sort_order = parseInt(sort_order);
+
+    const artworkService = container.get('artworkService');
+    const image = await artworkService.updateArtworkImage(uuid, imageUuid, updates);
+
+    res.status(HTTP_STATUS.OK).json({
+      success: true,
+      data: image,
+      message: 'Image updated successfully'
     });
   })
 );

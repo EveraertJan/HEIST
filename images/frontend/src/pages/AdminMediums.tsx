@@ -17,7 +17,7 @@ export default function AdminMediums() {
 
   useEffect(() => {
     if (!user?.is_admin) {
-      navigate('/home')
+      navigate('/')
       return
     }
     loadMediums()

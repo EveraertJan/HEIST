@@ -17,7 +17,7 @@ export default function AdminRentals() {
 
   useEffect(() => {
     if (!user?.is_admin) {
-      navigate('/home')
+      navigate('/')
       return
     }
     loadRentals()
@@ -187,88 +187,69 @@ export default function AdminRentals() {
           <div className="table-container">
             <div className="table-responsive">
               <table className="table">
-                <thead>
-                  <tr>
-                    <th>Artwork</th>
-                    <th>Customer</th>
-                    <th>Contact</th>
-                    <th>Address</th>
-                    <th>Status</th>
-                    <th>Dates</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
+                 <thead>
+                   <tr>
+                     <th>Artwork</th>
+                     <th>Customer</th>
+                     <th>Contact</th>
+                     <th>Status</th>
+                     <th>Actions</th>
+                   </tr>
+                 </thead>
                 <tbody>
                   {filteredRentals.map(rental => (
                     <tr key={rental.uuid}>
-                      <td>
-                        <div>
-                          <div style={{ fontWeight: '600', color: 'var(--accent-color)', marginBottom: '4px' }}>
-                            {rental.artwork_title}
-                          </div>
-                          <div style={{ fontSize: '12px', color: 'var(--secondary-text)' }}>
-                            Rental ID: {rental.uuid.substring(0, 8)}
-                          </div>
-                        </div>
-                      </td>
-                      <td>
-                        <div>
-                          <div style={{ fontWeight: '500', color: 'var(--primary-text)' }}>
-                            {rental.user_first_name} {rental.user_last_name}
-                          </div>
-                          <div style={{ fontSize: '12px', color: 'var(--secondary-text)' }}>
-                            {rental.user_email}
-                          </div>
-                        </div>
-                      </td>
-                      <td>
-                        <div style={{ fontSize: '14px', color: 'var(--primary-text)' }}>
-                          {rental.phone_number}
-                        </div>
-                      </td>
-                      <td>
-                        <div style={{ fontSize: '14px', color: 'var(--primary-text)', maxWidth: '200px', wordBreak: 'break-word' }}>
-                          {rental.address}
-                        </div>
-                      </td>
-                      <td>
-                        <span className={`table-status ${rental.status}`}>
-                          {getStatusLabel(rental.status)}
-                        </span>
-                      </td>
-                      <td>
-                        <div style={{ fontSize: '12px', color: 'var(--secondary-text)' }}>
-                          <div>Requested: {new Date(rental.created_at).toLocaleDateString()}</div>
-                          {rental.expected_return_date && (
-                            <div>Return: {new Date(rental.expected_return_date).toLocaleDateString()}</div>
-                          )}
-                          {rental.approved_at && (
-                            <div>Approved: {new Date(rental.approved_at).toLocaleDateString()}</div>
-                          )}
-                          {rental.finalized_at && (
-                            <div>Completed: {new Date(rental.finalized_at).toLocaleDateString()}</div>
-                          )}
-                        </div>
-                      </td>
-                      <td>
-                        <div className="table-actions">
-                          {rental.status === 'requested' && (
-                            <>
-                              <Button onClick={() => handleApprove(rental.uuid)} variant="success" size="small">
-                                Approve
-                              </Button>
-                              <Button onClick={() => handleReject(rental.uuid)} variant="danger" size="small">
-                                Reject
-                              </Button>
-                            </>
-                          )}
-                          {rental.status === 'approved' && (
-                            <Button onClick={() => handleFinalize(rental.uuid)} variant="primary" size="small">
-                              Return
-                            </Button>
-                          )}
-                        </div>
-                      </td>
+                       <td>
+                         <div style={{ fontWeight: '600', color: 'var(--accent-color)' }}>
+                           {rental.artwork_title}
+                         </div>
+                       </td>
+                       <td>
+                         <div>
+                           <div style={{ fontWeight: '500', color: 'var(--primary-text)' }}>
+                             {rental.user_first_name} {rental.user_last_name}
+                           </div>
+                           <div style={{ fontSize: '12px', color: 'var(--secondary-text)' }}>
+                             {rental.user_email}
+                           </div>
+                         </div>
+                       </td>
+                       <td>
+                         <div style={{ fontSize: '14px', color: 'var(--primary-text)' }}>
+                           {rental.phone_number}
+                         </div>
+                       </td>
+                       <td>
+                         <span className={`table-status ${rental.status}`}>
+                           {getStatusLabel(rental.status)}
+                         </span>
+                       </td>
+                       <td>
+                         <div className="table-actions">
+                           <Button 
+                             onClick={() => navigate(`/admin/rentals/${rental.uuid}`)} 
+                             variant="info" 
+                             size="small"
+                           >
+                             View Details
+                           </Button>
+                           {rental.status === 'requested' && (
+                             <>
+                               <Button onClick={() => handleApprove(rental.uuid)} variant="success" size="small">
+                                 Approve
+                               </Button>
+                               <Button onClick={() => handleReject(rental.uuid)} variant="danger" size="small">
+                                 Reject
+                               </Button>
+                             </>
+                           )}
+                           {rental.status === 'approved' && (
+                             <Button onClick={() => handleFinalize(rental.uuid)} variant="primary" size="small">
+                               Return
+                             </Button>
+                           )}
+                         </div>
+                       </td>
                     </tr>
                   ))}
                 </tbody>

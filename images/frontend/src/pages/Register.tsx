@@ -22,7 +22,7 @@ export default function Register() {
     try {
       await register(firstName, lastName, email, password, 'teacher')
 
-      navigate('/home')
+      navigate('/')
     } catch (err: any) {
       // Check if the error response contains a message about duplicate email
       if (err.response?.data?.message === 'Email already in use') {
@@ -56,8 +56,7 @@ export default function Register() {
                     border: '1px solid var(--museum-stone)',
                     borderRadius: '4px',
                     padding: '12px',
-                    fontFamily: '"Crimson Text", serif',
-                    fontSize: '1.1rem'
+                    fontSize: '12pt'
                   }}
                 />
               </div>
@@ -74,8 +73,7 @@ export default function Register() {
                     border: '1px solid var(--museum-stone)',
                     borderRadius: '4px',
                     padding: '12px',
-                    fontFamily: '"Crimson Text", serif',
-                    fontSize: '1.1rem'
+                    fontSize: '12pt'
                   }}
                 />
               </div>
@@ -93,8 +91,7 @@ export default function Register() {
                 border: '1px solid var(--museum-stone)',
                 borderRadius: '4px',
                 padding: '12px',
-                fontFamily: '"Crimson Text", serif',
-                fontSize: '1.1rem',
+                fontSize: '12pt',
                 marginBottom: '20px'
               }}
             />
@@ -111,8 +108,7 @@ export default function Register() {
                 border: '1px solid var(--museum-stone)',
                 borderRadius: '4px',
                 padding: '12px',
-                fontFamily: '"Crimson Text", serif',
-                fontSize: '1.1rem',
+                fontSize: '12pt',
                 marginBottom: '30px'
               }}
             />

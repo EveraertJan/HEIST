@@ -95,7 +95,7 @@ export default function MyRentals() {
               You haven't requested any artworks yet
             </p>
             <Link
-              to="/home"
+              to="/"
               style={{
                 display: 'inline-block',
                 padding: '12px 24px',

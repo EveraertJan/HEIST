@@ -11,12 +11,14 @@ class ArtworkService {
    * @param {Object} artworkRepository - ArtworkRepository instance
    * @param {Object} mediumRepository - MediumRepository instance
    * @param {Object} userRepository - UserRepository instance
+   * @param {Object} fileStorageService - FileStorageService instance
    * @param {Object} db - Database instance (for transactions)
    */
-  constructor(artworkRepository, mediumRepository, userRepository, db) {
+  constructor(artworkRepository, mediumRepository, userRepository, fileStorageService, db) {
     this.artworkRepository = artworkRepository;
     this.mediumRepository = mediumRepository;
     this.userRepository = userRepository;
+    this.fileStorageService = fileStorageService;
     this.db = db;
   }
 
@@ -228,6 +230,195 @@ class ArtworkService {
       uuid: uuidv4(),
       name: name.trim()
     });
+  }
+
+  /**
+   * Add images to an artwork
+   * @param {string} artworkUuid - Artwork UUID
+   * @param {Array<Object>} files - Array of uploaded files from multer
+   * @param {Array<string>} [descriptions] - Array of image descriptions
+   * @returns {Promise<Array>} Array of created image objects
+   * @throws {Error} If artwork not found or file upload fails
+   */
+  async addArtworkImages(artworkUuid, files, descriptions = []) {
+    const artwork = await this.artworkRepository.findByUuid(artworkUuid);
+
+    if (!artwork) {
+      const error = new Error('Artwork not found');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    const trx = await this.db.transaction();
+    const uploadedImages = [];
+
+    try {
+      // Ensure artwork images directory exists
+      await this.fileStorageService.createSubdirectory('artwork-images');
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+
+        // Generate safe filename
+        const safeFilename = this.fileStorageService.generateSafeFilename(file.originalname);
+
+        // Move file from temp location to permanent location
+        // file.path is the absolute path where multer saved the file
+        const fs = require('fs').promises;
+        const path = require('path');
+        const permanentPath = `artwork-images/${safeFilename}`;
+        const fullPermanentPath = this.fileStorageService.getFilePath(permanentPath);
+        await fs.rename(file.path, fullPermanentPath);
+
+        // Get next sort order
+        const maxSortOrder = await trx('artwork_images')
+          .where('artwork_id', artwork.id)
+          .max('sort_order as max_sort')
+          .first();
+        
+        const sortOrder = (maxSortOrder?.max_sort || 0) + 1;
+
+        // Create database record
+        const imageRecord = await trx('artwork_images')
+          .insert({
+            uuid: uuidv4(),
+            artwork_id: artwork.id,
+            filename: permanentPath,
+            original_filename: file.originalname,
+            mime_type: file.mimetype,
+            file_size: file.size,
+            description: descriptions[i] || null,
+            sort_order: sortOrder
+          })
+          .returning('*')
+          .then(rows => rows[0]);
+
+        uploadedImages.push(imageRecord);
+      }
+
+      await trx.commit();
+
+      return uploadedImages;
+    } catch (error) {
+      await trx.rollback();
+
+      // Clean up uploaded files on error
+      const fs = require('fs').promises;
+      for (const file of files) {
+        try {
+          // Try to delete from temp location (file.path) if it still exists
+          if (file.path) {
+            await fs.unlink(file.path).catch(() => {});
+          }
+        } catch (cleanupError) {
+          console.error('Failed to cleanup file:', file.filename, cleanupError);
+        }
+      }
+
+      const err = new Error(error.message || 'Failed to upload images');
+      err.statusCode = error.statusCode || 500;
+      throw err;
+    }
+  }
+
+  /**
+   * Delete an artwork image
+   * @param {string} artworkUuid - Artwork UUID
+   * @param {string} imageUuid - Image UUID
+   * @returns {Promise<boolean>} True if deleted
+   * @throws {Error} If artwork or image not found
+   */
+  async deleteArtworkImage(artworkUuid, imageUuid) {
+    const artwork = await this.artworkRepository.findByUuid(artworkUuid);
+
+    if (!artwork) {
+      const error = new Error('Artwork not found');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    const trx = await this.db.transaction();
+
+    try {
+      // Get image record
+      const image = await trx('artwork_images')
+        .where({
+          uuid: imageUuid,
+          artwork_id: artwork.id
+        })
+        .first();
+
+      if (!image) {
+        await trx.rollback();
+        const error = new Error('Image not found');
+        error.statusCode = 404;
+        throw error;
+      }
+
+      // Delete database record
+      await trx('artwork_images')
+        .where({
+          uuid: imageUuid,
+          artwork_id: artwork.id
+        })
+        .del();
+
+      // Delete file
+      await this.fileStorageService.deleteFile(image.filename);
+
+      await trx.commit();
+      return true;
+    } catch (error) {
+      await trx.rollback();
+      const err = new Error(error.message || 'Failed to delete image');
+      err.statusCode = error.statusCode || 500;
+      throw err;
+    }
+  }
+
+  /**
+   * Update an artwork image
+   * @param {string} artworkUuid - Artwork UUID
+   * @param {string} imageUuid - Image UUID
+   * @param {Object} updates - Fields to update
+   * @param {string} [updates.description] - New description
+   * @param {number} [updates.sort_order] - New sort order
+   * @returns {Promise<Object>} Updated image object
+   * @throws {Error} If artwork or image not found
+   */
+  async updateArtworkImage(artworkUuid, imageUuid, updates) {
+    const artwork = await this.artworkRepository.findByUuid(artworkUuid);
+
+    if (!artwork) {
+      const error = new Error('Artwork not found');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    // Check if image exists
+    const existingImage = await this.db('artwork_images')
+      .where({
+        uuid: imageUuid,
+        artwork_id: artwork.id
+      })
+      .first();
+
+    if (!existingImage) {
+      const error = new Error('Image not found');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    // Update image
+    const [updatedImage] = await this.db('artwork_images')
+      .where({
+        uuid: imageUuid,
+        artwork_id: artwork.id
+      })
+      .update(updates)
+      .returning('*');
+
+    return updatedImage;
   }
 }
 

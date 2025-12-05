@@ -97,7 +97,7 @@ export default function RentArtwork() {
       <div style={{ minHeight: '100vh', paddingTop: '80px' }}>
         <div className="container" style={{ padding: '48px 24px', maxWidth: '800px' }}>
           <p style={{ color: 'var(--accent-pink)' }}>Artwork not found</p>
-          <Button onClick={() => navigate('/home')} variant="secondary" size="medium">
+          <Button onClick={() => navigate('/')} variant="secondary" size="medium">
             Back to Gallery
           </Button>
         </div>

@@ -73,6 +73,7 @@ class Container {
       this.services.artworkRepository,
       this.services.mediumRepository,
       this.services.userRepository,
+      this.services.fileStorageService,
       db
     );
 
