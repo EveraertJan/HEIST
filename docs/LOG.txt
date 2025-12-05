@@ -453,3 +453,127 @@ COMPLETE FUNCTIONALITY VERIFIED:
 
 ==========================================================================
 
+
+==========================================================================
+DIMENSIONS UPDATE - SIZE FIELD SPLIT INTO WIDTH/HEIGHT/DEPTH
+==========================================================================
+Date: December 5, 2024 (Dimensions Update)
+
+BACKEND - DATABASE AND API UPDATES
+-----------------------------------
+
+1. ✅ DATABASE MIGRATION
+   - Created migration: 20251205000003_split_size_to_dimensions.js
+   - Added three new fields to artworks table:
+     * width: string(50) - Width dimension
+     * height: string(50) - Height dimension
+     * depth: string(50) - Depth dimension
+   - Legacy 'size' field kept for backwards compatibility
+   - New fields allow for more structured dimension data
+
+2. ✅ ARTWORK SERVICE UPDATES
+   - Updated ArtworkService.js createArtwork() method
+     * Now accepts width, height, depth parameters
+     * Each field is trimmed and stored separately
+     * All fields are optional (can be null)
+   - Updated ArtworkService.js updateArtwork() method
+     * Accepts width, height, depth for updates
+     * Allows partial updates of dimensions
+
+3. ✅ API ROUTE UPDATES
+   - Updated POST /artworks endpoint (artworks.js:118)
+     * Accepts width, height, depth in request body
+     * Added to sanitizeText validation middleware
+     * All dimension fields have 1000 char limit
+   - Updated PUT /artworks/:uuid endpoint (artworks.js:161)
+     * Accepts width, height, depth for updates
+     * Validates and sanitizes dimension data
+
+FRONTEND - TYPE AND UI UPDATES
+-------------------------------
+
+4. ✅ TYPE DEFINITIONS
+   - Updated Artwork interface in types/index.ts
+     * Added width?: string
+     * Added height?: string
+     * Added depth?: string
+     * Kept size?: string with comment "Legacy field, will be deprecated"
+
+5. ✅ API CLIENT UPDATES
+   - Updated api.ts createArtwork() function signature
+     * Now accepts width?, height?, depth? parameters
+     * Removed size parameter from creation
+   - Updated api.ts updateArtwork() function signature
+     * Accepts width?, height?, depth? for updates
+
+6. ✅ ADMIN ARTWORKS PAGE (/admin/artworks)
+   - Replaced single 'size' field with three separate fields
+   - Form changes:
+     * Three-column grid layout for dimension inputs
+     * Width input (placeholder: "e.g., 24 cm")
+     * Height input (placeholder: "e.g., 36 cm")
+     * Depth input (placeholder: "e.g., 5 cm")
+   - State management updated:
+     * Added width, height, depth state variables
+     * Removed size state variable
+   - Form handlers updated:
+     * handleSubmit() passes width, height, depth to API
+     * handleEdit() loads width, height, depth from artwork
+     * resetForm() clears all three dimension fields
+   - Display updated:
+     * Shows dimensions as "W: X × H: Y × D: Z" format
+     * Only displays dimensions that have values
+     * Compact inline format in artwork cards
+
+7. ✅ ARTWORK DETAIL PAGE (/artworks/:uuid)
+   - Replaced 'Size' section with 'Dimensions' section
+   - Display format:
+     * Shows "Width: X", "Height: Y", "Depth: Z" separately
+     * Flexbox layout with 24px gap between values
+     * Only shows dimensions that have values
+     * Labeled format for clarity
+     * Each dimension shown with secondary text labels
+
+BENEFITS OF THIS CHANGE
+------------------------
+✓ Structured data instead of free-form text
+✓ Easier to query and filter by specific dimensions
+✓ Better data validation possibilities
+✓ Clearer user interface with separate fields
+✓ More consistent data entry
+✓ Maintains flexibility (all fields optional)
+✓ Backwards compatible (legacy 'size' field retained)
+
+DATABASE MIGRATION REQUIRED
+----------------------------
+To apply these changes to the database, run:
+  npm run migrate
+
+This will add the width, height, and depth columns to the artworks table.
+
+FILES MODIFIED
+--------------
+Backend:
+- images/api/src/db/migrations/20251205000003_split_size_to_dimensions.js (NEW)
+- images/api/src/services/ArtworkService.js (lines 78, 103-105, 164-176)
+- images/api/src/routes/artworks.js (lines 123, 126, 132-135, 165, 169-176)
+
+Frontend:
+- images/frontend/src/types/index.ts (lines 41-44)
+- images/frontend/src/services/api.ts (lines 70, 73)
+- images/frontend/src/pages/AdminArtworks.tsx (lines 23-25, 74, 77-85, 96-103, 121-128, 226-263, 432-439)
+- images/frontend/src/pages/ArtworkDetail.tsx (lines 156-190)
+
+COMPLETE IMPLEMENTATION
+-----------------------
+✅ Backend migration created
+✅ Backend service layer updated
+✅ Backend API routes updated
+✅ Frontend types updated
+✅ Frontend API client updated
+✅ Admin form updated with 3 fields
+✅ Artwork detail page updated
+✅ All dimension fields working end-to-end
+
+==========================================================================
+
