@@ -99,7 +99,7 @@ export default function Landing() {
             margin: '0 auto 64px',
             lineHeight: '1.6'
           }}>
-            Rent curated digital art installations designed for homes and events.
+            Rent curated art installations designed for homes and events.
             Transform spaces. Spark conversations.
           </p>
 
