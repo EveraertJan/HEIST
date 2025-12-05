@@ -20,7 +20,7 @@ const variantStyles: Record<string, React.CSSProperties> = {
 const sizeStyles: Record<string, React.CSSProperties> = {
   small: { fontSize: typography.fontSizeSm, padding: '2px 8px' },
   medium: {},
-  large: { fontSize: typography.fontSizeLg, padding: '12px 24px' }
+  large: { fontSize: typography.fontSizeSm }
 }
 
 export default function Button({

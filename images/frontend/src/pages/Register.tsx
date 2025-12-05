@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
+import Button from '../components/common/Button'
 
 export default function Register() {
   const [firstName, setFirstName] = useState('')
@@ -116,9 +117,9 @@ export default function Register() {
               }}
             />
 
-            <button className="button-primary u-full-width" type="submit" disabled={loading} style={{ padding: '15px' }}>
+            <Button type="submit" variant="primary" size="large" disabled={loading} style={{ width: '100%' }}>
               {loading ? 'Processing Application...' : 'Submit Application'}
-            </button>
+            </Button>
           </form>
           <p style={{ textAlign: 'center', marginTop: '30px', fontFamily: '"Crimson Text", serif' }}>
             Already a member? <Link to="/login" style={{ color: 'var(--museum-burgundy)' }}>Sign in here</Link>

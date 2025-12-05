@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
+import Button from '../components/common/Button'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -81,9 +82,9 @@ export default function Login() {
               }}
             />
 
-            <button className="button-primary u-full-width" type="submit" disabled={loading} style={{ padding: '15px' }}>
+            <Button type="submit" variant="primary" size="large" disabled={loading} style={{ width: '100%' }}>
               {loading ? 'Entering Gallery...' : 'Enter Gallery'}
-            </button>
+            </Button>
           </form>
           <p style={{ textAlign: 'center', marginTop: '30px', fontFamily: '"Crimson Text", serif' }}>
             New to our museum? <Link to="/register" style={{ color: 'var(--museum-burgundy)' }}>Request membership</Link>

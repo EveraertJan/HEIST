@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { createMedium, getAllMediums } from '../services/api'
 import type { Medium } from '../types'
+import Button from '../components/common/Button'
 
 export default function AdminMediums() {
   const { user } = useAuth()
@@ -121,24 +122,9 @@ export default function AdminMediums() {
               />
             </div>
 
-            <button
-              type="submit"
-              className="btn btn-primary"
-              style={{
-                padding: '14px 32px',
-                backgroundColor: 'var(--accent-color)',
-                color: 'var(--primary-bg)',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontSize: '16px',
-                fontWeight: '500',
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em'
-              }}
-            >
+            <Button type="submit" variant="primary" size="large">
               Create Medium
-            </button>
+            </Button>
           </form>
         </div>
 

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { createArtwork, updateArtwork, deleteArtwork, getAllArtworks, getAllMediums, getAllUsers } from '../services/api'
 import type { Artwork, Medium, User } from '../types'
+import Button from '../components/common/Button'
 
 export default function AdminArtworks() {
   const { user } = useAuth()
@@ -358,44 +359,13 @@ export default function AdminArtworks() {
             )}
 
             <div style={{ display: 'flex', gap: '16px' }}>
-              <button
-                type="submit"
-                className="btn btn-primary"
-                style={{
-                  padding: '14px 32px',
-                  backgroundColor: 'var(--accent-color)',
-                  color: 'var(--primary-bg)',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  fontSize: '16px',
-                  fontWeight: '500',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em'
-                }}
-              >
+              <Button type="submit" variant="primary" size="large">
                 {isEditing ? 'Update' : 'Create'} Artwork
-              </button>
+              </Button>
               {isEditing && (
-                <button
-                  type="button"
-                  onClick={resetForm}
-                  className="btn btn-secondary"
-                  style={{
-                    padding: '14px 32px',
-                    backgroundColor: 'transparent',
-                    color: 'var(--accent-color)',
-                    border: '2px solid var(--accent-color)',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    fontSize: '16px',
-                    fontWeight: '500',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em'
-                  }}
-                >
+                <Button type="button" onClick={resetForm} variant="secondary" size="large">
                   Cancel
-                </button>
+                </Button>
               )}
             </div>
           </form>
@@ -439,36 +409,12 @@ export default function AdminArtworks() {
                   </p>
                 )}
                 <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
-                  <button
-                    onClick={() => handleEdit(artwork)}
-                    style={{
-                      padding: '8px 16px',
-                      backgroundColor: 'var(--accent-blue)',
-                      color: 'var(--primary-bg)',
-                      border: 'none',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                      fontSize: '14px',
-                      fontWeight: '500'
-                    }}
-                  >
+                  <Button onClick={() => handleEdit(artwork)} variant="info" size="small">
                     Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(artwork.uuid)}
-                    style={{
-                      padding: '8px 16px',
-                      backgroundColor: 'transparent',
-                      color: 'var(--accent-pink)',
-                      border: '1px solid var(--accent-pink)',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                      fontSize: '14px',
-                      fontWeight: '500'
-                    }}
-                  >
+                  </Button>
+                  <Button onClick={() => handleDelete(artwork.uuid)} variant="danger" size="small">
                     Delete
-                  </button>
+                  </Button>
                 </div>
               </div>
             ))}

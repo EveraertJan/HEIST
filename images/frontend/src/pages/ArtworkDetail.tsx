@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { getArtworkByUuid } from '../services/api'
 import type { Artwork } from '../types'
+import Button from '../components/common/Button'
 
 export default function ArtworkDetail() {
   const { uuid } = useParams<{ uuid: string }>()
@@ -57,23 +58,9 @@ export default function ArtworkDetail() {
           }}>
             {error || 'Artwork not found'}
           </div>
-          <button
-            onClick={() => navigate('/home')}
-            style={{
-              padding: '14px 32px',
-              backgroundColor: 'var(--accent-color)',
-              color: 'var(--primary-bg)',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontSize: '16px',
-              fontWeight: '500',
-              textTransform: 'uppercase',
-              letterSpacing: '0.05em'
-            }}
-          >
+          <Button onClick={() => navigate('/home')} variant="primary" size="large">
             Back to Gallery
-          </button>
+          </Button>
         </div>
       </div>
     )
@@ -83,33 +70,11 @@ export default function ArtworkDetail() {
     <div style={{ minHeight: '100vh', paddingTop: '80px' }}>
       <div className="container" style={{ padding: '48px 24px', maxWidth: '1000px' }}>
         {/* Back Button */}
-        <button
-          onClick={() => navigate('/home')}
-          style={{
-            padding: '10px 20px',
-            backgroundColor: 'transparent',
-            color: 'var(--secondary-text)',
-            border: '1px solid var(--border-color)',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            fontSize: '14px',
-            fontWeight: '500',
-            marginBottom: '32px',
-            transition: 'all 0.2s ease',
-            textTransform: 'uppercase',
-            letterSpacing: '0.05em'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.color = 'var(--accent-color)'
-            e.currentTarget.style.borderColor = 'var(--accent-color)'
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.color = 'var(--secondary-text)'
-            e.currentTarget.style.borderColor = 'var(--border-color)'
-          }}
-        >
-          ← Back to Gallery
-        </button>
+        <div style={{ marginBottom: '32px' }}>
+          <Button onClick={() => navigate('/home')} variant="secondary" size="medium">
+            ← Back to Gallery
+          </Button>
+        </div>
 
         {/* Main Content */}
         <div style={{

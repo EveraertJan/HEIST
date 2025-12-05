@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { getProfile, updateProfile, changePassword, deleteAccount } from '../services/api'
 import { useAuth } from '../contexts/AuthContext'
 import MD5 from 'crypto-js/md5'
+import Button from '../components/common/Button'
 
 export default function Profile() {
   const navigate = useNavigate()
@@ -198,9 +199,9 @@ export default function Profile() {
                 onChange={(e) => setDateOfBirth(e.target.value)}
               />
 
-              <button className="button-primary" type="submit" disabled={saving}>
+              <Button type="submit" variant="primary" size="medium" disabled={saving}>
                 {saving ? 'Saving...' : 'Update Profile'}
-              </button>
+              </Button>
             </form>
           </div>
 
@@ -239,9 +240,9 @@ export default function Profile() {
                 required
               />
 
-              <button className="button-primary" type="submit" disabled={changingPassword}>
+              <Button type="submit" variant="primary" size="medium" disabled={changingPassword}>
                 {changingPassword ? 'Changing...' : 'Change Password'}
-              </button>
+              </Button>
             </form>
           </div>
 
@@ -258,13 +259,13 @@ export default function Profile() {
             </ul>
 
             {!showDeleteConfirm ? (
-              <button
-                className="button"
-                style={{ backgroundColor: '#dc3545', borderColor: '#dc3545' }}
+              <Button
+                variant="danger"
+                size="medium"
                 onClick={() => setShowDeleteConfirm(true)}
               >
                 Delete My Account
-              </button>
+              </Button>
             ) : (
               <div>
                 <p style={{ color: '#dc3545', fontWeight: 'bold', marginBottom: '10px' }}>
@@ -282,20 +283,18 @@ export default function Profile() {
                   style={{ marginBottom: '10px' }}
                 />
                 <div style={{ display: 'flex', gap: '10px' }}>
-                  <button
-                    className="button"
-                    style={{
-                      backgroundColor: '#dc3545',
-                      borderColor: '#dc3545',
-                      opacity: deleteConfirmText === 'DELETE' ? 1 : 0.5
-                    }}
+                  <Button
+                    variant="danger"
+                    size="medium"
                     onClick={handleDeleteAccount}
                     disabled={deleteConfirmText !== 'DELETE' || deleting}
+                    style={{ opacity: deleteConfirmText === 'DELETE' ? 1 : 0.5 }}
                   >
                     {deleting ? 'Deleting...' : 'Confirm Delete Account'}
-                  </button>
-                  <button
-                    className="button"
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="medium"
                     onClick={() => {
                       setShowDeleteConfirm(false)
                       setDeleteConfirmText('')
@@ -303,7 +302,7 @@ export default function Profile() {
                     disabled={deleting}
                   >
                     Cancel
-                  </button>
+                  </Button>
                 </div>
               </div>
             )}

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { searchArtworks, getAllMediums } from '../services/api'
 import type { Artwork, Medium } from '../types'
+import Button from '../components/common/Button'
 
 export default function Home() {
   const [artworks, setArtworks] = useState<Artwork[]>([])
@@ -116,22 +117,9 @@ export default function Home() {
                   color: 'var(--primary-text)'
                 }}
               />
-              <button
-                type="submit"
-                className="btn"
-                style={{
-                  border: '1px solid #fff',
-                  cursor: 'pointer',
-                  padding: '0px 10px',
-                  fontSize: '16px',
-                  color: '#fff',
-                  fontWeight: '500',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em'
-                }}
-              >
+              <Button type="submit" variant="primary" size="medium">
                 Search
-              </button>
+              </Button>
             </div>
           </form>
 
