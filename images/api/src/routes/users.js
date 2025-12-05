@@ -12,6 +12,24 @@ const {
 const pg = require('../db/db.js');
 
 /**
+ * @route GET /users
+ * @description Get all users (for artist selection)
+ * @access Public
+ * @returns {Array} Array of user objects without passwords
+ */
+router.get('/', asyncHandler(async (req, res) => {
+  const db = pg.get();
+  const users = await db('users')
+    .select('uuid', 'first_name', 'last_name', 'email')
+    .orderBy('first_name', 'asc');
+
+  res.status(HTTP_STATUS.OK).json({
+    success: true,
+    data: users
+  });
+}));
+
+/**
  * @route GET /users/validate_token
  * @description Validate JWT token and return user data
  * @access Protected

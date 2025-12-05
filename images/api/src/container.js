@@ -9,16 +9,16 @@ const pg = require('./db/db.js');
 
 // Repositories
 const UserRepository = require('./repositories/UserRepository');
+const ArtworkRepository = require('./repositories/ArtworkRepository');
+const MediumRepository = require('./repositories/MediumRepository');
+const RentalRepository = require('./repositories/RentalRepository');
 
 // Services
-const AuthorizationService = require('./services/AuthorizationService');
 const FileStorageService = require('./services/FileStorageService');
 const EmailService = require('./services/EmailService');
 const UserService = require('./services/UserService');
-const ClassroomService = require('./services/ClassroomService');
-const CheckpointService = require('./services/CheckpointService');
-const FeedbackService = require('./services/FeedbackService');
-const NoteService = require('./services/NoteService');
+const ArtworkService = require('./services/ArtworkService');
+const RentalService = require('./services/RentalService');
 
 /**
  * Service Container Class
@@ -42,11 +42,9 @@ class Container {
 
     // Initialize Repositories
     this.services.userRepository = new UserRepository(db);
-    
-    // Initialize Infrastructure Services
-    this.services.authorizationService = new AuthorizationService(
-      this.services.classroomRepository
-    );
+    this.services.artworkRepository = new ArtworkRepository(db);
+    this.services.mediumRepository = new MediumRepository(db);
+    this.services.rentalRepository = new RentalRepository(db);
 
     this.services.fileStorageService = new FileStorageService(
       config.upload.directory
@@ -63,15 +61,25 @@ class Container {
     // Initialize Domain Services
     this.services.userService = new UserService(
       this.services.userRepository,
-      this.services.classroomRepository,
-      this.services.feedbackRepository,
       this.services.fileStorageService,
-      this.services.pendingMemberRepository,
       db,
       {
         jwtSecret: config.auth.jwtSecret,
         saltRounds: config.auth.saltRounds
       }
+    );
+
+    this.services.artworkService = new ArtworkService(
+      this.services.artworkRepository,
+      this.services.mediumRepository,
+      this.services.userRepository,
+      db
+    );
+
+    this.services.rentalService = new RentalService(
+      this.services.rentalRepository,
+      this.services.artworkRepository,
+      this.services.userRepository
     );
 
     this.initialized = true;
