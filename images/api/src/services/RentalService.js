@@ -14,22 +14,13 @@ class RentalService {
    * Create a rental request
    */
   async createRentalRequest(requestData) {
-    const { artworkUuid, userId, address, phoneNumber, startDate, endDate } = requestData;
+    const { artworkUuid, userUuid, address, phoneNumber } = requestData;
 
-    // Validate dates
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    const now = new Date();
-
-    if (start < now) {
-      const error = new Error('Start date cannot be in the past');
-      error.statusCode = 400;
-      throw error;
-    }
-
-    if (end <= start) {
-      const error = new Error('End date must be after start date');
-      error.statusCode = 400;
+    // Find user by UUID
+    const user = await this.userRepository.findByUuid(userUuid);
+    if (!user) {
+      const error = new Error('User not found');
+      error.statusCode = 404;
       throw error;
     }
 
@@ -41,28 +32,29 @@ class RentalService {
       throw error;
     }
 
-    // Check availability
-    const isAvailable = await this.rentalRepository.isArtworkAvailable(
-      artwork.id,
-      startDate,
-      endDate
-    );
+    // Check availability (no date checking needed - just if it's currently available)
+    const isAvailable = await this.rentalRepository.isArtworkAvailable(artwork.id);
 
     if (!isAvailable) {
-      const error = new Error('Artwork is not available for the selected dates');
+      const error = new Error('Artwork is currently not available for rental');
       error.statusCode = 409;
       throw error;
     }
+
+    // Set rental date to today and expected return to 1 month from now
+    const rentalDate = new Date();
+    const expectedReturnDate = new Date();
+    expectedReturnDate.setMonth(expectedReturnDate.getMonth() + 1);
 
     // Create rental request
     const rental = await this.rentalRepository.create({
       uuid: uuidv4(),
       artwork_id: artwork.id,
-      user_id: userId,
+      user_id: user.id,
       address,
       phone_number: phoneNumber,
-      start_date: startDate,
-      end_date: endDate,
+      rental_date: rentalDate.toISOString().split('T')[0],
+      expected_return_date: expectedReturnDate.toISOString().split('T')[0],
       status: 'requested'
     });
 

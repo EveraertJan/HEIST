@@ -15,8 +15,8 @@ exports.up = function(knex) {
     // Rental details
     table.string('address', 500).notNullable();
     table.string('phone_number', 50).notNullable();
-    table.date('start_date').notNullable();
-    table.date('end_date').notNullable();
+    table.date('rental_date').notNullable(); // Date when rental starts
+    table.date('expected_return_date').notNullable(); // Auto-calculated: rental_date + 1 month
 
     // Status: 'requested', 'approved', 'finalized', 'rejected'
     table.enum('status', ['requested', 'approved', 'finalized', 'rejected']).defaultTo('requested');
@@ -39,7 +39,7 @@ exports.up = function(knex) {
     table.index('artwork_id');
     table.index('user_id');
     table.index('status');
-    table.index(['start_date', 'end_date']);
+    table.index('rental_date');
   });
 };
 

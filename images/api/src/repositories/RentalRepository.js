@@ -84,36 +84,17 @@ class RentalRepository {
   }
 
   /**
-   * Check if artwork is available for rental in given timespan
+   * Check if artwork is available for rental
+   * An artwork is unavailable if it has any active rental (requested or approved status)
    * Returns true if available, false if already rented
    */
-  async isArtworkAvailable(artworkId, startDate, endDate, excludeRentalId = null) {
-    let query = this.db('rentals')
+  async isArtworkAvailable(artworkId) {
+    const activeRentals = await this.db('rentals')
       .where('artwork_id', artworkId)
-      .whereIn('status', ['requested', 'approved']) // Only active rentals block availability
-      .where(function() {
-        this.where(function() {
-          // Rental starts during requested period
-          this.whereBetween('start_date', [startDate, endDate]);
-        })
-        .orWhere(function() {
-          // Rental ends during requested period
-          this.whereBetween('end_date', [startDate, endDate]);
-        })
-        .orWhere(function() {
-          // Rental encompasses requested period
-          this.where('start_date', '<=', startDate)
-              .where('end_date', '>=', endDate);
-        });
-      });
+      .whereIn('status', ['requested', 'approved'])
+      .limit(1);
 
-    // Exclude current rental when updating
-    if (excludeRentalId) {
-      query = query.whereNot('id', excludeRentalId);
-    }
-
-    const conflictingRentals = await query;
-    return conflictingRentals.length === 0;
+    return activeRentals.length === 0;
   }
 
   /**
