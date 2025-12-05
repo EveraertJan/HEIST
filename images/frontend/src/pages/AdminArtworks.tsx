@@ -1,3 +1,23 @@
+/**
+ * AdminArtworks Page
+ *
+ * Admin interface for managing artworks in the system.
+ *
+ * Structure:
+ * - Header with "Create New Artwork" button
+ * - Success/Error message notifications
+ * - Artworks table displaying all artworks with:
+ *   - Title, Description, Dimensions, Artists, Mediums, Availability
+ *   - Edit button (navigates to CreateArtwork page in edit mode)
+ *   - Delete button (with confirmation)
+ *
+ * Features:
+ * - View all artworks in a table format
+ * - Navigate to create new artwork
+ * - Navigate to edit existing artwork
+ * - Delete artwork with confirmation
+ */
+
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'

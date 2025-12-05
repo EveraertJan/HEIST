@@ -1,13 +1,42 @@
-import { Link } from 'react-router-dom'
+/**
+ * CreateArtwork Page
+ *
+ * Unified interface for creating new artworks and editing existing ones.
+ *
+ * Structure:
+ * - Back button and page title (Create/Edit Artwork)
+ * - Success/Error message notifications
+ * - Form with the following sections:
+ *   1. Basic Information: Title, Description
+ *   2. Dimensions: Width, Height, Depth
+ *   3. Artist Selection: Multi-select checkboxes
+ *   4. Medium Selection: Multi-select chips with link to manage mediums
+ *   5. Image Management (context-aware):
+ *      - Edit mode: Shows existing images with delete/update description
+ *      - Edit mode: Separate upload section for adding new images
+ *      - Create mode: Single upload section for initial images
+ * - Submit button (Create/Update) and Cancel button
+ * - Image modal for viewing full-size images
+ *
+ * Features:
+ * - Detects edit mode via :uuid route parameter
+ * - Pre-loads artwork data in edit mode
+ * - Validates at least one artist is selected
+ * - Image upload with descriptions
+ * - Existing image management (edit descriptions, delete)
+ * - Redirects to AdminArtworks on success
+ */
 
+import { Link } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { createArtwork, updateArtwork, getAllMediums, getAllUsers, uploadArtworkImages, deleteArtworkImage, updateArtworkImage, getArtworkByUuid } from '../services/api'
-import { getImageUrl } from '../utils'
 import type { Medium, User, Artwork } from '../types'
 import Button from '../components/common/Button'
 import ImageModal from '../components/common/ImageModal'
+import ExistingImagesSection from '../components/artworks/ExistingImagesSection'
+import NewImageUploadSection from '../components/artworks/NewImageUploadSection'
 
 export default function CreateArtwork() {
   const { user } = useAuth()
@@ -452,226 +481,39 @@ export default function CreateArtwork() {
               </label>
 
               {/* Existing Images - only show in edit mode */}
-              {isEditing && artwork?.images && artwork.images.length > 0 && (
-                <div style={{ marginBottom: '24px' }}>
-                  <h4 style={{ fontSize: '16px', marginBottom: '16px', color: 'var(--primary-text)' }}>
-                    Existing Images ({artwork.images.length})
-                  </h4>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px' }}>
-                    {artwork.images
-                      .sort((a, b) => a.sort_order - b.sort_order)
-                      .map((image) => (
-                        <div key={image.uuid} style={{
-                          border: '1px solid var(--border-color)',
-                          borderRadius: '8px',
-                          padding: '16px',
-                          backgroundColor: 'var(--hover-bg)'
-                        }}>
-                          <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
-                            <img
-                              src={getImageUrl(image.filename)}
-                              alt={image.description || 'Artwork image'}
-                              style={{
-                                width: '80px',
-                                height: '80px',
-                                objectFit: 'cover',
-                                borderRadius: '4px',
-                                cursor: 'pointer',
-                                border: '1px solid var(--border-color)'
-                              }}
-                              onClick={() => setSelectedImage(getImageUrl(image.filename))}
-                            />
-                            <div style={{ flex: 1 }}>
-                              <p style={{
-                                margin: '0 0 8px 0',
-                                fontSize: '12px',
-                                color: 'var(--secondary-text)',
-                                wordBreak: 'break-all'
-                              }}>
-                                {image.original_filename}
-                              </p>
-                              <p style={{
-                                margin: '0 0 8px 0',
-                                fontSize: '12px',
-                                color: 'var(--secondary-text)'
-                              }}>
-                                {(image.file_size / 1024 / 1024).toFixed(2)} MB
-                              </p>
-                            </div>
-                          </div>
-                          <input
-                            type="text"
-                            placeholder="Image description"
-                            defaultValue={image.description || ''}
-                            onBlur={(e) => handleUpdateImageDescription(image.uuid, e.target.value)}
-                            style={{
-                              width: '100%',
-                              padding: '8px 12px',
-                              fontSize: '14px',
-                              border: '1px solid var(--border-color)',
-                              borderRadius: '4px',
-                              backgroundColor: 'var(--card-bg)',
-                              marginBottom: '12px'
-                            }}
-                          />
-                          <Button
-                            onClick={() => handleDeleteImage(image.uuid)}
-                            variant="danger"
-                            size="small"
-                            style={{ width: '100%' }}
-                          >
-                            Delete Image
-                          </Button>
-                        </div>
-                      ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Add New Images Section */}
-              {isEditing && (
-                <h4 style={{ fontSize: '16px', marginBottom: '16px', color: 'var(--primary-text)' }}>
-                  Add New Images
-                </h4>
-              )}
-
-              <div style={{
-                border: '2px dashed var(--border-color)',
-                borderRadius: '8px',
-                padding: '32px',
-                textAlign: 'center',
-                backgroundColor: 'var(--hover-bg)',
-                transition: 'all 0.2s ease'
-              }}>
-                <input
-                  type="file"
-                  multiple
-                  accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
-                  onChange={handleFileSelect}
-                  style={{ display: 'none' }}
-                  id="image-upload"
+              {isEditing && artwork?.images && (
+                <ExistingImagesSection
+                  images={artwork.images}
+                  onUpdateDescription={handleUpdateImageDescription}
+                  onDeleteImage={handleDeleteImage}
+                  onImageClick={setSelectedImage}
                 />
-                <label
-                  htmlFor="image-upload"
-                  style={{
-                    cursor: 'pointer',
-                    display: 'inline-block',
-                    padding: '12px 24px',
-                    backgroundColor: 'var(--accent-blue)',
-                    color: 'white',
-                    borderRadius: '4px',
-                    fontSize: '14px',
-                    transition: 'all 0.2s ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = 'var(--accent-purple)'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'var(--accent-blue)'
-                  }}
-                >
-                  Choose Images
-                </label>
-                <p style={{
-                  margin: '16px 0 0 0',
-                  color: 'var(--secondary-text)',
-                  fontSize: '14px'
-                }}>
-                  {selectedFiles
-                    ? `${selectedFiles.length} file(s) selected`
-                    : 'Select up to 10 images (JPEG, PNG, GIF, WebP - Max 10MB each)'
+              )}
+
+              {/* New Image Upload */}
+              <NewImageUploadSection
+                selectedFiles={selectedFiles}
+                imageDescriptions={imageDescriptions}
+                isUploading={isUploading}
+                isEditMode={isEditing}
+                onFileSelect={handleFileSelect}
+                onDescriptionChange={handleDescriptionChange}
+                onUpload={isEditing ? async () => {
+                  if (!uuid) return
+                  setIsUploading(true)
+                  try {
+                    await uploadArtworkImages(uuid, selectedFiles!, imageDescriptions)
+                    setSuccess('Images uploaded successfully')
+                    setSelectedFiles(null)
+                    setImageDescriptions([])
+                    await loadArtwork(uuid)
+                  } catch (err: any) {
+                    setError(err.response?.data?.message || 'Failed to upload images')
+                  } finally {
+                    setIsUploading(false)
                   }
-                </p>
-              </div>
-
-              {/* Image Previews and Descriptions */}
-              {selectedFiles && (
-                <div style={{ marginTop: '16px' }}>
-                  {Array.from(selectedFiles).map((file, index) => (
-                    <div key={index} style={{
-                      display: 'flex',
-                      gap: '16px',
-                      alignItems: 'center',
-                      padding: '16px',
-                      backgroundColor: 'var(--card-bg)',
-                      border: '1px solid var(--border-color)',
-                      borderRadius: '8px',
-                      marginBottom: '12px'
-                    }}>
-                      <img
-                        src={URL.createObjectURL(file)}
-                        alt={file.name}
-                        style={{
-                          width: '80px',
-                          height: '80px',
-                          objectFit: 'cover',
-                          borderRadius: '4px',
-                          border: '1px solid var(--border-color)'
-                        }}
-                      />
-                      <div style={{ flex: 1 }}>
-                        <p style={{
-                          margin: '0 0 8px 0',
-                          fontSize: '14px',
-                          fontWeight: '600',
-                          color: 'var(--primary-text)'
-                        }}>
-                          {file.name}
-                        </p>
-                        <p style={{
-                          margin: '0 0 8px 0',
-                          fontSize: '12px',
-                          color: 'var(--secondary-text)'
-                        }}>
-                          {(file.size / 1024 / 1024).toFixed(2)} MB
-                        </p>
-                        <input
-                          type="text"
-                          placeholder="Image description (optional)"
-                          value={imageDescriptions[index] || ''}
-                          onChange={(e) => handleDescriptionChange(index, e.target.value)}
-                          style={{
-                            width: '100%',
-                            padding: '8px 12px',
-                            fontSize: '14px',
-                            border: '1px solid var(--border-color)',
-                            borderRadius: '4px',
-                            backgroundColor: 'var(--hover-bg)'
-                          }}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Upload button for new images in edit mode */}
-              {isEditing && selectedFiles && selectedFiles.length > 0 && (
-                <div style={{ marginTop: '16px' }}>
-                  <Button
-                    onClick={async () => {
-                      if (!uuid) return
-                      setIsUploading(true)
-                      try {
-                        await uploadArtworkImages(uuid, selectedFiles, imageDescriptions)
-                        setSuccess('Images uploaded successfully')
-                        setSelectedFiles(null)
-                        setImageDescriptions([])
-                        await loadArtwork(uuid)
-                      } catch (err: any) {
-                        setError(err.response?.data?.message || 'Failed to upload images')
-                      } finally {
-                        setIsUploading(false)
-                      }
-                    }}
-                    variant="primary"
-                    size="medium"
-                    disabled={isUploading}
-                  >
-                    {isUploading ? 'Uploading...' : `Upload ${selectedFiles.length} Image(s)`}
-                  </Button>
-                </div>
-              )}
+                } : undefined}
+              />
             </div>
 
             <div style={{ display: 'flex', gap: '16px' }}>
