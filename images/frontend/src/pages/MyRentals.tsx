@@ -112,107 +112,88 @@ export default function MyRentals() {
             </Link>
           </div>
         ) : (
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
-            gap: '24px'
-          }}>
-            {rentals.map(rental => (
-              <div
-                key={rental.uuid}
-                style={{
-                  backgroundColor: 'var(--card-bg)',
-                  border: '1px solid var(--border-color)',
-                  borderRadius: '8px',
-                  padding: '24px'
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '16px' }}>
-                  <h3 style={{ fontSize: '1.25rem', marginBottom: '0' }}>
-                    {rental.artwork_title || rental.artwork?.title}
-                  </h3>
-                  <span style={{
-                    padding: '4px 12px',
-                    borderRadius: '12px',
-                    fontSize: '12px',
-                    fontWeight: '600',
-                    backgroundColor: `${getStatusColor(rental.status)}20`,
-                    color: getStatusColor(rental.status),
-                    whiteSpace: 'nowrap'
-                  }}>
-                    {getStatusLabel(rental.status)}
-                  </span>
-                </div>
-
-                <div style={{ marginBottom: '12px' }}>
-                  <p style={{ color: 'var(--secondary-text)', fontSize: '14px', marginBottom: '4px' }}>
-                    <strong>Rental Period:</strong>
-                  </p>
-                  <p style={{ color: 'var(--primary-text)', fontSize: '14px' }}>
-                    Up to 1 month from approval
-                  </p>
-                  {rental.rental_date && (
-                    <p style={{ color: 'var(--secondary-text)', fontSize: '12px' }}>
-                      Requested for: {new Date(rental.rental_date).toLocaleDateString()}
-                    </p>
-                  )}
-                </div>
-
-                <div style={{ marginBottom: '12px' }}>
-                  <p style={{ color: 'var(--secondary-text)', fontSize: '14px', marginBottom: '4px' }}>
-                    <strong>Delivery Address:</strong>
-                  </p>
-                  <p style={{ color: 'var(--primary-text)', fontSize: '14px' }}>
-                    {rental.address}
-                  </p>
-                </div>
-
-                <div style={{ marginBottom: '12px' }}>
-                  <p style={{ color: 'var(--secondary-text)', fontSize: '14px', marginBottom: '4px' }}>
-                    <strong>Phone:</strong>
-                  </p>
-                  <p style={{ color: 'var(--primary-text)', fontSize: '14px' }}>
-                    {rental.phone_number}
-                  </p>
-                </div>
-
-                <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--border-color)' }}>
-                  <p style={{ color: 'var(--secondary-text)', fontSize: '12px' }}>
-                    Requested: {new Date(rental.created_at).toLocaleDateString()}
-                  </p>
-                  {rental.status === 'approved' && rental.approved_at && (
-                    <p style={{ color: 'var(--secondary-text)', fontSize: '12px' }}>
-                      Approved: {new Date(rental.approved_at).toLocaleDateString()}
-                    </p>
-                  )}
-                  {rental.status === 'finalized' && rental.finalized_at && (
-                    <p style={{ color: 'var(--secondary-text)', fontSize: '12px' }}>
-                      Completed: {new Date(rental.finalized_at).toLocaleDateString()}
-                    </p>
-                  )}
-                </div>
-
-                {rental.artwork_uuid && (
-                  <Link
-                    to={`/artworks/${rental.artwork_uuid}`}
-                    style={{
-                      display: 'inline-block',
-                      marginTop: '12px',
-                      padding: '8px 16px',
-                      backgroundColor: 'var(--hover-bg)',
-                      color: 'var(--accent-color)',
-                      textDecoration: 'none',
-                      borderRadius: '4px',
-                      fontSize: '14px',
-                      fontWeight: '500',
-                      border: '1px solid var(--border-color)'
-                    }}
-                  >
-                    View Artwork
-                  </Link>
-                )}
-              </div>
-            ))}
+          <div className="table-container">
+            <div className="table-responsive">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Artwork</th>
+                    <th>Status</th>
+                    <th>Delivery Address</th>
+                    <th>Contact</th>
+                    <th>Dates</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rentals.map(rental => (
+                    <tr key={rental.uuid}>
+                      <td>
+                        <div>
+                          <div style={{ fontWeight: '600', color: 'var(--accent-color)', marginBottom: '4px' }}>
+                            {rental.artwork_title || rental.artwork?.title}
+                          </div>
+                          <div style={{ fontSize: '12px', color: 'var(--secondary-text)' }}>
+                            Rental ID: {rental.uuid.substring(0, 8)}
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <span className={`table-status ${rental.status}`}>
+                          {getStatusLabel(rental.status)}
+                        </span>
+                      </td>
+                      <td>
+                        <div style={{ fontSize: '14px', color: 'var(--primary-text)', maxWidth: '200px', wordBreak: 'break-word' }}>
+                          {rental.address}
+                        </div>
+                      </td>
+                      <td>
+                        <div style={{ fontSize: '14px', color: 'var(--primary-text)' }}>
+                          {rental.phone_number}
+                        </div>
+                      </td>
+                      <td>
+                        <div style={{ fontSize: '12px', color: 'var(--secondary-text)' }}>
+                          <div>Requested: {new Date(rental.created_at).toLocaleDateString()}</div>
+                          {rental.rental_date && (
+                            <div>For: {new Date(rental.rental_date).toLocaleDateString()}</div>
+                          )}
+                          {rental.approved_at && (
+                            <div>Approved: {new Date(rental.approved_at).toLocaleDateString()}</div>
+                          )}
+                          {rental.finalized_at && (
+                            <div>Completed: {new Date(rental.finalized_at).toLocaleDateString()}</div>
+                          )}
+                        </div>
+                      </td>
+                      <td>
+                        <div className="table-actions">
+                          {rental.artwork_uuid && (
+                            <Link
+                              to={`/artworks/${rental.artwork_uuid}`}
+                              style={{
+                                display: 'inline-block',
+                                padding: '6px 12px',
+                                backgroundColor: 'var(--hover-bg)',
+                                color: 'var(--accent-color)',
+                                textDecoration: 'none',
+                                borderRadius: '4px',
+                                fontSize: '12px',
+                                fontWeight: '500',
+                                border: '1px solid var(--border-color)'
+                              }}
+                            >
+                              View Artwork
+                            </Link>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </div>

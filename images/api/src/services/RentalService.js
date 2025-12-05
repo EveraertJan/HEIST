@@ -53,8 +53,8 @@ class RentalService {
       user_id: user.id,
       address,
       phone_number: phoneNumber,
-      start_date: rentalDate.toISOString().split('T')[0],
-      end_date: expectedReturnDate.toISOString().split('T')[0],
+      rental_date: rentalDate.toISOString().split('T')[0],
+      expected_return_date: expectedReturnDate.toISOString().split('T')[0],
       status: 'requested'
     });
 

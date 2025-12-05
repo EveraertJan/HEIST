@@ -140,6 +140,7 @@ a:hover {
 input[type="text"],
 input[type="email"],
 input[type="password"],
+input[type="tel"],
 input[type="date"],
 textarea,
 select {
@@ -180,6 +181,94 @@ input::placeholder {
   border-color: var(--accent-blue);
   transform: translateY(-4px);
   box-shadow: 0 12px 40px rgba(74, 158, 255, 0.15);
+}
+
+/* Tables */
+.table-container {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-bottom: var(--spacing-md);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--card-bg);
+}
+
+.table th,
+.table td {
+  padding: var(--spacing-sm) var(--spacing-md);
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+  vertical-align: middle;
+}
+
+.table th {
+  background-color: var(--secondary-bg);
+  font-weight: 600;
+  font-family: var(--font-display);
+  color: var(--primary-text);
+  border-bottom: 2px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.table tbody tr {
+  transition: background-color var(--transition-fast);
+}
+
+.table tbody tr:hover {
+  background-color: var(--hover-bg);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table-responsive {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+/* Table specific styles */
+.table-actions {
+  display: flex;
+  gap: var(--spacing-xs);
+  align-items: center;
+}
+
+.table-status {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.table-status.active {
+  background-color: rgba(74, 158, 255, 0.2);
+  color: var(--accent-blue);
+}
+
+.table-status.pending {
+  background-color: rgba(255, 193, 7, 0.2);
+  color: #ffc107;
+}
+
+.table-status.completed {
+  background-color: rgba(76, 175, 80, 0.2);
+  color: #4caf50;
+}
+
+.table-status.cancelled {
+  background-color: rgba(255, 107, 157, 0.2);
+  color: var(--accent-pink);
 }
 
 /* Grid Layouts */

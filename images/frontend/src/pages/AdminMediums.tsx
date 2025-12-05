@@ -128,29 +128,46 @@ export default function AdminMediums() {
           </form>
         </div>
 
-        {/* Mediums List */}
+        {/* Mediums Table */}
         <h2 style={{ marginBottom: '24px', fontSize: '1.5rem' }}>Existing Mediums</h2>
         {mediums.length === 0 ? (
           <p style={{ color: 'var(--secondary-text)', textAlign: 'center', padding: '40px' }}>
             No mediums created yet
           </p>
         ) : (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
-            {mediums.map(medium => (
-              <div
-                key={medium.uuid}
-                style={{
-                  padding: '12px 24px',
-                  backgroundColor: 'var(--card-bg)',
-                  border: '1px solid var(--border-color)',
-                  borderRadius: '20px',
-                  fontSize: '16px',
-                  color: 'var(--primary-text)'
-                }}
-              >
-                {medium.name}
-              </div>
-            ))}
+          <div className="table-container">
+            <div className="table-responsive">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Medium Name</th>
+                    <th>ID</th>
+                    <th>Created</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {mediums.map(medium => (
+                    <tr key={medium.uuid}>
+                      <td>
+                        <div style={{ fontWeight: '600', color: 'var(--accent-color)' }}>
+                          {medium.name}
+                        </div>
+                      </td>
+                      <td>
+                        <div style={{ fontSize: '14px', color: 'var(--secondary-text)' }}>
+                          {medium.uuid.substring(0, 8)}
+                        </div>
+                      </td>
+                      <td>
+                        <div style={{ fontSize: '14px', color: 'var(--secondary-text)' }}>
+                          {new Date(medium.created_at).toLocaleDateString()}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </div>

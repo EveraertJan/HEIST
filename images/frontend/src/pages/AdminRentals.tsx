@@ -178,120 +178,102 @@ export default function AdminRentals() {
           </Button>
         </div>
 
-        {/* Rentals Grid */}
+        {/* Rentals Table */}
         {filteredRentals.length === 0 ? (
           <p style={{ textAlign: 'center', color: 'var(--secondary-text)', padding: '40px' }}>
             No rentals found
           </p>
         ) : (
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))',
-            gap: '24px'
-          }}>
-            {filteredRentals.map(rental => (
-              <div
-                key={rental.uuid}
-                style={{
-                  backgroundColor: 'var(--card-bg)',
-                  border: '1px solid var(--border-color)',
-                  borderRadius: '8px',
-                  padding: '24px'
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '16px' }}>
-                  <div>
-                    <h3 style={{ fontSize: '1.25rem', marginBottom: '8px' }}>
-                      {rental.artwork_title}
-                    </h3>
-                    <p style={{ color: 'var(--secondary-text)', fontSize: '14px' }}>
-                      Requested by: {rental.user_first_name} {rental.user_last_name}
-                    </p>
-                  </div>
-                  <span style={{
-                    padding: '4px 12px',
-                    borderRadius: '12px',
-                    fontSize: '12px',
-                    fontWeight: '600',
-                    backgroundColor: `${getStatusColor(rental.status)}20`,
-                    color: getStatusColor(rental.status),
-                    whiteSpace: 'nowrap'
-                  }}>
-                    {getStatusLabel(rental.status)}
-                  </span>
-                </div>
-
-                <div style={{ marginBottom: '12px' }}>
-                  <p style={{ color: 'var(--secondary-text)', fontSize: '14px', marginBottom: '4px' }}>
-                    <strong>Rental Period:</strong>
-                  </p>
-                  <p style={{ color: 'var(--primary-text)', fontSize: '14px' }}>
-                    Up to 1 month from approval
-                  </p>
-                  {rental.expected_return_date && (
-                    <p style={{ color: 'var(--secondary-text)', fontSize: '12px' }}>
-                      Expected return: {new Date(rental.expected_return_date).toLocaleDateString()}
-                    </p>
-                  )}
-                </div>
-
-                <div style={{ marginBottom: '12px' }}>
-                  <p style={{ color: 'var(--secondary-text)', fontSize: '14px', marginBottom: '4px' }}>
-                    <strong>Contact:</strong>
-                  </p>
-                  <p style={{ color: 'var(--primary-text)', fontSize: '14px' }}>
-                    {rental.user_email}
-                  </p>
-                  <p style={{ color: 'var(--primary-text)', fontSize: '14px' }}>
-                    {rental.phone_number}
-                  </p>
-                </div>
-
-                <div style={{ marginBottom: '16px' }}>
-                  <p style={{ color: 'var(--secondary-text)', fontSize: '14px', marginBottom: '4px' }}>
-                    <strong>Delivery Address:</strong>
-                  </p>
-                  <p style={{ color: 'var(--primary-text)', fontSize: '14px' }}>
-                    {rental.address}
-                  </p>
-                </div>
-
-                <div style={{ marginBottom: '16px', paddingTop: '16px', borderTop: '1px solid var(--border-color)' }}>
-                  <p style={{ color: 'var(--secondary-text)', fontSize: '12px' }}>
-                    Requested: {new Date(rental.created_at).toLocaleDateString()}
-                  </p>
-                  {rental.status === 'approved' && rental.approved_at && (
-                    <p style={{ color: 'var(--secondary-text)', fontSize: '12px' }}>
-                      Approved: {new Date(rental.approved_at).toLocaleDateString()}
-                    </p>
-                  )}
-                  {rental.status === 'finalized' && rental.finalized_at && (
-                    <p style={{ color: 'var(--secondary-text)', fontSize: '12px' }}>
-                      Completed: {new Date(rental.finalized_at).toLocaleDateString()}
-                    </p>
-                  )}
-                </div>
-
-                {/* Action Buttons */}
-                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                  {rental.status === 'requested' && (
-                    <>
-                      <Button onClick={() => handleApprove(rental.uuid)} variant="success" size="small">
-                        Approve
-                      </Button>
-                      <Button onClick={() => handleReject(rental.uuid)} variant="danger" size="small">
-                        Reject
-                      </Button>
-                    </>
-                  )}
-                  {rental.status === 'approved' && (
-                    <Button onClick={() => handleFinalize(rental.uuid)} variant="primary" size="small">
-                      Mark as Returned
-                    </Button>
-                  )}
-                </div>
-              </div>
-            ))}
+          <div className="table-container">
+            <div className="table-responsive">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Artwork</th>
+                    <th>Customer</th>
+                    <th>Contact</th>
+                    <th>Address</th>
+                    <th>Status</th>
+                    <th>Dates</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredRentals.map(rental => (
+                    <tr key={rental.uuid}>
+                      <td>
+                        <div>
+                          <div style={{ fontWeight: '600', color: 'var(--accent-color)', marginBottom: '4px' }}>
+                            {rental.artwork_title}
+                          </div>
+                          <div style={{ fontSize: '12px', color: 'var(--secondary-text)' }}>
+                            Rental ID: {rental.uuid.substring(0, 8)}
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <div>
+                          <div style={{ fontWeight: '500', color: 'var(--primary-text)' }}>
+                            {rental.user_first_name} {rental.user_last_name}
+                          </div>
+                          <div style={{ fontSize: '12px', color: 'var(--secondary-text)' }}>
+                            {rental.user_email}
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <div style={{ fontSize: '14px', color: 'var(--primary-text)' }}>
+                          {rental.phone_number}
+                        </div>
+                      </td>
+                      <td>
+                        <div style={{ fontSize: '14px', color: 'var(--primary-text)', maxWidth: '200px', wordBreak: 'break-word' }}>
+                          {rental.address}
+                        </div>
+                      </td>
+                      <td>
+                        <span className={`table-status ${rental.status}`}>
+                          {getStatusLabel(rental.status)}
+                        </span>
+                      </td>
+                      <td>
+                        <div style={{ fontSize: '12px', color: 'var(--secondary-text)' }}>
+                          <div>Requested: {new Date(rental.created_at).toLocaleDateString()}</div>
+                          {rental.expected_return_date && (
+                            <div>Return: {new Date(rental.expected_return_date).toLocaleDateString()}</div>
+                          )}
+                          {rental.approved_at && (
+                            <div>Approved: {new Date(rental.approved_at).toLocaleDateString()}</div>
+                          )}
+                          {rental.finalized_at && (
+                            <div>Completed: {new Date(rental.finalized_at).toLocaleDateString()}</div>
+                          )}
+                        </div>
+                      </td>
+                      <td>
+                        <div className="table-actions">
+                          {rental.status === 'requested' && (
+                            <>
+                              <Button onClick={() => handleApprove(rental.uuid)} variant="success" size="small">
+                                Approve
+                              </Button>
+                              <Button onClick={() => handleReject(rental.uuid)} variant="danger" size="small">
+                                Reject
+                              </Button>
+                            </>
+                          )}
+                          {rental.status === 'approved' && (
+                            <Button onClick={() => handleFinalize(rental.uuid)} variant="primary" size="small">
+                              Return
+                            </Button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </div>

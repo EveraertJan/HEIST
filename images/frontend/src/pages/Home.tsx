@@ -34,6 +34,7 @@ export default function Home() {
         searchTerm || undefined,
         selectedMediums.length > 0 ? selectedMediums : undefined
       )
+      console.log(response.data.data)
       setArtworks(response.data.data)
     } catch (err) {
       setError('Failed to load artworks')
@@ -197,7 +198,7 @@ export default function Home() {
           </p>
         )}
 
-        {/* Artworks Grid */}
+        {/* Artworks Table */}
         {!loading && (
           <>
             {artworks.length === 0 ? (
@@ -214,77 +215,55 @@ export default function Home() {
                 </p>
               </div>
             ) : (
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
-                gap: '24px'
-              }}>
-                {artworks.map(artwork => (
-                  <Link
-                    key={artwork.uuid}
-                    to={`/artworks/${artwork.uuid}`}
-                    style={{
-                      textDecoration: 'none',
-                      color: 'inherit'
-                    }}
-                  >
-                    <div
-                      style={{
-                        backgroundColor: 'var(--card-bg)',
-                        border: '1px solid var(--border-color)',
-                        borderRadius: '8px',
-                        overflow: 'hidden',
-                        transition: 'all 0.3s ease',
-                        height: '100%',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        cursor: 'pointer'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.borderColor = 'var(--accent-blue)'
-                        e.currentTarget.style.transform = 'translateY(-8px)'
-                        e.currentTarget.style.boxShadow = '0 20px 60px rgba(74, 158, 255, 0.2)'
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.borderColor = 'var(--border-color)'
-                        e.currentTarget.style.transform = 'translateY(0)'
-                        e.currentTarget.style.boxShadow = 'none'
-                      }}
-                    >
-                      <div style={{ padding: '24px' }}>
-                        <h3 style={{
-                          fontSize: '1.5rem',
-                          marginBottom: '12px',
-                          color: 'var(--accent-color)',
-                          fontWeight: '600'
-                        }}>
-                          {artwork.title}
-                        </h3>
-                        {artwork.description && (
-                          <p style={{
-                            color: 'var(--secondary-text)',
-                            fontSize: '14px',
-                            lineHeight: '1.6',
-                            marginBottom: '12px'
-                          }}>
-                            {artwork.description.length > 150
-                              ? `${artwork.description.substring(0, 150)}...`
-                              : artwork.description}
-                          </p>
-                        )}
-                        {artwork.size && (
-                          <p style={{
-                            fontSize: '12px',
-                            color: 'var(--secondary-text)',
-                            marginTop: '8px'
-                          }}>
-                            Size: {artwork.size}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  </Link>
-                ))}
+              <div className="table-container">
+                <div className="table-responsive">
+                  <table className="table">
+                    <thead>
+                      <tr>
+                        <th>Title</th>
+                        <th>Description</th>
+                        <th>Size</th>
+                        <th>Medium</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {artworks.map(artwork => (
+                        <tr key={artwork.uuid}>
+                          <td>
+                            <Link
+                              to={`/artworks/${artwork.uuid}`}
+                              style={{
+                                textDecoration: 'none',
+                                color: 'var(--accent-blue)',
+                                fontWeight: '600',
+                                fontSize: '16px'
+                              }}
+                            >
+                              {artwork.title}
+                            </Link>
+                          </td>
+                          <td>
+                            <span style={{ color: 'var(--secondary-text)', fontSize: '14px' }}>
+                              {artwork.description && artwork.description.length > 100
+                                ? `${artwork.description.substring(0, 100)}...`
+                                : artwork.description || '-'}
+                            </span>
+                          </td>
+                          <td>
+                            <span style={{ color: 'var(--secondary-text)', fontSize: '14px' }}>
+                              {artwork.size || '-'}
+                            </span>
+                          </td>
+                          <td>
+                            <span style={{ color: 'var(--secondary-text)', fontSize: '14px' }}>
+                              {artwork.medium?.name || '-'}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             )}
           </>

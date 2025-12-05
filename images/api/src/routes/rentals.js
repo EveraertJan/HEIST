@@ -19,7 +19,18 @@ router.get('/my-rentals', decodeToken, asyncHandler(async (req, res) => {
   const offset = parseInt(req.query.offset) || 0;
 
   const rentalService = container.get('rentalService');
-  const rentals = await rentalService.getUserRentals(req.user.id, limit, offset);
+  const userRepository = container.get('userRepository');
+  
+  // Find user by UUID to get database ID
+  const user = await userRepository.findByUuid(req.user.uuid);
+  if (!user) {
+    return res.status(HTTP_STATUS.NOT_FOUND).json({
+      success: false,
+      message: 'User not found'
+    });
+  }
+  
+  const rentals = await rentalService.getUserRentals(user.id, limit, offset);
 
   res.status(HTTP_STATUS.OK).json({
     success: true,

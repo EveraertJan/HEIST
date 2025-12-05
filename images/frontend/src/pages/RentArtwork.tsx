@@ -110,53 +110,61 @@ export default function RentArtwork() {
       <div className="container" style={{ padding: '48px 24px', maxWidth: '800px' }}>
         <h1 style={{ marginBottom: '32px' }}>Rent Artwork</h1>
 
-        {/* Artwork Info */}
-        <div style={{
-          backgroundColor: 'var(--card-bg)',
-          border: '1px solid var(--border-color)',
-          borderRadius: '8px',
-          padding: '24px',
-          marginBottom: '32px'
-        }}>
-          <h2 style={{ marginBottom: '12px' }}>{artwork.title}</h2>
-          {artwork.description && (
-            <p style={{ color: 'var(--secondary-text)', marginBottom: '12px' }}>
-              {artwork.description}
-            </p>
-          )}
-          {artwork.artists && artwork.artists.length > 0 && (
-            <p style={{ color: 'var(--secondary-text)', fontSize: '14px' }}>
-              By: {artwork.artists.map(a => `${a.first_name} ${a.last_name}`).join(', ')}
-            </p>
-          )}
-
-          {available === false && (
-            <div style={{
-              marginTop: '16px',
-              padding: '12px',
-              backgroundColor: 'rgba(255, 107, 157, 0.1)',
-              border: '1px solid var(--accent-pink)',
-              borderRadius: '4px',
-              color: 'var(--accent-pink)',
-              fontSize: '14px'
-            }}>
-              This artwork is currently rented out and not available
-            </div>
-          )}
-
-          {available === true && (
-            <div style={{
-              marginTop: '16px',
-              padding: '12px',
-              backgroundColor: 'rgba(74, 158, 255, 0.1)',
-              border: '1px solid var(--accent-blue)',
-              borderRadius: '4px',
-              color: 'var(--accent-blue)',
-              fontSize: '14px'
-            }}>
-              ✓ This artwork is available for rental (up to 1 month)
-            </div>
-          )}
+        {/* Artwork Info Table */}
+        <div className="table-container" style={{ marginBottom: '32px' }}>
+          <table className="table">
+            <tbody>
+              <tr>
+                <th>Title</th>
+                <td>{artwork.title}</td>
+              </tr>
+              {artwork.description && (
+                <tr>
+                  <th>Description</th>
+                  <td>{artwork.description}</td>
+                </tr>
+              )}
+              {artwork.artists && artwork.artists.length > 0 && (
+                <tr>
+                  <th>Artists</th>
+                  <td>{artwork.artists.map(a => `${a.first_name} ${a.last_name}`).join(', ')}</td>
+                </tr>
+              )}
+              {artwork.mediums && artwork.mediums.length > 0 && (
+                <tr>
+                  <th>Mediums</th>
+                  <td>{artwork.mediums.map(m => m.name).join(', ')}</td>
+                </tr>
+              )}
+              {(artwork.width || artwork.height || artwork.depth) && (
+                <tr>
+                  <th>Dimensions</th>
+                  <td>
+                    {[
+                      artwork.width && `W: ${artwork.width}`,
+                      artwork.height && `H: ${artwork.height}`,
+                      artwork.depth && `D: ${artwork.depth}`
+                    ].filter(Boolean).join(' × ')}
+                  </td>
+                </tr>
+              )}
+              <tr>
+                <th>Availability</th>
+                <td>
+                  {available === false && (
+                    <span className="table-status cancelled">
+                      Currently rented out and not available
+                    </span>
+                  )}
+                  {available === true && (
+                    <span className="table-status active">
+                      ✓ Available for rental
+                    </span>
+                  )}
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
         {error && (
@@ -194,9 +202,7 @@ export default function RentArtwork() {
             padding: '32px'
           }}>
             <h3 style={{ marginBottom: '16px' }}>Rental Details</h3>
-            <p style={{ color: 'var(--secondary-text)', marginBottom: '24px', fontSize: '14px' }}>
-              Maximum rental period: 1 month from approval date
-            </p>
+            
 
             <form onSubmit={handleSubmit}>
               <div style={{ marginBottom: '20px' }}>

@@ -371,53 +371,90 @@ export default function AdminArtworks() {
           </form>
         </div>
 
-        {/* Artworks List */}
+        {/* Artworks Table */}
         <h2 style={{ marginBottom: '24px', fontSize: '1.5rem' }}>Existing Artworks ({artworks.length})</h2>
         {artworks.length === 0 ? (
           <p style={{ textAlign: 'center', color: 'var(--secondary-text)', padding: '40px' }}>
             No artworks created yet. Create your first artwork above.
           </p>
         ) : (
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-            gap: '24px'
-          }}>
-            {artworks.map(artwork => (
-              <div
-                key={artwork.uuid}
-                style={{
-                  backgroundColor: 'var(--card-bg)',
-                  border: '1px solid var(--border-color)',
-                  borderRadius: '8px',
-                  padding: '24px'
-                }}
-              >
-                <h3 style={{ marginBottom: '12px', fontSize: '1.25rem' }}>{artwork.title}</h3>
-                {artwork.description && (
-                  <p style={{ color: 'var(--secondary-text)', fontSize: '14px', marginBottom: '12px', lineHeight: '1.6' }}>
-                    {artwork.description.substring(0, 100)}{artwork.description.length > 100 ? '...' : ''}
-                  </p>
-                )}
-                {(artwork.width || artwork.height || artwork.depth) && (
-                  <p style={{ color: 'var(--secondary-text)', fontSize: '12px', marginBottom: '12px' }}>
-                    Dimensions: {[
-                      artwork.width && `W: ${artwork.width}`,
-                      artwork.height && `H: ${artwork.height}`,
-                      artwork.depth && `D: ${artwork.depth}`
-                    ].filter(Boolean).join(' × ')}
-                  </p>
-                )}
-                <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
-                  <Button onClick={() => handleEdit(artwork)} variant="info" size="small">
-                    Edit
-                  </Button>
-                  <Button onClick={() => handleDelete(artwork.uuid)} variant="danger" size="small">
-                    Delete
-                  </Button>
-                </div>
-              </div>
-            ))}
+          <div className="table-container">
+            <div className="table-responsive">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Dimensions</th>
+                    <th>Artists</th>
+                    <th>Mediums</th>
+                    <th>Availability</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {artworks.map(artwork => (
+                    <tr key={artwork.uuid}>
+                      <td>
+                        <div style={{ fontWeight: '600', color: 'var(--accent-color)' }}>
+                          {artwork.title}
+                        </div>
+                        <div style={{ fontSize: '12px', color: 'var(--secondary-text)' }}>
+                          ID: {artwork.uuid.substring(0, 8)}
+                        </div>
+                      </td>
+                      <td>
+                        <div style={{ fontSize: '14px', color: 'var(--primary-text)', maxWidth: '200px' }}>
+                          {artwork.description && artwork.description.length > 100
+                            ? `${artwork.description.substring(0, 100)}...`
+                            : artwork.description || '-'}
+                        </div>
+                      </td>
+                      <td>
+                        <div style={{ fontSize: '14px', color: 'var(--primary-text)' }}>
+                          {(artwork.width || artwork.height || artwork.depth)
+                            ? [
+                                artwork.width && `W: ${artwork.width}`,
+                                artwork.height && `H: ${artwork.height}`,
+                                artwork.depth && `D: ${artwork.depth}`
+                              ].filter(Boolean).join(' × ')
+                            : '-'}
+                        </div>
+                      </td>
+                      <td>
+                        <div style={{ fontSize: '14px', color: 'var(--primary-text)' }}>
+                          {artwork.artists?.length > 0
+                            ? artwork.artists.map(a => `${a.first_name} ${a.last_name}`).join(', ')
+                            : '-'}
+                        </div>
+                      </td>
+                      <td>
+                        <div style={{ fontSize: '14px', color: 'var(--primary-text)' }}>
+                          {artwork.mediums?.length > 0
+                            ? artwork.mediums.map(m => m.name).join(', ')
+                            : '-'}
+                        </div>
+                      </td>
+                      <td>
+                        <span className={`table-status ${artwork.is_available ? 'active' : 'cancelled'}`}>
+                          {artwork.is_available ? 'Available' : 'Unavailable'}
+                        </span>
+                      </td>
+                      <td>
+                        <div className="table-actions">
+                          <Button onClick={() => handleEdit(artwork)} variant="info" size="small">
+                            Edit
+                          </Button>
+                          <Button onClick={() => handleDelete(artwork.uuid)} variant="danger" size="small">
+                            Delete
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </div>

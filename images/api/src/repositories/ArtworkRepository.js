@@ -76,7 +76,7 @@ class ArtworkRepository {
       .leftJoin('artworks_artists as aa', 'a.id', 'aa.artwork_id')
       .leftJoin('users as u', 'aa.artist_id', 'u.id')
       .leftJoin('artworks_mediums as am', 'a.id', 'am.artwork_id')
-      .leftJoin('mediums as m', 'am.medium_id', 'm.id');
+      .leftJoin('mediums as m', 'am.medium_id', 'm.id')
 
     // Search by title or artist name
     if (search) {

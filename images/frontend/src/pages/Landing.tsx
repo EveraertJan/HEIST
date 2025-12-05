@@ -27,19 +27,41 @@ export default function Landing() {
               discover hidden gems, and connect with art in ways never before possible.
             </p>
             <hr className="museum-divider" />
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '30px', marginTop: '40px' }}>
-              <div>
-                <h3 style={{ color: 'var(--museum-burgundy)', marginBottom: '15px' }}>Curated Collections</h3>
-                <p>Expertly selected artworks spanning centuries and cultures</p>
-              </div>
-              <div>
-                <h3 style={{ color: 'var(--museum-burgundy)', marginBottom: '15px' }}>Interactive Tours</h3>
-                <p>Guided experiences that bring art to life</p>
-              </div>
-              <div>
-                <h3 style={{ color: 'var(--museum-burgundy)', marginBottom: '15px' }}>Educational Content</h3>
-                <p>Deep insights into artists, movements, and techniques</p>
-              </div>
+            <div className="table-container" style={{ marginTop: '40px' }}>
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Feature</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <h3 style={{ color: 'var(--museum-burgundy)', margin: '0', fontSize: '16px' }}>Curated Collections</h3>
+                    </td>
+                    <td>
+                      <p style={{ margin: '0', color: 'var(--primary-text)' }}>Expertly selected artworks spanning centuries and cultures</p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <h3 style={{ color: 'var(--museum-burgundy)', margin: '0', fontSize: '16px' }}>Interactive Tours</h3>
+                    </td>
+                    <td>
+                      <p style={{ margin: '0', color: 'var(--primary-text)' }}>Guided experiences that bring art to life</p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <h3 style={{ color: 'var(--museum-burgundy)', margin: '0', fontSize: '16px' }}>Educational Content</h3>
+                    </td>
+                    <td>
+                      <p style={{ margin: '0', color: 'var(--primary-text)' }}>Deep insights into artists, movements, and techniques</p>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
