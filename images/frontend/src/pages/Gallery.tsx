@@ -6,18 +6,19 @@ import EmptyState from '../components/common/EmptyState'
 import type { Artwork, Medium } from '../types'
 
 /**
- * Home Page Component
+ * Gallery Page Component
  *
- * Main gallery page displaying all artworks with search and filter functionality.
+ * Browse all available art experiences with search and filter functionality.
+ *
  * Features:
  * - Search by title or artist name
  * - Filter by multiple mediums
  * - Responsive card grid layout
- * - Real-time filtering when medium selection changes
+ * - Real-time filtering
  *
  * @component
  */
-export default function Home() {
+export default function Gallery() {
   const [artworks, setArtworks] = useState<Artwork[]>([])
   const [mediums, setMediums] = useState<Medium[]>([])
   const [searchTerm, setSearchTerm] = useState('')
@@ -48,10 +49,9 @@ export default function Home() {
         searchTerm || undefined,
         selectedMediums.length > 0 ? selectedMediums : undefined
       )
-      console.log(response.data.data)
       setArtworks(response.data.data)
     } catch (err) {
-      setError('Failed to load artworks')
+      setError('Failed to load experiences')
       console.error(err)
     } finally {
       setLoading(false)
@@ -74,40 +74,15 @@ export default function Home() {
 
   return (
     <div style={{ minHeight: '100vh', paddingTop: '80px' }}>
-      <div className="container" style={{ padding: '48px 24px' }}>
-        {/* Hero Section */}
-        <div style={{
-          textAlign: 'center',
-          marginBottom: '64px'
-        }}>
-          <h1 style={{
-            fontSize: '4rem',
-            marginBottom: '24px',
-            background: 'linear-gradient(135deg, var(--accent-blue), var(--accent-purple))',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
-            fontWeight: '700',
-            letterSpacing: '-0.03em'
-          }}>
-            Art Gallery
-          </h1>
-          <p style={{
-            fontSize: '1.25rem',
-            color: 'var(--secondary-text)',
-            maxWidth: '600px',
-            margin: '0 auto'
-          }}>
-            Explore our curated collection of contemporary artworks
-          </p>
-        </div>
-
-        {/* Search and Filter Section */}
+      <div className="container" style={{ maxWidth: '1400px', margin: '0 auto', padding: '48px 24px' }}>
+        {/* Page Header */}
+        
+        {/* Search and Filter */}
         <div style={{
           backgroundColor: 'var(--secondary-bg)',
           border: '1px solid var(--border-color)',
-          borderRadius: '8px',
-          padding: '24px',
+          borderRadius: '16px',
+          padding: '32px',
           marginBottom: '48px'
         }}>
           <div style={{ marginBottom: mediums.length > 0 ? '24px' : '0' }}>
@@ -115,7 +90,7 @@ export default function Home() {
               value={searchTerm}
               onChange={setSearchTerm}
               onSubmit={loadArtworks}
-              placeholder="Search by title or artist name..."
+              placeholder="Search experiences..."
               loading={loading}
             />
           </div>
@@ -132,13 +107,14 @@ export default function Home() {
 
         {/* Error Message */}
         {error && (
-          <div className="error-message" style={{
+          <div style={{
             padding: '16px',
             backgroundColor: 'rgba(255, 107, 157, 0.1)',
             border: '1px solid var(--accent-pink)',
             borderRadius: '8px',
             color: 'var(--accent-pink)',
-            marginBottom: '24px'
+            marginBottom: '24px',
+            textAlign: 'center'
           }}>
             {error}
           </div>
@@ -152,7 +128,7 @@ export default function Home() {
             color: 'var(--secondary-text)',
             fontSize: '18px'
           }}>
-            Loading artworks...
+            Loading experiences...
           </p>
         )}
 
@@ -162,18 +138,18 @@ export default function Home() {
             {artworks.length === 0 ? (
               <EmptyState
                 icon="🎨"
-                message="No artworks found."
+                message="No experiences found"
                 description={
                   searchTerm || selectedMediums.length > 0
                     ? 'Try adjusting your search or filters'
-                    : 'Check back soon for new artworks'
+                    : 'Check back soon for new experiences'
                 }
               />
             ) : (
               <div style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-                gap: '24px'
+                gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+                gap: '32px'
               }}>
                 {artworks.map(artwork => (
                   <ArtworkCard key={artwork.uuid} artwork={artwork} />

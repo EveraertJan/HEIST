@@ -41,7 +41,7 @@ export default function Navbar() {
         }}>
           {/* Logo */}
           <Link
-            to={user ? "/home" : "/"}
+            to="/"
             style={{
               fontSize: '1.5rem',
               fontWeight: '700',
@@ -83,7 +83,7 @@ export default function Navbar() {
               </>
             ) : (
               <>
-                <Link to="/home" style={navLinkStyle(isActive('/home'))}>
+                <Link to="/gallery" style={navLinkStyle(isActive('/gallery'))}>
                   Gallery
                 </Link>
                 <Link to="/my-rentals" style={navLinkStyle(isActive('/my-rentals'))}>

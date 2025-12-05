@@ -4,7 +4,7 @@ import { Navbar, Footer } from './components/common'
 import Landing from './pages/Landing'
 import Login from './pages/Login'
 import Register from './pages/Register'
-import Home from './pages/Home'
+import Gallery from './pages/Gallery'
 import Profile from './pages/Profile'
 import ArtworkDetail from './pages/ArtworkDetail'
 import AdminArtworks from './pages/AdminArtworks'
@@ -41,7 +41,7 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
   }
 
   if (user) {
-    return <Navigate to="/home" />
+    return <Navigate to="/gallery" />
   }
 
   return <>{children}</>
@@ -53,14 +53,8 @@ function AppRoutes() {
       <Navbar />
       <div style={{ flex: 1 , marginTop: '50px'}}>
         <Routes>
-          <Route
-            path="/"
-            element={
-              <PublicRoute>
-                <Landing />
-              </PublicRoute>
-            }
-          />
+          <Route path="/" element={<Landing />} />
+          <Route path="/gallery" element={<Gallery />} />
           <Route
             path="/login"
             element={
@@ -77,8 +71,9 @@ function AppRoutes() {
               </PublicRoute>
             }
           />
-          <Route path="/home" element={<Home />} />
-          <Route path="/artworks/:uuid" element={<ArtworkDetail />} />
+          <Route path="/artworks/:uuid" element={
+            <ArtworkDetail />
+          } />
           <Route
             path="/rent/:uuid"
             element={

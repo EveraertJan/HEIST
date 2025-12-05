@@ -147,7 +147,6 @@ export default function Profile() {
     <div className="single_container container">
       <div className="row">
         <div className="twelve columns">
-          <h2>My Profile</h2>
 
           {error && <p style={{ color: 'red' }}>{error}</p>}
           {success && <p style={{ color: 'green' }}>{success}</p>}
@@ -246,12 +245,12 @@ export default function Profile() {
             </form>
           </div>
 
-          <div style={{ padding: '20px', border: '2px solid #dc3545', backgroundColor: '#fff5f5' }}>
+          <div style={{ padding: '20px', border: '2px solid #dc3545' }}>
             <h4 style={{ color: '#dc3545' }}>Delete Account</h4>
-            <p style={{ color: '#666', marginBottom: '15px' }}>
+            <p style={{ color: '#dc3545', marginBottom: '15px' }}>
               <strong>Warning:</strong> This action cannot be undone. When you delete your account:
             </p>
-            <ul style={{ color: '#666', marginBottom: '15px' }}>
+            <ul style={{ color: '#fff', marginBottom: '15px' }}>
               <li>Your personal information will be permanently removed</li>
               <li>Your feedback content will be replaced with "[Student account removed]"</li>
               <li>Teachers will still see you listed as a removed student</li>
