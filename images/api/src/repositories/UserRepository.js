@@ -175,6 +175,17 @@ class UserRepository {
     return await this.db('classroom_members')
       .where({ user_uuid: uuid });
   }
+
+  /**
+   * Find user by ID
+   * @param {number} userId - User ID
+   * @returns {Promise<Object|null>} User object or null
+   */
+  async findById(userId) {
+    return await this.db('users')
+      .where({ id: userId })
+      .first();
+  }
 }
 
 module.exports = UserRepository;

@@ -235,6 +235,17 @@ class ArtworkRepository {
 
     return deleted > 0;
   }
+
+  /**
+   * Find artwork by ID
+   * @param {number} artworkId - Artwork ID
+   * @returns {Promise<Object|null>} Artwork object or null
+   */
+  async findById(artworkId) {
+    return await this.db('artworks')
+      .where({ id: artworkId })
+      .first();
+  }
 }
 
 module.exports = ArtworkRepository;
