@@ -49,7 +49,7 @@ router.get('/search', asyncHandler(async (req, res) => {
   const { search, mediums } = req.query;
   const limit = parseInt(req.query.limit) || 50;
   const offset = parseInt(req.query.offset) || 0;
-
+  
   const filters = {
     limit,
     offset
@@ -65,7 +65,7 @@ router.get('/search', asyncHandler(async (req, res) => {
 
   const artworkService = container.get('artworkService');
   const artworks = await artworkService.searchArtworks(filters);
-
+  
   res.status(HTTP_STATUS.OK).json({
     success: true,
     data: artworks,
