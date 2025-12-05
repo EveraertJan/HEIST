@@ -9,11 +9,14 @@ const pg = require('./db/db.js');
 
 // Repositories
 const UserRepository = require('./repositories/UserRepository');
+const ArtworkRepository = require('./repositories/ArtworkRepository');
+const MediumRepository = require('./repositories/MediumRepository');
 
 // Services
 const FileStorageService = require('./services/FileStorageService');
 const EmailService = require('./services/EmailService');
 const UserService = require('./services/UserService');
+const ArtworkService = require('./services/ArtworkService');
 
 /**
  * Service Container Class
@@ -37,7 +40,9 @@ class Container {
 
     // Initialize Repositories
     this.services.userRepository = new UserRepository(db);
-    
+    this.services.artworkRepository = new ArtworkRepository(db);
+    this.services.mediumRepository = new MediumRepository(db);
+
 
     this.services.fileStorageService = new FileStorageService(
       config.upload.directory
@@ -60,6 +65,13 @@ class Container {
         jwtSecret: config.auth.jwtSecret,
         saltRounds: config.auth.saltRounds
       }
+    );
+
+    this.services.artworkService = new ArtworkService(
+      this.services.artworkRepository,
+      this.services.mediumRepository,
+      this.services.userRepository,
+      db
     );
 
     this.initialized = true;

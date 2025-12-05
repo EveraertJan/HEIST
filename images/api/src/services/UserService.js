@@ -55,7 +55,7 @@ class UserService {
     }
 
     const token = jwt.sign(
-      { uuid: user.uuid, email: user.email, user_type: user.user_type },
+      { uuid: user.uuid, email: user.email, user_type: user.user_type, is_admin: user.is_admin || false },
       this.config.jwtSecret,
       { expiresIn: '7d' }
     );
@@ -107,7 +107,7 @@ class UserService {
 
     // Generate token
     const token = jwt.sign(
-      { uuid: newUser.uuid, email: newUser.email, first_name: newUser.first_name, last_name: newUser.last_name },
+      { uuid: newUser.uuid, email: newUser.email, first_name: newUser.first_name, last_name: newUser.last_name, is_admin: newUser.is_admin || false },
       this.config.jwtSecret,
       { expiresIn: '7d' }
     );

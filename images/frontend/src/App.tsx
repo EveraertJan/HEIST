@@ -4,7 +4,11 @@ import { Navbar, Footer } from './components/common'
 import Landing from './pages/Landing'
 import Login from './pages/Login'
 import Register from './pages/Register'
+import Home from './pages/Home'
 import Profile from './pages/Profile'
+import ArtworkDetail from './pages/ArtworkDetail'
+import AdminArtworks from './pages/AdminArtworks'
+import AdminMediums from './pages/AdminMediums'
 import FAQ from './pages/FAQ'
 import Terms from './pages/Terms'
 import Privacy from './pages/Privacy'
@@ -68,11 +72,29 @@ function AppRoutes() {
               </PublicRoute>
             }
           />
+          <Route path="/home" element={<Home />} />
+          <Route path="/artworks/:uuid" element={<ArtworkDetail />} />
           <Route
             path="/profile"
             element={
               <PrivateRoute>
                 <Profile />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/admin/artworks"
+            element={
+              <PrivateRoute>
+                <AdminArtworks />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/admin/mediums"
+            element={
+              <PrivateRoute>
+                <AdminMediums />
               </PrivateRoute>
             }
           />

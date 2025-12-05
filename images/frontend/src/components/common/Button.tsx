@@ -8,8 +8,8 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantStyles: Record<string, React.CSSProperties> = {
-  primary: {},
-  secondary: { backgroundColor: colors.white, color: colors.black, border: 'none' },
+  primary: {color: colors.white},
+  secondary: { color: colors.white, border: 'none' },
   danger: { backgroundColor: colors.danger, color: colors.white, border: 'none' },
   warning: { backgroundColor: colors.warning, color: colors.black, border: 'none' },
   success: { backgroundColor: colors.success, color: colors.white, border: 'none' },

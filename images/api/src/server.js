@@ -9,6 +9,8 @@ const { Server } = require('socket.io');
 const cors = require("cors")
 
 const user_routes = require('./routes/users')
+const artwork_routes = require('./routes/artworks')
+const medium_routes = require('./routes/mediums')
 
 const { init } = require('./socket');
 
@@ -23,6 +25,8 @@ app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 app.use('/users', user_routes);
+app.use('/artworks', artwork_routes);
+app.use('/mediums', medium_routes);
 
 app.get('/', (req, res) => {
   res.send("running")
