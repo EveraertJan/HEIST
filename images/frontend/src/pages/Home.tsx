@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { searchArtworks, getAllMediums } from '../services/api'
 import type { Artwork, Medium } from '../types'
@@ -11,10 +11,25 @@ export default function Home() {
   const [selectedMediums, setSelectedMediums] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     loadMediums()
     loadArtworks()
+  }, [])
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
   }, [])
 
   const loadMediums = async () => {
@@ -124,7 +139,7 @@ export default function Home() {
             </div>
           </form>
 
-          {/* Medium Filters */}
+          {/* Medium Filters Dropdown */}
           {mediums.length > 0 && (
             <div>
               <h3 style={{
@@ -137,36 +152,140 @@ export default function Home() {
               }}>
                 Filter by Medium:
               </h3>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
-                {mediums.map(medium => {
-                  const isActive = selectedMediums.includes(medium.uuid)
-                  return (
-                    <label
-                      key={medium.uuid}
-                      style={{
+              <div ref={dropdownRef} style={{ position: 'relative' }}>
+                <button
+                  type="button"
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    width: '100%',
+                    maxWidth: '300px',
+                    padding: '12px 16px',
+                    backgroundColor: 'var(--card-bg)',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: '8px',
+                    color: 'var(--primary-text)',
+                    fontSize: '14px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  <span>
+                    {selectedMediums.length === 0 
+                      ? 'All mediums' 
+                      : `${selectedMediums.length} medium${selectedMediums.length > 1 ? 's' : ''} selected`
+                    }
+                  </span>
+                  <span style={{ 
+                    marginLeft: '8px',
+                    transform: isDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                    transition: 'transform 0.2s ease'
+                  }}>
+                    ▼
+                  </span>
+                </button>
+
+                {isDropdownOpen && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '100%',
+                    left: '0',
+                    right: '0',
+                    zIndex: 1000,
+                    backgroundColor: 'var(--card-bg)',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: '8px',
+                    marginTop: '4px',
+                    maxHeight: '300px',
+                    overflowY: 'auto',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                  }}>
+                    <div style={{ padding: '8px' }}>
+                      {mediums.map(medium => {
+                        const isActive = selectedMediums.includes(medium.uuid)
+                        return (
+                          <label
+                            key={medium.uuid}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '12px',
+                              padding: '10px 12px',
+                              cursor: 'pointer',
+                              borderRadius: '4px',
+                              transition: 'background-color 0.2s ease',
+                              ':hover': {
+                                backgroundColor: 'var(--secondary-bg)'
+                              }
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.backgroundColor = 'var(--secondary-bg)'
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.backgroundColor = 'transparent'
+                            }}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={isActive}
+                              onChange={() => handleMediumToggle(medium.uuid)}
+                              style={{ cursor: 'pointer', width: 'auto', margin: 0 }}
+                            />
+                            <span style={{ 
+                              color: isActive ? 'var(--accent-blue)' : 'var(--primary-text)',
+                              fontSize: '14px'
+                            }}>
+                              {medium.name}
+                            </span>
+                          </label>
+                        )
+                      })}
+                    </div>
+                    
+                    {selectedMediums.length > 0 && (
+                      <div style={{
+                        padding: '12px',
+                        borderTop: '1px solid var(--border-color)',
                         display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        cursor: 'pointer',
-                        padding: '8px 16px',
-                        backgroundColor: isActive ? 'var(--accent-blue)' : 'var(--card-bg)',
-                        color: isActive ? 'var(--primary-bg)' : 'var(--primary-text)',
-                        border: `1px solid ${isActive ? 'var(--accent-blue)' : 'var(--border-color)'}`,
-                        borderRadius: '20px',
-                        fontSize: '14px',
-                        transition: 'all 0.2s ease'
-                      }}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={isActive}
-                        onChange={() => handleMediumToggle(medium.uuid)}
-                        style={{ cursor: 'pointer', width: 'auto', margin: 0 }}
-                      />
-                      {medium.name}
-                    </label>
-                  )
-                })}
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                      }}>
+                        <span style={{ fontSize: '12px', color: 'var(--secondary-text)' }}>
+                          {selectedMediums.length} selected
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedMediums([])
+                            setIsDropdownOpen(false)
+                          }}
+                          style={{
+                            padding: '6px 12px',
+                            backgroundColor: 'transparent',
+                            border: '1px solid var(--border-color)',
+                            borderRadius: '4px',
+                            color: 'var(--secondary-text)',
+                            fontSize: '12px',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = 'var(--secondary-bg)'
+                            e.currentTarget.style.color = 'var(--primary-text)'
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = 'transparent'
+                            e.currentTarget.style.color = 'var(--secondary-text)'
+                          }}
+                        >
+                          Clear all
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           )}

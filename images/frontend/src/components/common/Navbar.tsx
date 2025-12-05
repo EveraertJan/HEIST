@@ -94,9 +94,6 @@ export default function Navbar() {
                     <Link to="/admin/artworks" style={navLinkStyle(isActive('/admin/artworks'))}>
                       Manage Artworks
                     </Link>
-                    <Link to="/admin/mediums" style={navLinkStyle(isActive('/admin/mediums'))}>
-                      Manage Mediums
-                    </Link>
                     <Link to="/admin/rentals" style={navLinkStyle(isActive('/admin/rentals'))}>
                       Manage Rentals
                     </Link>

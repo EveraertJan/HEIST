@@ -95,7 +95,7 @@ class ArtworkRepository {
     const artworks = await query
       .limit(limit)
       .offset(offset)
-      .orderBy('a.created_at', 'desc');
+      .orderBy('a.created_at', 'desc')
 
     return artworks;
   }
