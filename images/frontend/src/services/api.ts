@@ -67,10 +67,10 @@ export const searchArtworks = (search?: string, mediums?: string[], limit = 50, 
 export const getArtworkByUuid = (uuid: string) =>
   api.get<{ success: boolean; data: Artwork }>(`/artworks/${uuid}`)
 
-export const createArtwork = (data: { title: string; description?: string; size?: string; artistUuids: string[]; mediumUuids?: string[] }) =>
+export const createArtwork = (data: { title: string; description?: string; width?: string; height?: string; depth?: string; artistUuids: string[]; mediumUuids?: string[] }) =>
   api.post<{ success: boolean; data: Artwork }>('/artworks', data)
 
-export const updateArtwork = (uuid: string, data: { title?: string; description?: string; size?: string }) =>
+export const updateArtwork = (uuid: string, data: { title?: string; description?: string; width?: string; height?: string; depth?: string }) =>
   api.put<{ success: boolean; data: Artwork }>(`/artworks/${uuid}`, data)
 
 export const deleteArtwork = (uuid: string) =>

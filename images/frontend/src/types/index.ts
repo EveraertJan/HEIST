@@ -38,7 +38,10 @@ export interface Artwork {
   uuid: string
   title: string
   description?: string
-  size?: string
+  size?: string  // Legacy field, will be deprecated
+  width?: string
+  height?: string
+  depth?: string
   created_at: string
   updated_at: string
   artists?: Artist[]

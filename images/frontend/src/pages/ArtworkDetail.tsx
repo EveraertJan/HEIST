@@ -153,8 +153,8 @@ export default function ArtworkDetail() {
             </div>
           )}
 
-          {/* Size */}
-          {artwork.size && (
+          {/* Dimensions */}
+          {(artwork.width || artwork.height || artwork.depth) && (
             <div style={{ marginBottom: '32px' }}>
               <h3 style={{
                 fontSize: '14px',
@@ -164,11 +164,28 @@ export default function ArtworkDetail() {
                 marginBottom: '12px',
                 fontWeight: '600'
               }}>
-                Size
+                Dimensions
               </h3>
-              <p style={{ color: 'var(--primary-text)', fontSize: '16px' }}>
-                {artwork.size}
-              </p>
+              <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
+                {artwork.width && (
+                  <div>
+                    <span style={{ color: 'var(--secondary-text)', fontSize: '14px' }}>Width: </span>
+                    <span style={{ color: 'var(--primary-text)', fontSize: '16px', fontWeight: '500' }}>{artwork.width}</span>
+                  </div>
+                )}
+                {artwork.height && (
+                  <div>
+                    <span style={{ color: 'var(--secondary-text)', fontSize: '14px' }}>Height: </span>
+                    <span style={{ color: 'var(--primary-text)', fontSize: '16px', fontWeight: '500' }}>{artwork.height}</span>
+                  </div>
+                )}
+                {artwork.depth && (
+                  <div>
+                    <span style={{ color: 'var(--secondary-text)', fontSize: '14px' }}>Depth: </span>
+                    <span style={{ color: 'var(--primary-text)', fontSize: '16px', fontWeight: '500' }}>{artwork.depth}</span>
+                  </div>
+                )}
+              </div>
             </div>
           )}
 

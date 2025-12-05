@@ -118,10 +118,13 @@ export default function Home() {
               />
               <button
                 type="submit"
-                className="btn btn-primary"
+                className="btn"
                 style={{
+                  border: '1px solid #fff',
                   cursor: 'pointer',
+                  padding: '0px 10px',
                   fontSize: '16px',
+                  color: '#fff',
                   fontWeight: '500',
                   textTransform: 'uppercase',
                   letterSpacing: '0.05em'

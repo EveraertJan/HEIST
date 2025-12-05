@@ -20,7 +20,9 @@ export default function AdminArtworks() {
   const [editingUuid, setEditingUuid] = useState<string | null>(null)
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
-  const [size, setSize] = useState('')
+  const [width, setWidth] = useState('')
+  const [height, setHeight] = useState('')
+  const [depth, setDepth] = useState('')
   const [selectedArtistUuids, setSelectedArtistUuids] = useState<string[]>([])
   const [selectedMediumUuids, setSelectedMediumUuids] = useState<string[]>([])
 
@@ -69,13 +71,15 @@ export default function AdminArtworks() {
       }
 
       if (isEditing && editingUuid) {
-        await updateArtwork(editingUuid, { title, description, size })
+        await updateArtwork(editingUuid, { title, description, width, height, depth })
         setSuccess('Artwork updated successfully')
       } else {
         await createArtwork({
           title,
           description,
-          size,
+          width,
+          height,
+          depth,
           artistUuids: selectedArtistUuids,
           mediumUuids: selectedMediumUuids
         })
@@ -94,7 +98,9 @@ export default function AdminArtworks() {
     setEditingUuid(artwork.uuid)
     setTitle(artwork.title)
     setDescription(artwork.description || '')
-    setSize(artwork.size || '')
+    setWidth(artwork.width || '')
+    setHeight(artwork.height || '')
+    setDepth(artwork.depth || '')
     setSelectedArtistUuids(artwork.artists?.map(a => a.uuid) || [])
     setSelectedMediumUuids(artwork.mediums?.map(m => m.uuid) || [])
     window.scrollTo(0, 0)
@@ -117,7 +123,9 @@ export default function AdminArtworks() {
     setEditingUuid(null)
     setTitle('')
     setDescription('')
-    setSize('')
+    setWidth('')
+    setHeight('')
+    setDepth('')
     setSelectedArtistUuids([])
     setSelectedMediumUuids([])
   }
@@ -219,17 +227,43 @@ export default function AdminArtworks() {
               />
             </div>
 
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{ display: 'block', marginBottom: '8px', color: 'var(--secondary-text)', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                Size
-              </label>
-              <input
-                type="text"
-                value={size}
-                onChange={(e) => setSize(e.target.value)}
-                placeholder="e.g., 24x36 inches"
-                style={{ width: '100%' }}
-              />
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '20px' }}>
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', color: 'var(--secondary-text)', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                  Width
+                </label>
+                <input
+                  type="text"
+                  value={width}
+                  onChange={(e) => setWidth(e.target.value)}
+                  placeholder="e.g., 24 cm"
+                  style={{ width: '100%' }}
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', color: 'var(--secondary-text)', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                  Height
+                </label>
+                <input
+                  type="text"
+                  value={height}
+                  onChange={(e) => setHeight(e.target.value)}
+                  placeholder="e.g., 36 cm"
+                  style={{ width: '100%' }}
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', color: 'var(--secondary-text)', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                  Depth
+                </label>
+                <input
+                  type="text"
+                  value={depth}
+                  onChange={(e) => setDepth(e.target.value)}
+                  placeholder="e.g., 5 cm"
+                  style={{ width: '100%' }}
+                />
+              </div>
             </div>
 
             {/* Artist Selection */}
@@ -395,9 +429,13 @@ export default function AdminArtworks() {
                     {artwork.description.substring(0, 100)}{artwork.description.length > 100 ? '...' : ''}
                   </p>
                 )}
-                {artwork.size && (
+                {(artwork.width || artwork.height || artwork.depth) && (
                   <p style={{ color: 'var(--secondary-text)', fontSize: '12px', marginBottom: '12px' }}>
-                    Size: {artwork.size}
+                    Dimensions: {[
+                      artwork.width && `W: ${artwork.width}`,
+                      artwork.height && `H: ${artwork.height}`,
+                      artwork.depth && `D: ${artwork.depth}`
+                    ].filter(Boolean).join(' × ')}
                   </p>
                 )}
                 <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>

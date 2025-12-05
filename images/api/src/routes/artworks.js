@@ -120,16 +120,18 @@ router.post(
   decodeToken,
   requireAdmin,
   validateRequiredFields(['title', 'artistUuids']),
-  sanitizeText(['title', 'description', 'size'], 1000),
+  sanitizeText(['title', 'description', 'width', 'height', 'depth'], 1000),
   asyncHandler(async (req, res) => {
 
-    const { title, description, size, artistUuids, mediumUuids } = req.body;
+    const { title, description, width, height, depth, artistUuids, mediumUuids } = req.body;
 
     const artworkService = container.get('artworkService');
     const artwork = await artworkService.createArtwork({
       title,
       description,
-      size,
+      width,
+      height,
+      depth,
       artistUuids,
       mediumUuids: mediumUuids || []
     });
@@ -160,16 +162,18 @@ router.put(
   '/:uuid',
   decodeToken,
   requireAdmin,
-  sanitizeText(['title', 'description', 'size'], 1000),
+  sanitizeText(['title', 'description', 'width', 'height', 'depth'], 1000),
   asyncHandler(async (req, res) => {
 
     const { uuid } = req.params;
-    const { title, description, size } = req.body;
+    const { title, description, width, height, depth } = req.body;
 
     const updates = {};
     if (title !== undefined) updates.title = title;
     if (description !== undefined) updates.description = description;
-    if (size !== undefined) updates.size = size;
+    if (width !== undefined) updates.width = width;
+    if (height !== undefined) updates.height = height;
+    if (depth !== undefined) updates.depth = depth;
 
     const artworkService = container.get('artworkService');
     const artwork = await artworkService.updateArtwork(uuid, updates);
