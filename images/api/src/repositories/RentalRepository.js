@@ -84,6 +84,16 @@ class RentalRepository {
   }
 
   /**
+   * Find rental by user ID
+   */
+  async findById(rentalId) {
+    return await this.db('rentals')
+      .select('*')
+      .where('id', rentalId)
+      .first();
+  }
+
+  /**
    * Check if artwork is available for rental
    * An artwork is unavailable if it has any active rental (requested or approved status)
    * Returns true if available, false if already rented

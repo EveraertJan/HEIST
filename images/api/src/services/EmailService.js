@@ -137,8 +137,165 @@ class EmailService {
         <p>You requested to reset your password. Click the button below to reset it:</p>
         <p><a href="${this.escapeHtml(resetLink)}" style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Reset Password</a></p>
         <p>Or copy and paste this link into your browser:<br>${this.escapeHtml(resetLink)}</p>
-        <p>If you didn't request this, please ignore this email.</p>
+        <p>If you didn't request this, Please ignore this email.</p>
         <p>Best regards,<br>The Checkpoint Team</p>
+      `
+    };
+
+    return await this.sendEmail(emailData);
+  }
+
+  /**
+   * Send rental approval email
+   * @param {Object} user - User object
+   * @param {Object} artwork - Artwork object
+   * @param {Object} rental - Rental object
+   * @returns {Promise<Object>} Nodemailer send result
+   * @throws {Error} Email sending error
+   */
+  async sendRentalApprovalEmail(user, artwork, rental) {
+    const userName = `${user.first_name} ${user.last_name}`;
+    const rentalDate = new Date(rental.approved_at).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+    
+    const expectedReturnDate = new Date(rental.expected_return_date).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+
+    const emailData = {
+      to: user.email,
+      subject: '🎉 Your Artwork Rental Request Has Been Approved!',
+      text: `Dear ${userName},\n\nGreat news! Your rental request for "${artwork.title}" has been approved.\n\nRental Details:\n- Artwork: ${artwork.title}\n- Rental Date: ${rentalDate}\n- Expected Return Date: ${expectedReturnDate}\n- Delivery Address: ${rental.address}\n\nPlease prepare to receive the artwork and ensure the delivery address is accessible. We'll contact you soon with delivery arrangements.\n\nThank you for choosing our art rental service!\n\nBest regards,\nThe HEIST Team`,
+      html: `
+        <div style="max-width: 600px; margin: 0 auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;">
+          <div style="background: linear-gradient(135deg, #4a9eff, #b388ff); padding: 40px; border-radius: 12px; text-align: center; margin-bottom: 30px;">
+            <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 700;">🎉 Rental Approved!</h1>
+          </div>
+          
+          <div style="background: #ffffff; padding: 40px; border-radius: 12px; border: 1px solid #e0e0e0;">
+            <h2 style="color: #333; margin: 0 0 20px 0; font-size: 24px;">Great News, ${this.escapeHtml(userName)}!</h2>
+            <p style="color: #666; font-size: 16px; line-height: 1.6; margin: 0 0 30px 0;">
+              Your rental request for <strong style="color: #4a9eff;">"${this.escapeHtml(artwork.title)}"</strong> has been approved!
+            </p>
+            
+            <div style="background: #f8f9fa; padding: 25px; border-radius: 8px; margin: 30px 0; border-left: 4px solid #4a9eff;">
+              <h3 style="color: #333; margin: 0 0 15px 0; font-size: 18px;">Rental Details:</h3>
+              
+              <div style="display: grid; grid-template-columns: 120px 1fr; gap: 10px; margin-bottom: 15px;">
+                <strong style="color: #666;">Artwork:</strong>
+                <span style="color: #333;">${this.escapeHtml(artwork.title)}</span>
+              </div>
+              
+              <div style="display: grid; grid-template-columns: 120px 1fr; gap: 10px; margin-bottom: 15px;">
+                <strong style="color: #666;">Rental Date:</strong>
+                <span style="color: #333;">${rentalDate}</span>
+              </div>
+              
+              <div style="display: grid; grid-template-columns: 120px 1fr; gap: 10px; margin-bottom: 15px;">
+                <strong style="color: #666;">Expected Return:</strong>
+                <span style="color: #333;">${expectedReturnDate}</span>
+              </div>
+              
+              <div style="display: grid; grid-template-columns: 120px 1fr; gap: 10px;">
+                <strong style="color: #666;">Delivery Address:</strong>
+                <span style="color: #333;">${this.escapeHtml(rental.address)}</span>
+              </div>
+            </div>
+            
+            <div style="background: #e8f4fd; padding: 20px; border-radius: 8px; margin: 30px 0; text-align: center;">
+              <p style="color: #1976d2; margin: 0; font-size: 16px; font-weight: 500;">
+                📦 Please prepare to receive the artwork and ensure the delivery address is accessible.
+              </p>
+              <p style="color: #1976d2; margin: 10px 0 0 0; font-size: 16px; font-weight: 500;">
+                We'll contact you soon with delivery arrangements.
+              </p>
+            </div>
+            
+            <div style="text-align: center; margin-top: 40px; padding-top: 30px; border-top: 1px solid #e0e0e0;">
+              <p style="color: #666; margin: 0 0 10px 0; font-size: 14px;">
+                Thank you for choosing our art rental service!
+              </p>
+              <p style="color: #333; margin: 0; font-size: 16px; font-weight: 600;">
+                Best regards,<br>
+                <span style="color: #4a9eff;">The HEIST Team</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      `
+    };
+
+    return await this.sendEmail(emailData);
+  }
+
+  /**
+   * Send rental rejection email
+   * @param {Object} user - User object
+   * @param {Object} artwork - Artwork object
+   * @param {Object} rental - Rental object
+   * @returns {Promise<Object>} Nodemailer send result
+   * @throws {Error} Email sending error
+   */
+  async sendRentalRejectionEmail(user, artwork, rental) {
+    const userName = `${user.first_name} ${user.last_name}`;
+    const requestDate = new Date(rental.created_at).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+
+    const emailData = {
+      to: user.email,
+      subject: 'Update on Your Artwork Rental Request',
+      text: `Dear ${userName},\n\nWe regret to inform you that your rental request for "${artwork.title}" has been declined.\n\nRequest Details:\n- Artwork: ${artwork.title}\n- Request Date: ${requestDate}\n\nWe encourage you to continue exploring our collection and submit new rental requests for other artworks.\n\nThank you for your interest in our art rental service.\n\nBest regards,\nThe HEIST Team`,
+      html: `
+        <div style="max-width: 600px; margin: 0 auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;">
+          <div style="background: linear-gradient(135deg, #ff6b9d, #e91e63); padding: 40px; border-radius: 12px; text-align: center; margin-bottom: 30px;">
+            <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 700;">Rental Request Update</h1>
+          </div>
+          
+          <div style="background: #ffffff; padding: 40px; border-radius: 12px; border: 1px solid #e0e0e0;">
+            <h2 style="color: #333; margin: 0 0 20px 0; font-size: 24px;">Hello ${this.escapeHtml(userName)},</h2>
+            <p style="color: #666; font-size: 16px; line-height: 1.6; margin: 0 0 30px 0;">
+              We regret to inform you that your rental request for <strong style="color: #ff6b9d;">"${this.escapeHtml(artwork.title)}"</strong> has been declined.
+            </p>
+            
+            <div style="background: #fff5f5; padding: 25px; border-radius: 8px; margin: 30px 0; border-left: 4px solid #ff6b9d;">
+              <h3 style="color: #333; margin: 0 0 15px 0; font-size: 18px;">Request Details:</h3>
+              
+              <div style="display: grid; grid-template-columns: 120px 1fr; gap: 10px; margin-bottom: 15px;">
+                <strong style="color: #666;">Artwork:</strong>
+                <span style="color: #333;">${this.escapeHtml(artwork.title)}</span>
+              </div>
+              
+              <div style="display: grid; grid-template-columns: 120px 1fr; gap: 10px;">
+                <strong style="color: #666;">Request Date:</strong>
+                <span style="color: #333;">${requestDate}</span>
+              </div>
+            </div>
+            
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 30px 0; text-align: center;">
+              <p style="color: #666; margin: 0; font-size: 16px; font-weight: 500;">
+                🎨 We encourage you to continue exploring our collection and submit new rental requests for other artworks.
+              </p>
+            </div>
+            
+            <div style="text-align: center; margin-top: 40px; padding-top: 30px; border-top: 1px solid #e0e0e0;">
+              <p style="color: #666; margin: 0 0 10px 0; font-size: 14px;">
+                Thank you for your interest in our art rental service.
+              </p>
+              <p style="color: #333; margin: 0; font-size: 16px; font-weight: 600;">
+                Best regards,<br>
+                <span style="color: #ff6b9d;">The HEIST Team</span>
+              </p>
+            </div>
+          </div>
+        </div>
       `
     };
 

@@ -4,10 +4,11 @@ const { v4: uuidv4 } = require('uuid');
  * RentalService - Business logic for rental operations
  */
 class RentalService {
-  constructor(rentalRepository, artworkRepository, userRepository) {
+  constructor(rentalRepository, artworkRepository, userRepository, emailService) {
     this.rentalRepository = rentalRepository;
     this.artworkRepository = artworkRepository;
     this.userRepository = userRepository;
+    this.emailService = emailService;
   }
 
   /**
@@ -121,11 +122,23 @@ class RentalService {
       throw error;
     }
 
+    // Get user and artwork details for email
+    const user = await this.userRepository.findById(rental.user_id);
+    const artwork = await this.artworkRepository.findById(rental.artwork_id);
+
     await this.rentalRepository.update(uuid, {
       status: 'approved',
       approved_by: adminUser.id,
       approved_at: new Date()
     });
+
+    // Send approval email to user
+    try {
+      await this.emailService.sendRentalApprovalEmail(user, artwork, rental);
+    } catch (emailError) {
+      console.error('Failed to send rental approval email:', emailError);
+      // Don't throw error - rental was approved successfully
+    }
 
     return await this.rentalRepository.findByUuid(uuid);
   }
@@ -148,9 +161,21 @@ class RentalService {
       throw error;
     }
 
+    // Get user and artwork details for email
+    const user = await this.userRepository.findById(rental.user_id);
+    const artwork = await this.artworkRepository.findById(rental.artwork_id);
+
     await this.rentalRepository.update(uuid, {
       status: 'rejected'
     });
+
+    // Send rejection email to user
+    try {
+      await this.emailService.sendRentalRejectionEmail(user, artwork, rental);
+    } catch (emailError) {
+      console.error('Failed to send rental rejection email:', emailError);
+      // Don't throw error - rental was rejected successfully
+    }
 
     return await this.rentalRepository.findByUuid(uuid);
   }

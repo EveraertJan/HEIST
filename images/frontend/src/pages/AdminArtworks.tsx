@@ -551,7 +551,6 @@ export default function AdminArtworks() {
                 <thead>
                   <tr>
                     <th>Title</th>
-                    <th>Description</th>
                     <th>Dimensions</th>
                     <th>Artists</th>
                     <th>Mediums</th>
@@ -568,13 +567,6 @@ export default function AdminArtworks() {
                         </div>
                         <div style={{ fontSize: '12px', color: 'var(--secondary-text)' }}>
                           ID: {artwork.uuid.substring(0, 8)}
-                        </div>
-                      </td>
-                      <td>
-                        <div style={{ fontSize: '14px', color: 'var(--primary-text)', maxWidth: '200px' }}>
-                          {artwork.description && artwork.description.length > 100
-                            ? `${artwork.description.substring(0, 100)}...`
-                            : artwork.description || '-'}
                         </div>
                       </td>
                       <td>
