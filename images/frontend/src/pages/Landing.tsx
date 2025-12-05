@@ -193,68 +193,70 @@ export default function Landing() {
               gap: '32px'
             }}>
               {featuredArtworks.map((artwork, index) => {
-                const firstImage = artwork.images?.[0]
-                return (
-                  <Link
-                    key={artwork.uuid}
-                    to={`/artworks/${artwork.uuid}`}
-                    style={{
-                      textDecoration: 'none',
-                      color: 'inherit',
-                      display: 'block',
-                      position: 'relative',
-                      aspectRatio: '4/5',
-                      overflow: 'hidden',
-                      backgroundColor: '#1a1a1a'
-                    }}
-                  >
-                    {firstImage ? (
-                      <img
-                        src={getImageUrl(firstImage.filename)}
-                        alt={artwork.title}
-                        style={{
+                if(index < 3) {
+                  const firstImage = artwork.images?.[0]
+                  return (
+                    <Link
+                      key={artwork.uuid}
+                      to={`/artworks/${artwork.uuid}`}
+                      style={{
+                        textDecoration: 'none',
+                        color: 'inherit',
+                        display: 'block',
+                        position: 'relative',
+                        aspectRatio: '4/5',
+                        overflow: 'hidden',
+                        backgroundColor: '#1a1a1a'
+                      }}
+                    >
+                      {firstImage ? (
+                        <img
+                          src={getImageUrl(firstImage.filename)}
+                          alt={artwork.title}
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            transition: 'transform 0.6s ease'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.transform = 'scale(1.05)'
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.transform = 'scale(1)'
+                          }}
+                        />
+                      ) : (
+                        <div style={{
                           width: '100%',
                           height: '100%',
-                          objectFit: 'cover',
-                          transition: 'transform 0.6s ease'
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.transform = 'scale(1.05)'
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.transform = 'scale(1)'
-                        }}
-                      />
-                    ) : (
-                      <div style={{
-                        width: '100%',
-                        height: '100%',
-                        background: `linear-gradient(135deg,
-                          ${index === 0 ? '#C2FE0B' : index === 1 ? '#4A9EFF' : index === 2 ? '#FF6B9D' : '#10B981'} 30%,
-                          #000000 100%)`
-                      }} />
-                    )}
+                          background: `linear-gradient(135deg,
+                            ${index === 0 ? '#C2FE0B' : index === 1 ? '#4A9EFF' : index === 2 ? '#FF6B9D' : '#10B981'} 30%,
+                            #000000 100%)`
+                        }} />
+                      )}
 
-                    <div style={{
-                      position: 'absolute',
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      padding: '24px 40px',
-                      background: 'linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.9) 60%)'
-                    }}>
-                      <span style={{
-                        fontSize: '1.25rem',
-                        fontWeight: '600',
-                        color: '#ffffff',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.05em'
+                      <div style={{
+                        position: 'absolute',
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        padding: '24px 40px',
+                        background: 'linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.9) 60%)'
                       }}>
-                        {artwork.title}
-                      </span>
-                    </div>
-                  </Link>
-                )
+                        <span style={{
+                          fontSize: '1.25rem',
+                          fontWeight: '600',
+                          color: '#ffffff',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.05em'
+                        }}>
+                          {artwork.title}
+                        </span>
+                      </div>
+                    </Link>
+                  )
+                }
               })}
             </div>
           )}

@@ -19,6 +19,7 @@ services:
       SMTP_PASSWORD: ${SMTP_PASSWORD}
     volumes:
       - ./images/api/src:/usr/app/src
+      - ./_volumes/uploads:/usr/app/uploads
     depends_on:
       db:
         condition: service_healthy

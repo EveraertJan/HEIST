@@ -83,9 +83,10 @@ export default function Gallery() {
           border: '1px solid var(--border-color)',
           borderRadius: '16px',
           padding: '32px',
+          paddingBottom: '0px',
           marginBottom: '48px'
         }}>
-          <div style={{ marginBottom: mediums.length > 0 ? '24px' : '0' }}>
+          <div>
             <SearchBar
               value={searchTerm}
               onChange={setSearchTerm}

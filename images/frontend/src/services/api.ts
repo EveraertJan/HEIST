@@ -73,7 +73,7 @@ export const getArtworkByUuid = (uuid: string) =>
 export const createArtwork = (data: { title: string; description?: string; width?: string; height?: string; depth?: string; artistUuids: string[]; mediumUuids?: string[] }) =>
   api.post<{ success: boolean; data: Artwork }>('/artworks', data)
 
-export const updateArtwork = (uuid: string, data: { title?: string; description?: string; width?: string; height?: string; depth?: string }) =>
+export const updateArtwork = (uuid: string, data: { title?: string; description?: string; width?: string; height?: string; depth?: string; artistUuids?: string[]; mediumUuids?: string[] }) =>
   api.put<{ success: boolean; data: Artwork }>(`/artworks/${uuid}`, data)
 
 export const deleteArtwork = (uuid: string) =>

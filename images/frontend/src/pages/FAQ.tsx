@@ -7,40 +7,48 @@ interface FAQItem {
 
 const faqData: FAQItem[] = [
   {
-    question: "What is Checkpoint?",
-    answer: "Checkpoint is a classroom management platform that allows teachers to track student progress through customizable checkpoints and provide feedback. It helps educators monitor learning milestones and give timely, constructive feedback to students."
+    question: "What is Heist?",
+    answer: "Heist is a curated platform for renting immersive art experiences designed for homes, offices, and events. We transform spaces through carefully selected digital art installations that spark conversations and create memorable environments."
   },
   {
-    question: "How do I create a classroom?",
-    answer: "After logging in, go to your home page and click 'Create Classroom'. Fill in the classroom name, academic year, and optionally set an email domain restriction for students joining. Once created, you'll receive an invite code to share with your students."
+    question: "How do I rent an artwork?",
+    answer: "Browse our gallery, select an artwork that interests you, and click 'Rent Artwork'. You'll need to provide delivery address and contact information. Your request will be reviewed by our team, and once approved, we'll arrange delivery and setup."
   },
   {
-    question: "How do students join a classroom?",
-    answer: "Students can join a classroom by clicking the 'Join Classroom' button on their home page and entering the invite code provided by their teacher. Alternatively, teachers can share a direct invite link that students can click to join automatically."
+    question: "What types of art experiences do you offer?",
+    answer: "We offer various mediums including digital installations, projection art, interactive pieces, and immersive environments. Each experience is designed to transform spaces and create engaging atmospheres for both personal and professional settings."
   },
   {
-    question: "What are checkpoints?",
-    answer: "Checkpoints are milestones that teachers create to track student progress. They represent key learning objectives or stages in a course. Teachers can mark when students have reached each checkpoint, providing a clear visual of each student's progress."
+    question: "How long can I rent an artwork?",
+    answer: "The maximum rental period is 1 month. Rental durations can be discussed based on your specific needs, especially for corporate events or longer exhibitions."
   },
   {
-    question: "Can I reorder checkpoints after creating them?",
-    answer: "Yes, teachers can reorder checkpoints using the up/down arrows next to each checkpoint. However, reordering is only possible before any student has reached any checkpoint in that classroom. This ensures consistency in progress tracking."
+    question: "Do you provide installation and setup?",
+    answer: "Yes, we provide all necessary equipment and setup guidance for a seamless installation. Our team ensures that each artwork is properly installed and ready for your experience."
   },
   {
-    question: "How does the feedback system work?",
-    answer: "Teachers and students can add feedback entries that appear in a timeline view. Feedback can include rich text and images. Teachers can lock feedback to prevent further editing, and both parties can see the complete history of feedback for each student."
+    question: "Can I rent artworks for corporate events?",
+    answer: "Absolutely! We specialize in creating unforgettable corporate experiences. Our installations serve as powerful conversation catalysts for conferences, offices, showrooms, and exclusive events. Contact us at events@heist.gallery for custom curation."
   },
   {
-    question: "Can I restrict who joins my classroom?",
-    answer: "Yes, when creating a classroom, you can set an 'Allowed Email Domain' restriction. Only users with email addresses from that domain (e.g., @student.school.edu) will be able to join your classroom."
+    question: "How do I check if an artwork is available?",
+    answer: "Each artwork in our gallery shows its availability status. If an artwork is currently rented out, it will be marked as unavailable. You can still submit a request, and we'll notify you when it becomes available."
   },
   {
-    question: "What happens when I mark a classroom as completed?",
-    answer: "When a classroom is marked as completed, no new feedback can be added. Students and teachers can still view all historical data, but the classroom becomes read-only. This is useful for archiving classes at the end of a semester."
+    question: "What happens after I submit a rental request?",
+    answer: "Your request goes through an approval process. You'll receive updates on the status: requested (pending), approved, finalized (completed), or rejected. You can track all your requests in the 'My Rentals' section."
   },
   {
-    question: "How do I update my profile information?",
-    answer: "Click on 'Profile' in the navigation bar. From there, you can update your name, email address, date of birth, and change your password. Make sure to save your changes after editing."
+    question: "How do I create an account?",
+    answer: "Click 'Request Membership' on the login page and fill in your details. Once registered, you can browse artworks, submit rental requests, and manage your profile information."
+  },
+  {
+    question: "What are the delivery requirements?",
+    answer: "You'll need to provide a complete delivery address and phone number when requesting a rental. Our team will coordinate delivery timing and any specific setup requirements for your space."
+  },
+  {
+    question: "Can I search or filter artworks?",
+    answer: "Yes, our gallery allows you to search by artwork title or artist name, and filter by different mediums. This helps you find the perfect experience for your space and preferences."
   },
   {
     question: "Is my data secure?",
@@ -61,8 +69,8 @@ export default function FAQ() {
         <div className="ten columns offset-by-one">
           <h2>Frequently Asked Questions</h2>
           <p style={{ marginBottom: '30px' }}>
-            Find answers to common questions about Checkpoint. Can't find what you're looking for?
-            Feel free to <a href="/contact">contact us</a>.
+            Find answers to common questions about Heist. Can't find what you're looking for?
+            Feel free to <a href="mailto:events@heist.gallery">contact us</a>.
           </p>
 
           <div>
@@ -80,7 +88,6 @@ export default function FAQ() {
                   style={{
                     padding: '15px',
                     cursor: 'pointer',
-                    backgroundColor: openIndex === index ? '#f0f0f0' : '#fff',
                     fontWeight: 'bold',
                     display: 'flex',
                     justifyContent: 'space-between',
@@ -96,7 +103,6 @@ export default function FAQ() {
                   <div style={{
                     padding: '15px',
                     borderTop: '1px solid #ddd',
-                    backgroundColor: '#fafafa'
                   }}>
                     {faq.answer}
                   </div>
