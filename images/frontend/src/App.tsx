@@ -9,6 +9,9 @@ import Profile from './pages/Profile'
 import ArtworkDetail from './pages/ArtworkDetail'
 import AdminArtworks from './pages/AdminArtworks'
 import AdminMediums from './pages/AdminMediums'
+import AdminRentals from './pages/AdminRentals'
+import RentArtwork from './pages/RentArtwork'
+import MyRentals from './pages/MyRentals'
 import FAQ from './pages/FAQ'
 import Terms from './pages/Terms'
 import Privacy from './pages/Privacy'
@@ -75,6 +78,22 @@ function AppRoutes() {
           <Route path="/home" element={<Home />} />
           <Route path="/artworks/:uuid" element={<ArtworkDetail />} />
           <Route
+            path="/rent/:uuid"
+            element={
+              <PrivateRoute>
+                <RentArtwork />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/my-rentals"
+            element={
+              <PrivateRoute>
+                <MyRentals />
+              </PrivateRoute>
+            }
+          />
+          <Route
             path="/profile"
             element={
               <PrivateRoute>
@@ -95,6 +114,14 @@ function AppRoutes() {
             element={
               <PrivateRoute>
                 <AdminMediums />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/admin/rentals"
+            element={
+              <PrivateRoute>
+                <AdminRentals />
               </PrivateRoute>
             }
           />

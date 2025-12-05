@@ -11,12 +11,14 @@ const pg = require('./db/db.js');
 const UserRepository = require('./repositories/UserRepository');
 const ArtworkRepository = require('./repositories/ArtworkRepository');
 const MediumRepository = require('./repositories/MediumRepository');
+const RentalRepository = require('./repositories/RentalRepository');
 
 // Services
 const FileStorageService = require('./services/FileStorageService');
 const EmailService = require('./services/EmailService');
 const UserService = require('./services/UserService');
 const ArtworkService = require('./services/ArtworkService');
+const RentalService = require('./services/RentalService');
 
 /**
  * Service Container Class
@@ -42,7 +44,7 @@ class Container {
     this.services.userRepository = new UserRepository(db);
     this.services.artworkRepository = new ArtworkRepository(db);
     this.services.mediumRepository = new MediumRepository(db);
-
+    this.services.rentalRepository = new RentalRepository(db);
 
     this.services.fileStorageService = new FileStorageService(
       config.upload.directory
@@ -72,6 +74,12 @@ class Container {
       this.services.mediumRepository,
       this.services.userRepository,
       db
+    );
+
+    this.services.rentalService = new RentalService(
+      this.services.rentalRepository,
+      this.services.artworkRepository,
+      this.services.userRepository
     );
 
     this.initialized = true;

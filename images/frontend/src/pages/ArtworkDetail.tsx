@@ -69,10 +69,13 @@ export default function ArtworkDetail() {
   return (
     <div style={{ minHeight: '100vh', paddingTop: '80px' }}>
       <div className="container" style={{ padding: '48px 24px', maxWidth: '1000px' }}>
-        {/* Back Button */}
-        <div style={{ marginBottom: '32px' }}>
+        {/* Back Button and Actions */}
+        <div style={{ marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
           <Button onClick={() => navigate('/home')} variant="secondary" size="medium">
             ← Back to Gallery
+          </Button>
+          <Button onClick={() => navigate(`/rent/${uuid}`)} variant="primary" size="medium">
+            Rent This Artwork
           </Button>
         </div>
 

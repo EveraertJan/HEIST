@@ -86,6 +86,9 @@ export default function Navbar() {
                 <Link to="/home" style={navLinkStyle(isActive('/home'))}>
                   Gallery
                 </Link>
+                <Link to="/my-rentals" style={navLinkStyle(isActive('/my-rentals'))}>
+                  My Rentals
+                </Link>
                 {user.is_admin && (
                   <>
                     <Link to="/admin/artworks" style={navLinkStyle(isActive('/admin/artworks'))}>
@@ -93,6 +96,9 @@ export default function Navbar() {
                     </Link>
                     <Link to="/admin/mediums" style={navLinkStyle(isActive('/admin/mediums'))}>
                       Manage Mediums
+                    </Link>
+                    <Link to="/admin/rentals" style={navLinkStyle(isActive('/admin/rentals'))}>
+                      Manage Rentals
                     </Link>
                   </>
                 )}

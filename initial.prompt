@@ -1,5 +1,5 @@
-[ ] As a user, I can request to rent out an artwork
-[ ] As a user, when renting out an artwork, I need to supply an address, phone number and a timespan. 
-[ ] As a user, I cannot select an artwork to rent if it is already rented by another user, even if it is just a requested rent
-[ ] As an admin user, I can approve a request to rent an artwork
-[ ] As an admin user, I can mark a rent as finalised when the artwork is returned
+[x] As a user, I can request to rent out an artwork
+[x] As a user, when renting out an artwork, I need to supply an address, phone number and a timespan. 
+[x] As a user, I cannot select an artwork to rent if it is already rented by another user, even if it is just a requested rent
+[x] As an admin user, I can approve a request to rent an artwork
+[x] As an admin user, I can mark a rent as finalised when the artwork is returned

@@ -1,6 +1,6 @@
 import axios from 'axios'
 import MD5 from 'crypto-js/md5'
-import type { User, Artwork, Medium } from '../types'
+import type { User, Artwork, Medium, Rental } from '../types'
 
 // Use /api prefix for Vite proxy, or direct URL for development
 const API_URL = import.meta.env.VITE_API_URL || '/api'
@@ -82,5 +82,33 @@ export const getAllMediums = () =>
 
 export const createMedium = (name: string) =>
   api.post<{ success: boolean; data: Medium }>('/mediums', { name })
+
+// Rental APIs
+export const getMyRentals = () =>
+  api.get<{ success: boolean; data: Rental[] }>('/rentals/my-rentals')
+
+export const getAllRentals = (limit = 50, offset = 0) =>
+  api.get<{ success: boolean; data: Rental[]; pagination: any }>('/rentals', { params: { limit, offset } })
+
+export const getPendingRentals = () =>
+  api.get<{ success: boolean; data: Rental[] }>('/rentals/pending')
+
+export const getRentalByUuid = (uuid: string) =>
+  api.get<{ success: boolean; data: Rental }>(`/rentals/${uuid}`)
+
+export const checkArtworkAvailability = (artworkUuid: string, startDate: string, endDate: string) =>
+  api.post<{ success: boolean; data: { available: boolean } }>('/rentals/check-availability', { artworkUuid, startDate, endDate })
+
+export const createRentalRequest = (data: { artworkUuid: string; address: string; phoneNumber: string; startDate: string; endDate: string }) =>
+  api.post<{ success: boolean; data: Rental }>('/rentals', data)
+
+export const approveRental = (uuid: string) =>
+  api.put<{ success: boolean; data: Rental }>(`/rentals/${uuid}/approve`)
+
+export const rejectRental = (uuid: string) =>
+  api.put<{ success: boolean; data: Rental }>(`/rentals/${uuid}/reject`)
+
+export const finalizeRental = (uuid: string) =>
+  api.put<{ success: boolean; data: Rental }>(`/rentals/${uuid}/finalize`)
 
 export default api
