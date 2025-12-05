@@ -226,8 +226,13 @@ export default function AdminRentals() {
                     <strong>Rental Period:</strong>
                   </p>
                   <p style={{ color: 'var(--primary-text)', fontSize: '14px' }}>
-                    {new Date(rental.start_date).toLocaleDateString()} - {new Date(rental.end_date).toLocaleDateString()}
+                    Up to 1 month from approval
                   </p>
+                  {rental.expected_return_date && (
+                    <p style={{ color: 'var(--secondary-text)', fontSize: '12px' }}>
+                      Expected return: {new Date(rental.expected_return_date).toLocaleDateString()}
+                    </p>
+                  )}
                 </div>
 
                 <div style={{ marginBottom: '12px' }}>

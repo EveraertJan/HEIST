@@ -96,10 +96,10 @@ export const getPendingRentals = () =>
 export const getRentalByUuid = (uuid: string) =>
   api.get<{ success: boolean; data: Rental }>(`/rentals/${uuid}`)
 
-export const checkArtworkAvailability = (artworkUuid: string, startDate: string, endDate: string) =>
-  api.post<{ success: boolean; data: { available: boolean } }>('/rentals/check-availability', { artworkUuid, startDate, endDate })
+export const checkArtworkAvailability = (artworkUuid: string) =>
+  api.get<{ success: boolean; data: { available: boolean } }>(`/rentals/check-availability/${artworkUuid}`)
 
-export const createRentalRequest = (data: { artworkUuid: string; address: string; phoneNumber: string; startDate: string; endDate: string }) =>
+export const createRentalRequest = (data: { artworkUuid: string; address: string; phoneNumber: string }) =>
   api.post<{ success: boolean; data: Rental }>('/rentals', data)
 
 export const approveRental = (uuid: string) =>

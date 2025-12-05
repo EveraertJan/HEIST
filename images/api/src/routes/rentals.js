@@ -91,17 +91,16 @@ router.get('/:uuid', decodeToken, asyncHandler(async (req, res) => {
 }));
 
 /**
- * @route POST /rentals/check-availability
- * @description Check if artwork is available for rental dates
+ * @route GET /rentals/check-availability/:uuid
+ * @description Check if artwork is available for rental
  * @access Public
  */
-router.post('/check-availability',
-  validateRequiredFields(['artworkUuid', 'startDate', 'endDate']),
+router.get('/check-availability/:uuid',
   asyncHandler(async (req, res) => {
-    const { artworkUuid, startDate, endDate } = req.body;
+    const { uuid } = req.params;
 
     const rentalService = container.get('rentalService');
-    const result = await rentalService.checkArtworkAvailability(artworkUuid, startDate, endDate);
+    const result = await rentalService.checkArtworkAvailability(uuid);
 
     res.status(HTTP_STATUS.OK).json({
       success: true,
@@ -117,19 +116,17 @@ router.post('/check-availability',
  */
 router.post('/',
   decodeToken,
-  validateRequiredFields(['artworkUuid', 'address', 'phoneNumber', 'startDate', 'endDate']),
+  validateRequiredFields(['artworkUuid', 'address', 'phoneNumber']),
   sanitizeText(['address', 'phoneNumber'], 500),
   asyncHandler(async (req, res) => {
-    const { artworkUuid, address, phoneNumber, startDate, endDate } = req.body;
+    const { artworkUuid, address, phoneNumber } = req.body;
 
     const rentalService = container.get('rentalService');
     const rental = await rentalService.createRentalRequest({
       artworkUuid,
-      userId: req.user.id,
+      userUuid: req.user.uuid,
       address,
-      phoneNumber,
-      startDate,
-      endDate
+      phoneNumber
     });
 
     res.status(HTTP_STATUS.CREATED).json({
@@ -152,7 +149,7 @@ router.put('/:uuid/approve',
     const { uuid } = req.params;
 
     const rentalService = container.get('rentalService');
-    const rental = await rentalService.approveRental(uuid, req.user.id);
+    const rental = await rentalService.approveRental(uuid, req.user.uuid);
 
     res.status(HTTP_STATUS.OK).json({
       success: true,
@@ -174,7 +171,7 @@ router.put('/:uuid/reject',
     const { uuid } = req.params;
 
     const rentalService = container.get('rentalService');
-    const rental = await rentalService.rejectRental(uuid, req.user.id);
+    const rental = await rentalService.rejectRental(uuid, req.user.uuid);
 
     res.status(HTTP_STATUS.OK).json({
       success: true,
@@ -196,7 +193,7 @@ router.put('/:uuid/finalize',
     const { uuid } = req.params;
 
     const rentalService = container.get('rentalService');
-    const rental = await rentalService.finalizeRental(uuid, req.user.id);
+    const rental = await rentalService.finalizeRental(uuid, req.user.uuid);
 
     res.status(HTTP_STATUS.OK).json({
       success: true,

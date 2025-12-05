@@ -55,8 +55,8 @@ export interface Rental {
   user_id: number
   address: string
   phone_number: string
-  start_date: string
-  end_date: string
+  rental_date: string
+  expected_return_date: string
   status: 'requested' | 'approved' | 'finalized' | 'rejected'
   approved_by?: number
   approved_at?: string

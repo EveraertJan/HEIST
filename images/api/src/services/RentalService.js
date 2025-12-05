@@ -53,8 +53,8 @@ class RentalService {
       user_id: user.id,
       address,
       phone_number: phoneNumber,
-      rental_date: rentalDate.toISOString().split('T')[0],
-      expected_return_date: expectedReturnDate.toISOString().split('T')[0],
+      start_date: rentalDate.toISOString().split('T')[0],
+      end_date: expectedReturnDate.toISOString().split('T')[0],
       status: 'requested'
     });
 
@@ -98,7 +98,7 @@ class RentalService {
   /**
    * Approve rental request (admin)
    */
-  async approveRental(uuid, adminUserId) {
+  async approveRental(uuid, adminUserUuid) {
     const rental = await this.rentalRepository.findByUuid(uuid);
 
     if (!rental) {
@@ -113,23 +113,17 @@ class RentalService {
       throw error;
     }
 
-    // Check if still available
-    const isAvailable = await this.rentalRepository.isArtworkAvailable(
-      rental.artwork_id,
-      rental.start_date,
-      rental.end_date,
-      rental.id
-    );
-
-    if (!isAvailable) {
-      const error = new Error('Artwork is no longer available for the selected dates');
-      error.statusCode = 409;
+    // Find admin user
+    const adminUser = await this.userRepository.findByUuid(adminUserUuid);
+    if (!adminUser) {
+      const error = new Error('Admin user not found');
+      error.statusCode = 404;
       throw error;
     }
 
-    const updated = await this.rentalRepository.update(uuid, {
+    await this.rentalRepository.update(uuid, {
       status: 'approved',
-      approved_by: adminUserId,
+      approved_by: adminUser.id,
       approved_at: new Date()
     });
 
@@ -139,7 +133,7 @@ class RentalService {
   /**
    * Reject rental request (admin)
    */
-  async rejectRental(uuid, adminUserId) {
+  async rejectRental(uuid, adminUserUuid) {
     const rental = await this.rentalRepository.findByUuid(uuid);
 
     if (!rental) {
@@ -164,7 +158,7 @@ class RentalService {
   /**
    * Finalize rental (admin - artwork returned)
    */
-  async finalizeRental(uuid, adminUserId) {
+  async finalizeRental(uuid, adminUserUuid) {
     const rental = await this.rentalRepository.findByUuid(uuid);
 
     if (!rental) {
@@ -179,9 +173,17 @@ class RentalService {
       throw error;
     }
 
+    // Find admin user
+    const adminUser = await this.userRepository.findByUuid(adminUserUuid);
+    if (!adminUser) {
+      const error = new Error('Admin user not found');
+      error.statusCode = 404;
+      throw error;
+    }
+
     await this.rentalRepository.update(uuid, {
       status: 'finalized',
-      finalized_by: adminUserId,
+      finalized_by: adminUser.id,
       finalized_at: new Date()
     });
 
@@ -191,7 +193,7 @@ class RentalService {
   /**
    * Check if artwork is available for rental
    */
-  async checkArtworkAvailability(artworkUuid, startDate, endDate) {
+  async checkArtworkAvailability(artworkUuid) {
     const artwork = await this.artworkRepository.findByUuid(artworkUuid);
     if (!artwork) {
       const error = new Error('Artwork not found');
@@ -199,11 +201,7 @@ class RentalService {
       throw error;
     }
 
-    const isAvailable = await this.rentalRepository.isArtworkAvailable(
-      artwork.id,
-      startDate,
-      endDate
-    );
+    const isAvailable = await this.rentalRepository.isArtworkAvailable(artwork.id);
 
     return { available: isAvailable };
   }

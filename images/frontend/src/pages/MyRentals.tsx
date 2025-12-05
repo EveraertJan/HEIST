@@ -149,8 +149,13 @@ export default function MyRentals() {
                     <strong>Rental Period:</strong>
                   </p>
                   <p style={{ color: 'var(--primary-text)', fontSize: '14px' }}>
-                    {new Date(rental.start_date).toLocaleDateString()} - {new Date(rental.end_date).toLocaleDateString()}
+                    Up to 1 month from approval
                   </p>
+                  {rental.rental_date && (
+                    <p style={{ color: 'var(--secondary-text)', fontSize: '12px' }}>
+                      Requested for: {new Date(rental.rental_date).toLocaleDateString()}
+                    </p>
+                  )}
                 </div>
 
                 <div style={{ marginBottom: '12px' }}>

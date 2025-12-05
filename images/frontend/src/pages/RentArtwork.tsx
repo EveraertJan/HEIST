@@ -15,14 +15,11 @@ export default function RentArtwork() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [available, setAvailable] = useState<boolean | null>(null)
 
   // Form state
   const [address, setAddress] = useState('')
   const [phoneNumber, setPhoneNumber] = useState('')
-  const [startDate, setStartDate] = useState('')
-  const [endDate, setEndDate] = useState('')
-  const [availability, setAvailability] = useState<boolean | null>(null)
-  const [checkingAvailability, setCheckingAvailability] = useState(false)
 
   useEffect(() => {
     if (!user) {
@@ -31,6 +28,7 @@ export default function RentArtwork() {
     }
     if (uuid) {
       loadArtwork(uuid)
+      checkAvailability(uuid)
     }
   }, [uuid, user])
 
@@ -46,29 +44,17 @@ export default function RentArtwork() {
     }
   }
 
-  const handleCheckAvailability = async () => {
-    if (!uuid || !startDate || !endDate) return
-
+  const checkAvailability = async (artworkUuid: string) => {
     try {
-      setCheckingAvailability(true)
-      setError('')
-      const response = await checkArtworkAvailability(uuid, startDate, endDate)
-      setAvailability(response.data.data.available)
+      const response = await checkArtworkAvailability(artworkUuid)
+      setAvailable(response.data.data.available)
       if (!response.data.data.available) {
-        setError('This artwork is not available for the selected dates')
+        setError('This artwork is currently not available for rental')
       }
     } catch (err) {
-      setError('Failed to check availability')
-    } finally {
-      setCheckingAvailability(false)
+      console.error('Failed to check availability', err)
     }
   }
-
-  useEffect(() => {
-    if (startDate && endDate) {
-      handleCheckAvailability()
-    }
-  }, [startDate, endDate])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -77,8 +63,8 @@ export default function RentArtwork() {
 
     if (!uuid) return
 
-    if (availability === false) {
-      setError('Artwork is not available for selected dates')
+    if (available === false) {
+      setError('Artwork is not available')
       return
     }
 
@@ -87,11 +73,9 @@ export default function RentArtwork() {
       await createRentalRequest({
         artworkUuid: uuid,
         address,
-        phoneNumber,
-        startDate,
-        endDate
+        phoneNumber
       })
-      setSuccess('Rental request submitted successfully! An admin will review your request.')
+      setSuccess('Rental request submitted successfully! An admin will review your request. Maximum rental period is 1 month.')
       setTimeout(() => navigate('/my-rentals'), 2000)
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to submit rental request')
@@ -145,6 +129,34 @@ export default function RentArtwork() {
               By: {artwork.artists.map(a => `${a.first_name} ${a.last_name}`).join(', ')}
             </p>
           )}
+
+          {available === false && (
+            <div style={{
+              marginTop: '16px',
+              padding: '12px',
+              backgroundColor: 'rgba(255, 107, 157, 0.1)',
+              border: '1px solid var(--accent-pink)',
+              borderRadius: '4px',
+              color: 'var(--accent-pink)',
+              fontSize: '14px'
+            }}>
+              This artwork is currently rented out and not available
+            </div>
+          )}
+
+          {available === true && (
+            <div style={{
+              marginTop: '16px',
+              padding: '12px',
+              backgroundColor: 'rgba(74, 158, 255, 0.1)',
+              border: '1px solid var(--accent-blue)',
+              borderRadius: '4px',
+              color: 'var(--accent-blue)',
+              fontSize: '14px'
+            }}>
+              ✓ This artwork is available for rental (up to 1 month)
+            </div>
+          )}
         </div>
 
         {error && (
@@ -174,94 +186,58 @@ export default function RentArtwork() {
         )}
 
         {/* Rental Request Form */}
-        <div style={{
-          backgroundColor: 'var(--card-bg)',
-          border: '1px solid var(--border-color)',
-          borderRadius: '8px',
-          padding: '32px'
-        }}>
-          <h3 style={{ marginBottom: '24px' }}>Rental Details</h3>
+        {available !== false && (
+          <div style={{
+            backgroundColor: 'var(--card-bg)',
+            border: '1px solid var(--border-color)',
+            borderRadius: '8px',
+            padding: '32px'
+          }}>
+            <h3 style={{ marginBottom: '16px' }}>Rental Details</h3>
+            <p style={{ color: 'var(--secondary-text)', marginBottom: '24px', fontSize: '14px' }}>
+              Maximum rental period: 1 month from approval date
+            </p>
 
-          <form onSubmit={handleSubmit}>
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{ display: 'block', marginBottom: '8px', color: 'var(--secondary-text)', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                Delivery Address *
-              </label>
-              <textarea
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                required
-                rows={3}
-                placeholder="Enter your full delivery address"
-                style={{ width: '100%', resize: 'vertical' }}
-              />
-            </div>
-
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{ display: 'block', marginBottom: '8px', color: 'var(--secondary-text)', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                Phone Number *
-              </label>
-              <input
-                type="tel"
-                value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                required
-                placeholder="e.g., +1 234 567 8900"
-                style={{ width: '100%' }}
-              />
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
-              <div>
+            <form onSubmit={handleSubmit}>
+              <div style={{ marginBottom: '20px' }}>
                 <label style={{ display: 'block', marginBottom: '8px', color: 'var(--secondary-text)', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                  Start Date *
+                  Delivery Address *
+                </label>
+                <textarea
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  required
+                  rows={3}
+                  placeholder="Enter your full delivery address"
+                  style={{ width: '100%', resize: 'vertical' }}
+                />
+              </div>
+
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', marginBottom: '8px', color: 'var(--secondary-text)', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                  Phone Number *
                 </label>
                 <input
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
+                  type="tel"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
                   required
-                  min={new Date().toISOString().split('T')[0]}
+                  placeholder="e.g., +1 234 567 8900"
                   style={{ width: '100%' }}
                 />
               </div>
-              <div>
-                <label style={{ display: 'block', marginBottom: '8px', color: 'var(--secondary-text)', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                  End Date *
-                </label>
-                <input
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  required
-                  min={startDate || new Date().toISOString().split('T')[0]}
-                  style={{ width: '100%' }}
-                />
+
+              <div style={{ display: 'flex', gap: '16px' }}>
+                <Button type="submit" variant="primary" size="large" disabled={submitting || available === false}>
+                  {submitting ? 'Submitting...' : 'Submit Rental Request'}
+                </Button>
+                <Button type="button" onClick={() => navigate(`/artworks/${uuid}`)} variant="secondary" size="large">
+                  Cancel
+                </Button>
               </div>
-            </div>
-
-            {checkingAvailability && (
-              <p style={{ color: 'var(--secondary-text)', fontSize: '14px', marginBottom: '20px' }}>
-                Checking availability...
-              </p>
-            )}
-
-            {availability === true && !checkingAvailability && (
-              <p style={{ color: 'var(--accent-blue)', fontSize: '14px', marginBottom: '20px' }}>
-                ✓ Artwork is available for selected dates
-              </p>
-            )}
-
-            <div style={{ display: 'flex', gap: '16px' }}>
-              <Button type="submit" variant="primary" size="large" disabled={submitting || availability === false}>
-                {submitting ? 'Submitting...' : 'Submit Rental Request'}
-              </Button>
-              <Button type="button" onClick={() => navigate(`/artworks/${uuid}`)} variant="secondary" size="large">
-                Cancel
-              </Button>
-            </div>
-          </form>
-        </div>
+            </form>
+          </div>
+        )}
       </div>
     </div>
   )
