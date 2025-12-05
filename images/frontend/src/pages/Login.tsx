@@ -20,18 +20,7 @@ export default function Login() {
     try {
       const userData = await login(email, password)
 
-      // Check user_type and redirect accordingly
-      if (userData.user_type === 'student') {
-        // Redirect to student domain
-        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-        if (isLocalhost) {
-          window.location.href = 'http://localhost:5174/home'
-        } else {
-          window.location.href = 'https://student.checkpoint.academy/home'
-        }
-      } else {
-        navigate('/home')
-      }
+      navigate('/')
     } catch (err) {
       setError('Invalid email or password')
     } finally {
@@ -59,7 +48,7 @@ export default function Login() {
                 borderRadius: '4px',
                 padding: '12px',
                 fontFamily: '"Crimson Text", serif',
-                fontSize: '1.1rem',
+                fontSize: '12pt',
                 marginBottom: '20px'
               }}
             />
