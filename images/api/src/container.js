@@ -11,14 +11,9 @@ const pg = require('./db/db.js');
 const UserRepository = require('./repositories/UserRepository');
 
 // Services
-const AuthorizationService = require('./services/AuthorizationService');
 const FileStorageService = require('./services/FileStorageService');
 const EmailService = require('./services/EmailService');
 const UserService = require('./services/UserService');
-const ClassroomService = require('./services/ClassroomService');
-const CheckpointService = require('./services/CheckpointService');
-const FeedbackService = require('./services/FeedbackService');
-const NoteService = require('./services/NoteService');
 
 /**
  * Service Container Class
@@ -43,10 +38,6 @@ class Container {
     // Initialize Repositories
     this.services.userRepository = new UserRepository(db);
     
-    // Initialize Infrastructure Services
-    this.services.authorizationService = new AuthorizationService(
-      this.services.classroomRepository
-    );
 
     this.services.fileStorageService = new FileStorageService(
       config.upload.directory
@@ -63,10 +54,7 @@ class Container {
     // Initialize Domain Services
     this.services.userService = new UserService(
       this.services.userRepository,
-      this.services.classroomRepository,
-      this.services.feedbackRepository,
       this.services.fileStorageService,
-      this.services.pendingMemberRepository,
       db,
       {
         jwtSecret: config.auth.jwtSecret,
