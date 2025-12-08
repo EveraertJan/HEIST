@@ -5,7 +5,6 @@
  * Used in edit mode to view, update descriptions, and delete images.
  */
 
-import { useState } from 'react'
 import type { ArtworkImage } from '../../types'
 import { getImageUrl } from '../../utils'
 import Button from '../common/Button'

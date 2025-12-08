@@ -159,21 +159,21 @@ export default function AdminArtworks() {
                       </td>
                       <td>
                         <div style={{ fontSize: '14px', color: 'var(--primary-text)' }}>
-                          {artwork.artists?.length > 0
+                          {artwork.artists && artwork.artists.length > 0
                             ? artwork.artists.map(a => `${a.first_name} ${a.last_name}`).join(', ')
                             : '-'}
                         </div>
                       </td>
                       <td>
                         <div style={{ fontSize: '14px', color: 'var(--primary-text)' }}>
-                          {artwork.mediums?.length > 0
+                          {artwork.mediums && artwork.mediums.length > 0
                             ? artwork.mediums.map(m => m.name).join(', ')
                             : '-'}
                         </div>
                       </td>
                       <td>
-                        <span className={`table-status ${artwork.is_available ? 'active' : 'cancelled'}`}>
-                          {artwork.is_available ? 'Available' : 'Unavailable'}
+                        <span className="table-status active">
+                          Available
                         </span>
                       </td>
                       <td>
