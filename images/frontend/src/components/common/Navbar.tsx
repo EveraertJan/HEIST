@@ -45,7 +45,8 @@ export default function Navbar() {
               fontWeight: '700',
               letterSpacing: '-0.03em',
               color: 'var(--accent-color)',
-              textDecoration: 'none'
+              textDecoration: 'none',
+              textTransform: 'uppercase'
             }}
           >
             Ontastbaar
