@@ -184,7 +184,7 @@ router.put(
   asyncHandler(async (req, res) => {
 
     const { uuid } = req.params;
-    const { title, description, width, height, depth } = req.body;
+    const { title, description, width, height, depth, artistUuids, mediumUuids } = req.body;
 
     const updates = {};
     if (title !== undefined) updates.title = title;
@@ -192,6 +192,8 @@ router.put(
     if (width !== undefined) updates.width = width;
     if (height !== undefined) updates.height = height;
     if (depth !== undefined) updates.depth = depth;
+    if (artistUuids !== undefined) updates.artistUuids = artistUuids;
+    if (mediumUuids !== undefined) updates.mediumUuids = mediumUuids;
 
     const artworkService = container.get('artworkService');
     const artwork = await artworkService.updateArtwork(uuid, updates);
