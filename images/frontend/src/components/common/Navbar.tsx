@@ -41,7 +41,7 @@ export default function Navbar() {
           <Link
             to="/"
             style={{
-              fontSize: '1.5rem',
+              fontSize: '2.5rem',
               fontWeight: '700',
               letterSpacing: '-0.03em',
               color: 'var(--accent-color)',

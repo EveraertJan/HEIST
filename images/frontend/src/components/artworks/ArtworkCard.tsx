@@ -126,7 +126,7 @@ export default function ArtworkCard({ artwork, showFullDescription = false }: Ar
             fontSize: '20px',
             fontWeight: '600',
             marginBottom: '8px',
-            color: 'var(--accent-blue)'
+            color: 'var(--accent-yellow)'
           }}>
             {artwork.title}
           </h3>

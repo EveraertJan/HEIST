@@ -173,7 +173,7 @@ export default function MediumFilter({
                       style={{ cursor: 'pointer', width: 'auto', margin: 0 }}
                     />
                     <span style={{
-                      color: isActive ? 'var(--accent-blue)' : 'var(--primary-text)',
+                      color: isActive ? 'var(--accent-yellow)' : 'var(--primary-text)',
                       fontSize: '14px'
                     }}>
                       {medium.name}

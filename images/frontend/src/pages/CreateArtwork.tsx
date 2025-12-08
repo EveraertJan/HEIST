@@ -298,9 +298,9 @@ export default function CreateArtwork() {
           <div className="success-message" style={{
             padding: '16px',
             backgroundColor: 'rgba(74, 158, 255, 0.1)',
-            border: '1px solid var(--accent-blue)',
+            border: '1px solid var(--accent-yellow)',
             borderRadius: '8px',
-            color: 'var(--accent-blue)',
+            color: 'var(--accent-yellow)',
             marginBottom: '24px'
           }}>
             {success}
@@ -403,9 +403,9 @@ export default function CreateArtwork() {
                         gap: '8px',
                         cursor: 'pointer',
                         padding: '8px 12px',
-                        backgroundColor: selectedArtistUuids.includes(artist.uuid) ? 'var(--accent-blue)' : 'var(--card-bg)',
+                        backgroundColor: selectedArtistUuids.includes(artist.uuid) ? 'var(--accent-yellow)' : 'var(--card-bg)',
                         color: selectedArtistUuids.includes(artist.uuid) ? 'var(--primary-bg)' : 'var(--primary-text)',
-                        border: `1px solid ${selectedArtistUuids.includes(artist.uuid) ? 'var(--accent-blue)' : 'var(--border-color)'}`,
+                        border: `1px solid ${selectedArtistUuids.includes(artist.uuid) ? 'var(--accent-yellow)' : 'var(--border-color)'}`,
                         borderRadius: '4px',
                         fontSize: '14px',
                         transition: 'all 0.2s ease'

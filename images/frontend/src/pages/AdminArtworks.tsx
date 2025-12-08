@@ -106,9 +106,9 @@ export default function AdminArtworks() {
           <div className="success-message" style={{
             padding: '16px',
             backgroundColor: 'rgba(74, 158, 255, 0.1)',
-            border: '1px solid var(--accent-blue)',
+            border: '1px solid var(--accent-yellow)',
             borderRadius: '8px',
-            color: 'var(--accent-blue)',
+            color: 'var(--accent-yellow)',
             marginBottom: '24px'
           }}>
             {success}

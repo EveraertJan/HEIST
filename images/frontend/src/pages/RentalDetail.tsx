@@ -77,7 +77,7 @@ export default function RentalDetail() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'requested':
-        return 'var(--accent-blue)'
+        return 'var(--accent-yellow)'
       case 'approved':
         return '#4caf50'
       case 'finalized':
@@ -158,9 +158,9 @@ export default function RentalDetail() {
           <div style={{
             padding: '16px',
             backgroundColor: 'rgba(74, 158, 255, 0.1)',
-            border: '1px solid var(--accent-blue)',
+            border: '1px solid var(--accent-yellow)',
             borderRadius: '8px',
-            color: 'var(--accent-blue)',
+            color: 'var(--accent-yellow)',
             marginBottom: '24px'
           }}>
             {success}

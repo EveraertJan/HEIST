@@ -12,7 +12,8 @@
   --hover-bg: #252525;
 
   /* Accent Colors */
-  --accent-blue: #4a9eff;
+  --accent-yellow: #4a9eff;
+  --accent-yellow: rgb(246, 240, 135);
   --accent-purple: #b388ff;
   --accent-pink: #ff6b9d;
 
@@ -82,7 +83,7 @@ p {
 }
 
 a {
-  color: var(--accent-blue);
+  color: var(--accent-yellow);
   text-decoration: none;
   transition: color var(--transition-fast);
 }
@@ -162,7 +163,7 @@ input:focus,
 textarea:focus,
 select:focus {
   outline: none;
-  border-color: var(--accent-blue);
+  border-color: var(--accent-yellow);
   box-shadow: 0 0 0 3px rgba(74, 158, 255, 0.1);
 }
 
@@ -181,7 +182,7 @@ input::placeholder {
 }
 
 .card:hover {
-  border-color: var(--accent-blue);
+  border-color: var(--accent-yellow);
   transform: translateY(-4px);
   box-shadow: 0 12px 40px rgba(74, 158, 255, 0.15);
 }
@@ -256,7 +257,7 @@ input::placeholder {
 
 .table-status.active {
   background-color: rgba(74, 158, 255, 0.2);
-  color: var(--accent-blue);
+  color: var(--accent-yellow);
 }
 
 .table-status.pending {
@@ -307,9 +308,9 @@ input::placeholder {
 .success-message {
   padding: var(--spacing-md);
   background-color: rgba(74, 158, 255, 0.1);
-  border: 1px solid var(--accent-blue);
+  border: 1px solid var(--accent-yellow);
   border-radius: var(--radius-md);
-  color: var(--accent-blue);
+  color: var(--accent-yellow);
   margin-bottom: var(--spacing-md);
 }
 
@@ -563,7 +564,7 @@ html {
 
 .hero-btn.secondary:hover {
   background: var(--card-bg);
-  border-color: var(--accent-blue);
+  border-color: var(--accent-yellow);
   transform: translateY(-2px);
 }
 
@@ -619,7 +620,7 @@ html {
 
 .preview-frame:hover {
   transform: scale(1.05);
-  border-color: var(--accent-blue);
+  border-color: var(--accent-yellow);
   box-shadow: 0 20px 40px rgba(74, 158, 255, 0.3);
 }
 
@@ -690,7 +691,7 @@ html {
 
 .feature-card:hover {
   transform: translateY(-10px);
-  border-color: var(--accent-blue);
+  border-color: var(--accent-yellow);
   box-shadow: 0 30px 60px rgba(74, 158, 255, 0.2);
 }
 
@@ -844,7 +845,7 @@ html {
 
 .cta-btn.secondary:hover {
   background: var(--card-bg);
-  border-color: var(--accent-blue);
+  border-color: var(--accent-yellow);
   transform: translateY(-2px);
 }
 
@@ -874,7 +875,7 @@ html {
 
 .artwork-card:hover {
   transform: translateY(-8px);
-  border-color: var(--accent-blue);
+  border-color: var(--accent-yellow);
   box-shadow: 0 25px 50px rgba(74, 158, 255, 0.2);
 }
 

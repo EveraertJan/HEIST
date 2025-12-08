@@ -58,7 +58,7 @@ export default function NewImageUploadSection({
             cursor: 'pointer',
             display: 'inline-block',
             padding: '12px 24px',
-            backgroundColor: 'var(--accent-blue)',
+            backgroundColor: 'var(--accent-yellow)',
             color: 'white',
             borderRadius: '4px',
             fontSize: '14px',
@@ -68,7 +68,7 @@ export default function NewImageUploadSection({
             e.currentTarget.style.backgroundColor = 'var(--accent-purple)'
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'var(--accent-blue)'
+            e.currentTarget.style.backgroundColor = 'var(--accent-yellow)'
           }}
         >
           Choose Images
@@ -162,7 +162,7 @@ export default function NewImageUploadSection({
             disabled={isUploading}
             style={{
               padding: '12px 24px',
-              backgroundColor: 'var(--accent-blue)',
+              backgroundColor: 'var(--accent-yellow)',
               color: 'white',
               border: 'none',
               borderRadius: '4px',
