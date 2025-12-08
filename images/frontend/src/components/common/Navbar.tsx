@@ -195,7 +195,7 @@ export default function Navbar() {
 
         <div
           style={{
-            width: '280px',
+            width: '100%',
             maxWidth: '80vw',
             backgroundColor: 'rgba(10, 10, 10, 0.98)',
             backdropFilter: 'blur(10px)',

@@ -77,7 +77,7 @@ export default function ImageGrid({
           display: 'grid',
           gridTemplateColumns: images.length === 1
             ? '1fr'
-            : 'repeat(auto-fit, minmax(280px, 1fr))',
+            : 'repeat(auto-fit, minmax(200px, 1fr))',
           gap: '16px'
         }}>
           {sortedImages.map((image, index) => (
