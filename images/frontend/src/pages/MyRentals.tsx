@@ -33,21 +33,6 @@ export default function MyRentals() {
     }
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'requested':
-        return 'var(--accent-blue)'
-      case 'approved':
-        return '#4caf50'
-      case 'finalized':
-        return 'var(--secondary-text)'
-      case 'rejected':
-        return 'var(--accent-pink)'
-      default:
-        return 'var(--primary-text)'
-    }
-  }
-
   const getStatusLabel = (status: string) => {
     switch (status) {
       case 'requested':

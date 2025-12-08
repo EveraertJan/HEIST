@@ -112,8 +112,8 @@ export default function Landing() {
           }}>
             <Button
               variant="primary"
-              size="xl"
-              onClick={() => navigate('/gallery')} 
+              size="large"
+              onClick={() => navigate('/gallery')}
             >
               Explore Experiences
             </Button>
@@ -123,8 +123,8 @@ export default function Landing() {
                 const element = document.getElementById('for-companies')
                 element?.scrollIntoView({ behavior: 'smooth' })
               }}
-              size="xl"
-              variant="secundary"
+              size="large"
+              variant="secondary"
             >
               For Companies
             </Button>
@@ -434,7 +434,7 @@ export default function Landing() {
             <Button
               onClick={() => window.location.href = 'mailto:events@heist.gallery'}
               variant="primary"
-              size="xl"
+              size="large"
               style={{
                 width: "300px"
               }}

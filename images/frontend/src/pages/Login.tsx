@@ -18,7 +18,7 @@ export default function Login() {
     setLoading(true)
 
     try {
-      const userData = await login(email, password)
+      await login(email, password)
 
       navigate('/')
     } catch (err) {

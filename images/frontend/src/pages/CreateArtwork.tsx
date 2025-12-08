@@ -227,9 +227,9 @@ export default function CreateArtwork() {
       if (artwork) {
         setArtwork(prev => prev ? {
           ...prev,
-          images: prev.images.map(img => 
+          images: prev.images?.map(img =>
             img.uuid === imageUuid ? { ...img, description } : img
-          )
+          ) || []
         } : null)
       }
     } catch (err: any) {
@@ -249,7 +249,7 @@ export default function CreateArtwork() {
       if (artwork) {
         setArtwork(prev => prev ? {
           ...prev,
-          images: prev.images.filter(img => img.uuid !== imageUuid)
+          images: prev.images?.filter(img => img.uuid !== imageUuid) || []
         } : null)
       }
     } catch (err: any) {

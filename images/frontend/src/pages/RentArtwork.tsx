@@ -234,7 +234,7 @@ export default function RentArtwork() {
               </div>
 
               <div style={{ display: 'flex', gap: '16px' }}>
-                <Button type="submit" variant="primary" size="large" disabled={submitting || available === false}>
+                <Button type="submit" variant="primary" size="large" disabled={submitting || !available}>
                   {submitting ? 'Submitting...' : 'Submit Rental Request'}
                 </Button>
                 <Button type="button" onClick={() => navigate(`/artworks/${uuid}`)} variant="secondary" size="large">
