@@ -48,7 +48,7 @@ export default function Navbar() {
               textDecoration: 'none'
             }}
           >
-            HEIST
+            Ontastbaar
           </Link>
 
           {/* Desktop Navigation */}

@@ -8,7 +8,7 @@ export default function Privacy() {
 
           <h4>1. Introduction</h4>
           <p>
-            This Privacy Policy explains how Checkpoint ("we", "us", or "our") collects, uses, and protects
+            This Privacy Policy explains how Tastbaar ("we", "us", or "our") collects, uses, and protects
             your personal information when you use our educational platform. We are committed to protecting
             your privacy and ensuring the security of your data.
           </p>
@@ -17,9 +17,8 @@ export default function Privacy() {
           <p>We collect the following types of information:</p>
           <ul>
             <li><strong>Account Information:</strong> Name, email address, date of birth, and password (stored securely hashed)</li>
-            <li><strong>Classroom Data:</strong> Classroom names, academic years, membership information</li>
-            <li><strong>Progress Data:</strong> Checkpoint completions, feedback entries, and timestamps</li>
-            <li><strong>Content:</strong> Images and text uploaded as part of feedback</li>
+            <li><strong>Progress Data:</strong> Tastbaar completions, feedback entries, and timestamps</li>
+            <li><strong>Content:</strong> Images and text uploaded as part of artworks</li>
             <li><strong>Technical Data:</strong> IP addresses, browser type, and usage patterns</li>
           </ul>
 

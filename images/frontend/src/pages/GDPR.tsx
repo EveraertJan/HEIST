@@ -8,14 +8,14 @@ export default function GDPR() {
 
           <h4>Our Commitment to GDPR</h4>
           <p>
-            Checkpoint is committed to complying with the General Data Protection Regulation (GDPR) and
+            Tastbaar is committed to complying with the General Data Protection Regulation (GDPR) and
             protecting the privacy rights of all our users in the European Union and European Economic Area.
             This page outlines our GDPR compliance measures and your rights under this regulation.
           </p>
 
           <h4>Data Controller Information</h4>
           <p>
-            <strong>Controller:</strong> Checkpoint<br />
+            <strong>Controller:</strong> Tastbaar<br />
             <strong>Contact:</strong> jan@tastbaar.studio<br />
             <strong>Location:</strong> Belgium
           </p>
@@ -35,7 +35,7 @@ export default function GDPR() {
           <h5>Right to Access (Article 15)</h5>
           <p>
             You can request a copy of all personal data we hold about you. This includes your account
-            information, classroom memberships, checkpoints, and feedback data.
+            information, classroom memberships, Tastbaars, and feedback data.
           </p>
 
           <h5>Right to Rectification (Article 16)</h5>

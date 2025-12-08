@@ -7,8 +7,8 @@ interface FAQItem {
 
 const faqData: FAQItem[] = [
   {
-    question: "What is Heist?",
-    answer: "Heist is a curated platform for renting immersive art experiences designed for homes, offices, and events. We transform spaces through carefully selected digital art installations that spark conversations and create memorable environments."
+    question: "What is Ontastbaar?",
+    answer: "Ontastbaar is a curated platform for renting immersive art experiences designed for homes, offices, and events. We transform spaces through carefully selected digital art installations that spark conversations and create memorable environments."
   },
   {
     question: "How do I rent an artwork?",
@@ -28,7 +28,7 @@ const faqData: FAQItem[] = [
   },
   {
     question: "Can I rent artworks for corporate events?",
-    answer: "Absolutely! We specialize in creating unforgettable corporate experiences. Our installations serve as powerful conversation catalysts for conferences, offices, showrooms, and exclusive events. Contact us at events@heist.gallery for custom curation."
+    answer: "Absolutely! We specialize in creating unforgettable corporate experiences. Our installations serve as powerful conversation catalysts for conferences, offices, showrooms, and exclusive events. Contact us at events@Ontastbaar.gallery for custom curation."
   },
   {
     question: "How do I check if an artwork is available?",
@@ -69,8 +69,8 @@ export default function FAQ() {
         <div className="ten columns offset-by-one">
           <h2>Frequently Asked Questions</h2>
           <p style={{ marginBottom: '30px' }}>
-            Find answers to common questions about Heist. Can't find what you're looking for?
-            Feel free to <a href="mailto:events@heist.gallery">contact us</a>.
+            Find answers to common questions about Ontastbaar. Can't find what you're looking for?
+            Feel free to <a href="mailto:events@Ontastbaar.gallery">contact us</a>.
           </p>
 
           <div>

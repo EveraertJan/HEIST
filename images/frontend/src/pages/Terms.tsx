@@ -8,15 +8,15 @@ export default function Terms() {
 
           <h4>1. Acceptance of Terms</h4>
           <p>
-            By accessing and using Checkpoint ("the Service"), you accept and agree to be bound by the terms
+            By accessing and using Tastbaar ("the Service"), you accept and agree to be bound by the terms
             and provisions of this agreement. If you do not agree to abide by these terms, please do not use
             this service.
           </p>
 
           <h4>2. Description of Service</h4>
           <p>
-            Checkpoint is an educational platform that provides classroom management tools, including student
-            progress tracking through checkpoints and feedback management. The Service is intended for use by
+            Tastbaar is an educational platform that provides classroom management tools, including student
+            progress tracking through Tastbaars and feedback management. The Service is intended for use by
             educational institutions, teachers, and students.
           </p>
 
@@ -40,15 +40,14 @@ export default function Terms() {
 
           <h4>5. Intellectual Property</h4>
           <p>
-            The Service and its original content, features, and functionality are owned by Checkpoint and are
+            The Service and its original content, features, and functionality are owned by Tastbaar and are
             protected by international copyright, trademark, patent, trade secret, and other intellectual
             property laws. User-generated content remains the property of the respective users.
           </p>
 
           <h4>6. User Content</h4>
           <p>
-            Users retain ownership of content they upload to the Service (including feedback, images, and
-            classroom materials). By uploading content, you grant us a license to store, display, and
+            Users retain ownership of content they upload to the Service. By uploading content, you grant us a license to store, display, and
             transmit that content as necessary to provide the Service.
           </p>
 
@@ -74,7 +73,7 @@ export default function Terms() {
 
           <h4>10. Limitation of Liability</h4>
           <p>
-            In no event shall Checkpoint, its directors, employees, partners, agents, suppliers, or
+            In no event shall Tastbaar, its directors, employees, partners, agents, suppliers, or
             affiliates be liable for any indirect, incidental, special, consequential, or punitive damages,
             including loss of profits, data, or other intangible losses.
           </p>

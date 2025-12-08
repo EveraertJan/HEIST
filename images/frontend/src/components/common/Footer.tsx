@@ -41,7 +41,7 @@ export default function Footer() {
           <div style={footerSectionStyle}>
             <h4 style={footerTitleStyle}>About</h4>
             <p style={{ color: 'var(--secondary-text)', fontSize: '14px', lineHeight: '1.6' }}>
-              HEIST is a digital gallery showcasing contemporary art and technology.
+              Ontastbaar is a digital gallery showcasing contemporary art and technology.
               Explore immersive artworks from artists around the world.
             </p>
           </div>
@@ -112,7 +112,7 @@ export default function Footer() {
             fontSize: '12px',
             margin: 0
           }}>
-            &copy; {new Date().getFullYear()} HEIST Gallery. All rights reserved.
+            &copy; {new Date().getFullYear()} Ontastbaar Gallery. All rights reserved.
           </p>
           <p style={{
             color: 'var(--secondary-text)',

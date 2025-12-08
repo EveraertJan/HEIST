@@ -432,7 +432,7 @@ export default function Landing() {
             </div>
 
             <Button
-              onClick={() => window.location.href = 'mailto:events@heist.gallery'}
+              onClick={() => window.location.href = 'mailto:events@Ontastbaar.gallery'}
               variant="primary"
               size="large"
               style={{
@@ -468,7 +468,7 @@ export default function Landing() {
               textAlign: 'center',
               whiteSpace: 'nowrap'
             }}>
-              HEIST
+              Ontastbaar
             </div>
           </div>
         </div>
