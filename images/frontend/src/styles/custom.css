@@ -347,7 +347,7 @@ html {
 
 /* Selection */
 ::selection {
-  background-color: #C2FE0B;
+  background-color: #f6f087;
   color: var(--primary-bg);
 }
 

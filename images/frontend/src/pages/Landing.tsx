@@ -445,7 +445,7 @@ export default function Landing() {
 
           <div style={{
             backgroundColor: '#1a1a1a',
-            backgroundImage: 'linear-gradient(45deg, #C2FE0B 0%, #C2FE0B 100%)',
+            backgroundImage: 'linear-gradient(45deg, #f6f087 0%, #f6f087 100%)',
             backgroundSize: '200% 200%',
             animation: 'gradientShift 15s ease infinite',
             display: 'flex',
@@ -455,21 +455,6 @@ export default function Landing() {
             position: 'relative',
             overflow: 'hidden'
           }}>
-            <div style={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              fontSize: 'clamp(4rem, 15vw, 12rem)',
-              fontWeight: '900',
-              color: 'rgba(255, 255, 255, 0.5)',
-              textTransform: 'uppercase',
-              lineHeight: '0.9',
-              textAlign: 'center',
-              whiteSpace: 'nowrap'
-            }}>
-              Ontastbaar
-            </div>
           </div>
         </div>
       </section>
