@@ -21,7 +21,7 @@ export const getImageUrl = (filename: string): string => {
   if (/^(localhost|127\.0\.0\.1|::1)$/.test(l.hostname)) {
     return API_BASE_URL.replace(/\/api$/, '') + extra;
   } else {
-    const newHost = "Ontastbaar-api.tastbaar.studio";
+    const newHost = "heist-api.tastbaar.studio";
     const base = `${l.protocol}//${newHost}`;
     return base + extra;
   }
@@ -40,7 +40,7 @@ export const getDocumentUrl = (filename: string): string => {
   if (/^(localhost|127\.0\.0\.1|::1)$/.test(l.hostname)) {
     return API_BASE_URL.replace(/\/api$/, '') + extra;
   } else {
-    const newHost = "Ontastbaar-api.tastbaar.studio";
+    const newHost = "heist-api.tastbaar.studio";
     const base = `${l.protocol}//${newHost}`;
     return base + extra;
   }
