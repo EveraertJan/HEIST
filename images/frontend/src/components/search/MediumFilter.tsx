@@ -79,19 +79,26 @@ export default function MediumFilter({
   }
 
   return (
-    <div style={{display: 'flex', alignItems: 'center', justifyContent: 'left', gap: '20px'}}>
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'left',
+      gap: 'clamp(12px, 3vw, 20px)',
+      flexWrap: 'wrap'
+    }}>
       <h3 style={{
-        fontSize: '14px',
+        fontSize: 'clamp(12px, 2vw, 14px)',
         textTransform: 'uppercase',
         letterSpacing: '0.1em',
         color: 'var(--secondary-text)',
         marginBottom: '16px',
-        fontWeight: '600'
+        fontWeight: '600',
+        flexShrink: 0
       }}>
         Filter by Medium:
       </h3>
 
-      <div ref={dropdownRef} style={{ position: 'relative' }}>
+      <div ref={dropdownRef} style={{ position: 'relative', flex: '1', minWidth: '200px' }}>
         {/* Dropdown Toggle Button */}
         <button
           type="button"
@@ -102,14 +109,15 @@ export default function MediumFilter({
             justifyContent: 'space-between',
             width: '100%',
             maxWidth: '300px',
-            padding: '12px 16px',
+            padding: 'clamp(10px, 2vw, 12px) clamp(12px, 3vw, 16px)',
             backgroundColor: 'var(--card-bg)',
             border: '1px solid var(--border-color)',
             borderRadius: '8px',
             color: 'var(--primary-text)',
-            fontSize: '14px',
+            fontSize: 'clamp(13px, 2vw, 14px)',
             cursor: 'pointer',
-            transition: 'all 0.2s ease'
+            transition: 'all 0.2s ease',
+            minHeight: '44px'
           }}
         >
           <span>

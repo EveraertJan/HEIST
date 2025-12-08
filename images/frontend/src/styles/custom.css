@@ -315,13 +315,173 @@ input::placeholder {
 }
 
 /* Responsive Design */
+
+/* Desktop - Hide mobile menu elements by default */
+.mobile-menu-toggle {
+  display: none;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mobile-menu {
+  display: none;
+}
+
+.mobile-menu-backdrop {
+  display: none;
+}
+
+/* Mobile Navigation Styles */
+@media (max-width: 968px) {
+  /* Show mobile menu toggle */
+  .mobile-menu-toggle {
+    display: flex !important;
+  }
+
+  /* Hide desktop navigation */
+  .desktop-nav {
+    display: none !important;
+  }
+
+  /* Show mobile menu - always visible on mobile, positioned with transform */
+  .mobile-menu {
+    display: block !important;
+  }
+
+  /* Show mobile menu backdrop when present */
+  .mobile-menu-backdrop {
+    display: block !important;
+  }
+}
+
+/* Tablet and Mobile Responsive Styles */
 @media (max-width: 768px) {
+  /* Typography adjustments */
   h1 {
     font-size: 2rem;
   }
 
   h2 {
     font-size: 1.5rem;
+  }
+
+  h3 {
+    font-size: 1.25rem;
+  }
+
+  /* Container padding adjustments */
+  .container {
+    padding: 0 16px;
+  }
+
+  /* Button improvements for touch */
+  .btn {
+    padding: 16px 24px;
+    font-size: 14px;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .btn-primary, .btn-secondary {
+    margin-bottom: 12px;
+  }
+
+  /* Form inputs - better touch targets */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="tel"],
+  input[type="date"],
+  textarea,
+  select {
+    padding: 16px;
+    font-size: 16px; /* Prevent zoom on iOS */
+  }
+
+  /* Card adjustments */
+  .card {
+    padding: 16px;
+  }
+
+  /* Table improvements */
+  .table th,
+  .table td {
+    padding: 12px 8px;
+    font-size: 14px;
+  }
+
+  .table-responsive {
+    border-radius: var(--radius-md);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Grid layouts - single column on mobile */
+  .grid-2,
+  .grid-3 {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  /* Spacing adjustments */
+  :root {
+    --spacing-lg: 32px;
+    --spacing-xl: 48px;
+  }
+}
+
+/* Small Mobile Devices */
+@media (max-width: 480px) {
+  /* Even smaller typography */
+  h1 {
+    font-size: 1.75rem;
+  }
+
+  h2 {
+    font-size: 1.25rem;
+  }
+
+  h3 {
+    font-size: 1.125rem;
+  }
+
+  p {
+    font-size: 14px;
+  }
+
+  /* Tighter spacing */
+  .container {
+    padding: 0 12px;
+  }
+
+  /* Buttons full width */
+  .btn {
+    padding: 14px 20px;
+    font-size: 13px;
+  }
+
+  /* Cards */
+  .card {
+    padding: 12px;
+    border-radius: var(--radius-sm);
+  }
+
+  /* Tables - smaller padding */
+  .table th,
+  .table td {
+    padding: 10px 6px;
+    font-size: 13px;
+  }
+
+  /* Status badges smaller */
+  .table-status {
+    font-size: 10px;
+    padding: 3px 6px;
+  }
+
+  /* Actions buttons smaller */
+  .table-actions {
+    gap: 4px;
+    flex-wrap: wrap;
   }
 }
 
@@ -1075,89 +1235,312 @@ html {
   color: var(--secondary-text);
 }
 
-/* Responsive Design */
+/* Landing Page Responsive Design */
 @media (max-width: 1024px) {
   .hero-content {
     grid-template-columns: 1fr;
     gap: 60px;
     text-align: center;
   }
-  
+
   .hero-visual {
     order: -1;
   }
-  
+
   .artwork-preview {
     transform: perspective(1000px) rotateY(0deg);
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .artwork-preview .preview-frame:last-child {
+    display: none;
   }
 }
 
 @media (max-width: 768px) {
+  /* Hero Section */
+  .hero-section {
+    padding: 0 16px;
+    min-height: 90vh;
+  }
+
   .hero-title {
-    font-size: clamp(2.5rem, 8vw, 4rem);
+    font-size: clamp(2rem, 8vw, 3.5rem);
+    margin-bottom: 24px;
   }
-  
-  .features-grid {
-    grid-template-columns: 1fr;
-    gap: var(--spacing-md);
+
+  .hero-subtitle {
+    font-size: 1rem;
+    margin-bottom: 32px;
   }
-  
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  .cta-actions {
-    flex-direction: column;
-    align-items: center;
-  }
-  
+
   .hero-actions {
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
+    gap: 12px;
   }
-  
+
+  .hero-btn {
+    padding: 14px 24px;
+    font-size: 14px;
+    width: 100%;
+  }
+
+  .artwork-preview {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    transform: none;
+  }
+
+  .preview-frame {
+    transform: none !important;
+  }
+
+  /* Features Section */
+  .features-section {
+    padding: 80px 0;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .feature-card {
+    padding: 32px 24px;
+  }
+
+  .icon-wrapper {
+    width: 64px;
+    height: 64px;
+  }
+
+  .feature-card h3 {
+    font-size: 1.25rem;
+  }
+
+  .feature-card p {
+    font-size: 0.9375rem;
+  }
+
+  /* Stats Section */
+  .stats-section {
+    padding: 60px 0;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+
+  .stat-number {
+    font-size: clamp(2rem, 6vw, 3rem);
+  }
+
+  .stat-label {
+    font-size: 0.875rem;
+  }
+
+  /* CTA Section */
+  .cta-section {
+    padding: 80px 0;
+  }
+
+  .cta-title {
+    font-size: clamp(1.75rem, 5vw, 2.5rem);
+  }
+
+  .cta-subtitle {
+    font-size: 1rem;
+    margin-bottom: 32px;
+  }
+
+  .cta-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .cta-btn {
+    padding: 16px 32px;
+    font-size: 14px;
+    width: 100%;
+  }
+
+  /* Featured Section */
+  .featured-section {
+    padding: 80px 0;
+  }
+
   .featured-grid {
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: var(--spacing-md);
+    grid-template-columns: 1fr;
+    gap: 24px;
   }
-  
+
   .artwork-title {
     font-size: 1rem;
   }
-  
+
   .overlay-content {
     transform: scale(0.9);
   }
-  
+
   .overlay-content span {
     font-size: 12px;
+  }
+
+  .section-title {
+    font-size: clamp(1.75rem, 5vw, 2.5rem);
+  }
+
+  .section-subtitle {
+    font-size: 1rem;
   }
 }
 
 @media (max-width: 480px) {
-  .stats-grid {
-    grid-template-columns: 1fr;
+  /* Hero Section */
+  .hero-section {
+    padding: 0 12px;
+    min-height: 80vh;
   }
-  
+
+  .hero-title {
+    font-size: clamp(1.75rem, 8vw, 2.5rem);
+    line-height: 1.1;
+    margin-bottom: 20px;
+  }
+
+  .hero-subtitle {
+    font-size: 0.9375rem;
+    margin-bottom: 24px;
+  }
+
+  .hero-btn {
+    padding: 12px 20px;
+    font-size: 13px;
+  }
+
+  .artwork-preview {
+    display: none;
+  }
+
+  /* Features */
+  .features-section {
+    padding: 60px 0;
+  }
+
+  .section-header {
+    margin-bottom: 48px;
+  }
+
+  .features-grid {
+    gap: 20px;
+  }
+
   .feature-card {
-    padding: var(--spacing-md);
+    padding: 24px 20px;
   }
-  
-  .featured-grid {
-    grid-template-columns: 1fr;
-    gap: var(--spacing-md);
+
+  .icon-wrapper {
+    width: 56px;
+    height: 56px;
   }
-  
-  .artwork-info {
-    padding: var(--spacing-sm);
+
+  .feature-card h3 {
+    font-size: 1.125rem;
+    margin-bottom: 12px;
   }
-  
-  .artwork-title {
+
+  .feature-card p {
     font-size: 0.875rem;
   }
-  
-  .view-all-btn {
+
+  /* Stats */
+  .stats-section {
+    padding: 48px 0;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .stat-item {
+    padding: 24px 16px;
+  }
+
+  .stat-number {
+    font-size: clamp(2.5rem, 8vw, 3rem);
+  }
+
+  .stat-label {
+    font-size: 0.8125rem;
+  }
+
+  /* CTA */
+  .cta-section {
+    padding: 60px 0;
+  }
+
+  .cta-title {
+    font-size: clamp(1.5rem, 6vw, 2rem);
+  }
+
+  .cta-subtitle {
+    font-size: 0.9375rem;
+    margin-bottom: 24px;
+  }
+
+  .cta-btn {
     padding: 14px 24px;
-    font-size: 14px;
+    font-size: 13px;
+  }
+
+  /* Featured */
+  .featured-section {
+    padding: 60px 0;
+  }
+
+  .featured-grid {
+    gap: 20px;
+  }
+
+  .artwork-info {
+    padding: 16px;
+  }
+
+  .artwork-title {
+    font-size: 0.9375rem;
+  }
+
+  .artwork-artist {
+    font-size: 0.8125rem;
+  }
+
+  .artwork-medium,
+  .artwork-dimensions {
+    font-size: 0.6875rem;
+    padding: 3px 8px;
+  }
+
+  .view-all-btn {
+    padding: 12px 20px;
+    font-size: 13px;
+  }
+
+  /* Section spacing */
+  .section-title {
+    font-size: clamp(1.5rem, 6vw, 2rem);
+    margin-bottom: 16px;
+  }
+
+  .section-subtitle {
+    font-size: 0.9375rem;
+  }
+
+  /* Floating orbs - reduce on mobile */
+  .orb-1, .orb-2, .orb-3 {
+    opacity: 0.3;
   }
 }

@@ -1,9 +1,11 @@
+import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 
 export default function Navbar() {
   const { user, logout } = useAuth()
   const location = useLocation()
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const isActive = (path: string) => location.pathname === path
 
@@ -18,6 +20,24 @@ export default function Navbar() {
     padding: '8px 0',
     borderBottom: active ? '2px solid var(--accent-color)' : '2px solid transparent'
   })
+
+  const mobileNavLinkStyle = (active: boolean) => ({
+    color: active ? 'var(--accent-color)' : 'var(--secondary-text)',
+    fontSize: '16px',
+    fontWeight: '500' as const,
+    textTransform: 'uppercase' as const,
+    letterSpacing: '0.1em',
+    transition: 'all 0.2s ease',
+    cursor: 'pointer',
+    padding: '16px 24px',
+    display: 'block',
+    textDecoration: 'none',
+    borderLeft: active ? '3px solid var(--accent-color)' : '3px solid transparent'
+  })
+
+  const handleLinkClick = () => {
+    setMobileMenuOpen(false)
+  }
 
   return (
     <nav style={{
@@ -40,8 +60,9 @@ export default function Navbar() {
           {/* Logo */}
           <Link
             to="/"
+            onClick={handleLinkClick}
             style={{
-              fontSize: '2.5rem',
+              fontSize: 'clamp(1.5rem, 5vw, 2.5rem)',
               fontWeight: '700',
               letterSpacing: '-0.03em',
               color: 'var(--accent-color)',
@@ -52,12 +73,48 @@ export default function Navbar() {
             Ontastbaar
           </Link>
 
+          {/* Mobile Menu Toggle */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="mobile-menu-toggle"
+            style={{
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              padding: '8px',
+              zIndex: 1001
+            }}
+            aria-label="Toggle menu"
+          >
+            <span style={{
+              width: '28px',
+              height: '2px',
+              backgroundColor: 'var(--accent-color)',
+              transition: 'all 0.3s ease',
+              transform: mobileMenuOpen ? 'rotate(45deg) translateY(8px)' : 'none'
+            }}></span>
+            <span style={{
+              width: '28px',
+              height: '2px',
+              backgroundColor: 'var(--accent-color)',
+              transition: 'all 0.3s ease',
+              opacity: mobileMenuOpen ? 0 : 1
+            }}></span>
+            <span style={{
+              width: '28px',
+              height: '2px',
+              backgroundColor: 'var(--accent-color)',
+              transition: 'all 0.3s ease',
+              transform: mobileMenuOpen ? 'rotate(-45deg) translateY(-8px)' : 'none'
+            }}></span>
+          </button>
+
           {/* Desktop Navigation */}
           <div style={{
             display: 'flex',
             gap: '32px',
             alignItems: 'center'
-          }}>
+          }} className="desktop-nav">
             {!user ? (
               <>
                 <Link to="/" style={navLinkStyle(isActive('/'))}>
@@ -115,6 +172,111 @@ export default function Navbar() {
           </div>
         </div>
       </div>
+
+      {/* Mobile Menu Backdrop */}
+      {!mobileMenuOpen && (
+        <div
+          style={{
+            position: 'fixed',
+            top: '70px',
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            zIndex: 998
+          }}
+          className="mobile-menu-backdrop"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+
+        <div
+          style={{
+            width: '280px',
+            maxWidth: '80vw',
+            backgroundColor: 'rgba(10, 10, 10, 0.98)',
+            backdropFilter: 'blur(10px)',
+            transform: mobileMenuOpen ? 'translateX(0)' : 'translateX(100%)',
+            transition: 'transform 0.3s ease-in-out',
+            overflowY: 'auto',
+            zIndex: 999,
+            boxShadow: mobileMenuOpen ? '-4px 0 12px rgba(0, 0, 0, 0.3)' : 'none',
+            borderLeft: '1px solid var(--border-color)'
+          }}
+          className="mobile-menu"
+        >
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            padding: '24px 0'
+          }}>
+            {!user ? (
+              <>
+                <Link to="/" style={mobileNavLinkStyle(isActive('/'))} onClick={handleLinkClick}>
+                  Home
+                </Link>
+                <Link to="/login" style={mobileNavLinkStyle(isActive('/login'))} onClick={handleLinkClick}>
+                  Login
+                </Link>
+                <Link
+                  to="/register"
+                  style={{
+                    ...mobileNavLinkStyle(isActive('/register')),
+                    margin: '16px 24px',
+                    backgroundColor: 'var(--accent-color)',
+                    color: 'var(--primary-bg)',
+                    padding: '16px',
+                    borderRadius: '8px',
+                    textAlign: 'center',
+                    border: 'none',
+                    borderLeft: 'none'
+                  }}
+                  onClick={handleLinkClick}
+                >
+                  Register
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link to="/gallery" style={mobileNavLinkStyle(isActive('/gallery'))} onClick={handleLinkClick}>
+                  Gallery
+                </Link>
+                <Link to="/my-rentals" style={mobileNavLinkStyle(isActive('/my-rentals'))} onClick={handleLinkClick}>
+                  My Rentals
+                </Link>
+                {user.is_admin && (
+                  <>
+                    <Link to="/admin/artworks" style={mobileNavLinkStyle(isActive('/admin/artworks'))} onClick={handleLinkClick}>
+                      Manage Artworks
+                    </Link>
+                    <Link to="/admin/rentals" style={mobileNavLinkStyle(isActive('/admin/rentals'))} onClick={handleLinkClick}>
+                      Manage Rentals
+                    </Link>
+                  </>
+                )}
+                <Link to="/profile" style={mobileNavLinkStyle(isActive('/profile'))} onClick={handleLinkClick}>
+                  {user.first_name} {user.last_name}
+                </Link>
+                <a
+                  onClick={() => {
+                    logout()
+                    handleLinkClick()
+                  }}
+                  style={{
+                    ...mobileNavLinkStyle(false),
+                    cursor: 'pointer'
+                  }}
+                >
+                  Logout
+                </a>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </nav>
   )
 }

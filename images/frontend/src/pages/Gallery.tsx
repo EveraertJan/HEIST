@@ -74,17 +74,17 @@ export default function Gallery() {
 
   return (
     <div style={{ minHeight: '100vh', paddingTop: '80px' }}>
-      <div className="container" style={{ maxWidth: '1400px', margin: '0 auto', padding: '48px 24px' }}>
+      <div className="container" style={{ maxWidth: '1400px', margin: '0 auto', padding: 'clamp(24px, 5vw, 48px) clamp(12px, 3vw, 24px)' }}>
         {/* Page Header */}
-        
+
         {/* Search and Filter */}
         <div style={{
           backgroundColor: 'var(--secondary-bg)',
           border: '1px solid var(--border-color)',
-          borderRadius: '16px',
-          padding: '32px',
+          borderRadius: 'clamp(8px, 2vw, 16px)',
+          padding: 'clamp(16px, 4vw, 32px)',
           paddingBottom: '0px',
-          marginBottom: '48px'
+          marginBottom: 'clamp(24px, 5vw, 48px)'
         }}>
           <div>
             <SearchBar
@@ -109,13 +109,14 @@ export default function Gallery() {
         {/* Error Message */}
         {error && (
           <div style={{
-            padding: '16px',
+            padding: 'clamp(12px, 3vw, 16px)',
             backgroundColor: 'rgba(255, 107, 157, 0.1)',
             border: '1px solid var(--accent-pink)',
             borderRadius: '8px',
             color: 'var(--accent-pink)',
             marginBottom: '24px',
-            textAlign: 'center'
+            textAlign: 'center',
+            fontSize: 'clamp(13px, 2vw, 16px)'
           }}>
             {error}
           </div>
@@ -125,9 +126,9 @@ export default function Gallery() {
         {loading && (
           <p style={{
             textAlign: 'center',
-            padding: '80px',
+            padding: 'clamp(40px, 10vw, 80px)',
             color: 'var(--secondary-text)',
-            fontSize: '18px'
+            fontSize: 'clamp(14px, 3vw, 18px)'
           }}>
             Loading experiences...
           </p>
@@ -149,8 +150,8 @@ export default function Gallery() {
             ) : (
               <div style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-                gap: '32px'
+                gridTemplateColumns: 'repeat(auto-fill, minmax(min(280px, 100%), 1fr))',
+                gap: 'clamp(16px, 4vw, 32px)'
               }}>
                 {artworks.map(artwork => (
                   <ArtworkCard key={artwork.uuid} artwork={artwork} />
