@@ -65,8 +65,8 @@ export default function CreateArtwork() {
   const [artwork, setArtwork] = useState<Artwork | null>(null)
 
   useEffect(() => {
-    if (!user?.is_admin) {
-      navigate('/home')
+    if (!user) {
+      navigate('/login')
       return
     }
     loadData()
@@ -105,6 +105,11 @@ export default function CreateArtwork() {
       ])
       setMediums(mediumsRes.data.data)
       setUsers(usersRes.data.data)
+
+      // Auto-select current user as artist if not admin and creating new artwork
+      if (!user?.is_admin && !isEditing && user?.uuid) {
+        setSelectedArtistUuids([user.uuid])
+      }
     } catch (err) {
       setError('Failed to load data')
       console.error(err)
@@ -269,13 +274,19 @@ export default function CreateArtwork() {
     <div style={{ minHeight: '100vh', paddingTop: '80px' }}>
       <div className="container" style={{ padding: '48px 24px', maxWidth: '800px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '32px' }}>
-          <Button 
+          { user?.is_admin ? <Button 
             onClick={() => navigate('/admin/artworks')} 
             variant="secondary" 
             size="small"
           >
             ← Back to Artworks
-          </Button>
+          </Button>  : <Button 
+            onClick={() => navigate('/gallery')} 
+            variant="secondary" 
+            size="small"
+          >
+            ← Back to Gallery
+          </Button> }
           <h1 style={{ margin: 0 }}>
             {isEditing ? 'Edit Artwork' : 'Create New Artwork'}
           </h1>
@@ -348,7 +359,7 @@ export default function CreateArtwork() {
                   type="text"
                   value={width}
                   onChange={(e) => setWidth(e.target.value)}
-                  placeholder="e.g., 24 cm"
+                  placeholder="e.g., 240 mm"
                   style={{ width: '100%' }}
                 />
               </div>
@@ -360,7 +371,7 @@ export default function CreateArtwork() {
                   type="text"
                   value={height}
                   onChange={(e) => setHeight(e.target.value)}
-                  placeholder="e.g., 36 cm"
+                  placeholder="e.g., 360 mm"
                   style={{ width: '100%' }}
                 />
               </div>
@@ -372,14 +383,15 @@ export default function CreateArtwork() {
                   type="text"
                   value={depth}
                   onChange={(e) => setDepth(e.target.value)}
-                  placeholder="e.g., 5 cm"
+                  placeholder="e.g., 500 mm"
                   style={{ width: '100%' }}
                 />
               </div>
             </div>
 
             {/* Artist Selection */}
-            {users.length > 0 && (
+
+            {(users.length > 0 && user?.is_admin) && (
               <div style={{ marginBottom: '20px' }}>
                 <label style={{ display: 'block', marginBottom: '12px', color: 'var(--secondary-text)', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
                   Artists * (Select one or more)
@@ -434,10 +446,11 @@ export default function CreateArtwork() {
               <div style={{ marginBottom: '20px' }}>
                 <label style={{ display: 'block', marginBottom: '12px', color: 'var(--secondary-text)', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
                   Mediums (Select one or more) 
-
-                  <Link to="/admin/mediums" style={{marginLeft: '10px'}}>
-                    Manage Mediums
-                  </Link>
+                  { user?.is_admin &&
+                    <Link to="/admin/mediums" style={{marginLeft: '10px'}}>
+                      Manage Mediums
+                    </Link>
+                  }
                 </label>
                 
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>

@@ -114,7 +114,7 @@ export default function Register() {
             />
 
             <Button type="submit" variant="primary" size="large" disabled={loading} style={{ width: '100%' }}>
-              {loading ? 'Processing Application...' : 'Submit Application'}
+              {loading ? 'Processing Application...' : 'Register account'}
             </Button>
           </form>
           <p style={{ textAlign: 'center', marginTop: '30px', fontFamily: '"Crimson Text", serif' }}>

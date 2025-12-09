@@ -13,18 +13,37 @@ class ArtworkRepository {
   }
 
   /**
-   * Find all artworks with pagination
+   * Find all artworks with pagination and status filtering
    * @param {number} limit - Maximum number of results
    * @param {number} offset - Offset for pagination
+   * @param {Object} filters - Filtering options
+   * @param {boolean} [filters.includeAll=false] - Include all statuses (admin only)
+   * @param {string} [filters.status='approved'] - Status to filter by
+   * @param {number} [filters.userId=null] - User ID to include their own artworks
    * @returns {Promise<Array>} Array of artwork objects
    */
-  async findAll(limit = 50, offset = 0) {
-    const artworks = await this.db('artworks as a')
-      .select('a.*', 'r.status')
+  async findAll(limit = 50, offset = 0, filters = {}) {
+    const { includeAll = false, status = 'approved', userId = null } = filters;
+
+    let query = this.db('artworks as a')
+      .select('a.*', 'r.status as rental_status')
       .limit(limit)
       .offset(offset)
-      .leftJoin('rentals as r', 'r.artwork_id', 'a.id')
-      .orderBy('a.created_at', 'desc');
+      .leftJoin('rentals as r', 'r.artwork_id', 'a.id');
+
+    if (!includeAll) {
+      // Filter by status, but if userId is provided, also show artworks created by that user
+      if (userId) {
+        query = query.where(function() {
+          this.where('a.status', status)
+            .orWhere('a.created_by_user_id', userId);
+        });
+      } else {
+        query = query.where('a.status', status);
+      }
+    }
+
+    const artworks = await query.orderBy('a.created_at', 'desc');
 
     // Get images for each artwork
     for (const artwork of artworks) {
@@ -39,9 +58,9 @@ class ArtworkRepository {
   }
 
   /**
-   * Find an artwork by UUID with related data (artists and mediums)
+   * Find an artwork by UUID with related data (artists, mediums, creator, reviewer)
    * @param {string} uuid - Artwork's unique identifier
-   * @returns {Promise<Object|null>} Artwork object with artists and mediums or null
+   * @returns {Promise<Object|null>} Artwork object with all related data or null
    */
   async findByUuid(uuid) {
     const artwork = await this.db('artworks')
@@ -50,6 +69,24 @@ class ArtworkRepository {
 
     if (!artwork) {
       return null;
+    }
+
+    // Get creator info
+    if (artwork.created_by_user_id) {
+      const creator = await this.db('users')
+        .where('id', artwork.created_by_user_id)
+        .select('uuid', 'first_name', 'last_name', 'email')
+        .first();
+      artwork.creator = creator;
+    }
+
+    // Get reviewer info
+    if (artwork.reviewed_by_user_id) {
+      const reviewer = await this.db('users')
+        .where('id', artwork.reviewed_by_user_id)
+        .select('uuid', 'first_name', 'last_name', 'email')
+        .first();
+      artwork.reviewer = reviewer;
     }
 
     // Get associated artists
@@ -72,6 +109,8 @@ class ArtworkRepository {
 
     return {
       ...artwork,
+      creator: artwork.creator || null,
+      reviewer: artwork.reviewer || null,
       artists,
       mediums,
       images
@@ -245,6 +284,46 @@ class ArtworkRepository {
     return await this.db('artworks')
       .where({ id: artworkId })
       .first();
+  }
+
+  /**
+   * Update artwork status (approve/decline)
+   * @param {string} uuid - Artwork UUID
+   * @param {Object} statusData - Status update data
+   * @param {string} statusData.status - New status ('approved', 'pending', 'declined')
+   * @param {number} statusData.reviewed_by_user_id - Reviewer user ID
+   * @param {string} [statusData.review_notes] - Optional review notes
+   * @returns {Promise<Object|null>} Updated artwork or null
+   */
+  async updateStatus(uuid, statusData) {
+    const { status, reviewed_by_user_id, review_notes } = statusData;
+
+    const [artwork] = await this.db('artworks')
+      .where({ uuid })
+      .update({
+        status,
+        reviewed_by_user_id,
+        reviewed_at: this.db.fn.now(),
+        review_notes,
+        updated_at: this.db.fn.now()
+      })
+      .returning('*');
+
+    return artwork || null;
+  }
+
+  /**
+   * Check if artwork was created by a specific user
+   * @param {string} uuid - Artwork UUID
+   * @param {number} userId - User ID
+   * @returns {Promise<boolean>} True if user created the artwork
+   */
+  async isCreatedBy(uuid, userId) {
+    const artwork = await this.db('artworks')
+      .where({ uuid, created_by_user_id: userId })
+      .first();
+
+    return !!artwork;
   }
 }
 

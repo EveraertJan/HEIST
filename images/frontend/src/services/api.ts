@@ -54,8 +54,8 @@ export const deleteAccount = () =>
   api.delete('/users/account')
 
 // Artwork APIs
-export const getAllArtworks = (limit = 50, offset = 0) =>
-  api.get<{ success: boolean; data: Artwork[]; pagination: any }>('/artworks', { params: { limit, offset } })
+export const getAllArtworks = (limit = 50, offset = 0, includeAll = false) =>
+  api.get<{ success: boolean; data: Artwork[]; pagination: any }>('/artworks', { params: { limit, offset, includeAll } })
 
 export const searchArtworks = (search?: string, mediums?: string[], limit = 50, offset = 0) =>
   api.get<{ success: boolean; data: Artwork[]; filters: any; pagination: any }>('/artworks/search', {
@@ -78,6 +78,9 @@ export const updateArtwork = (uuid: string, data: { title?: string; description?
 
 export const deleteArtwork = (uuid: string) =>
   api.delete(`/artworks/${uuid}`)
+
+export const updateArtworkStatus = (uuid: string, status: string, reviewNotes?: string) =>
+  api.put<{ success: boolean; data: Artwork }>(`/artworks/${uuid}/status`, { status, review_notes: reviewNotes })
 
 export const uploadArtworkImages = (artworkUuid: string, files: FileList, descriptions?: string[]) => {
   const formData = new FormData()

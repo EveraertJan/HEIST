@@ -249,14 +249,14 @@ export default function Navbar() {
                 </Link>
                 {user.is_admin && (
                   <>
-                    <Link to="/admin/artworks" style={mobileNavLinkStyle(isActive('/admin/artworks'))} onClick={handleLinkClick}>
+                    <Link to="/artworks" style={mobileNavLinkStyle(isActive('/artworks'))} onClick={handleLinkClick}>
                       Manage Artworks
                     </Link>
                     <Link to="/admin/rentals" style={mobileNavLinkStyle(isActive('/admin/rentals'))} onClick={handleLinkClick}>
                       Manage Rentals
                     </Link>
                   </>
-                )}
+                )} 
                 <Link to="/profile" style={mobileNavLinkStyle(isActive('/profile'))} onClick={handleLinkClick}>
                   {user.first_name} {user.last_name}
                 </Link>

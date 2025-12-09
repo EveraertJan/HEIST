@@ -30,18 +30,37 @@ const upload = multer({
 
 /**
  * @route GET /artworks
- * @description Get all artworks with pagination
- * @access Public
+ * @description Get all artworks with pagination and status filtering
+ * @access Public (with optional authentication for personalized results)
  * @query {number} limit - Maximum number of results (default: 50)
  * @query {number} offset - Offset for pagination (default: 0)
+ * @query {boolean} includeAll - Include all statuses (admin only)
  * @returns {Array} Array of artwork objects
  */
 router.get('/', asyncHandler(async (req, res) => {
   const limit = parseInt(req.query.limit) || 50;
   const offset = parseInt(req.query.offset) || 0;
+  const includeAll = req.query.includeAll === 'true';
+
+  // Check if user is authenticated (optional)
+  let options = {};
+  const authHeader = req.headers.authorization;
+  if (authHeader) {
+    try {
+      const jwt = require('jsonwebtoken');
+      const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : authHeader;
+      const decoded = jwt.verify(token, config.auth.jwtSecret);
+      options.userUuid = decoded.uuid;
+      options.isAdmin = decoded.is_admin;
+      options.includeAll = includeAll && decoded.is_admin; // Only admins can request all
+    } catch (err) {
+      // Token invalid, treat as public request
+    }
+  }
 
   const artworkService = container.get('artworkService');
-  const artworks = await artworkService.getAllArtworks(limit, offset);
+  const artworks = await artworkService.getAllArtworks(limit, offset, options);
+
   res.status(HTTP_STATUS.OK).json({
     success: true,
     data: artworks,
@@ -121,12 +140,14 @@ router.get('/:uuid', asyncHandler(async (req, res) => {
 
 /**
  * @route POST /artworks
- * @description Create a new artwork
+ * @description Create or submit a new artwork
  * @access Protected (requires authentication)
  * @headers {string} Authorization - Bearer token
  * @body {string} title - Artwork title
  * @body {string} [description] - Artwork description
- * @body {string} [size] - Artwork size
+ * @body {string} [width] - Artwork width
+ * @body {string} [height] - Artwork height
+ * @body {string} [depth] - Artwork depth
  * @body {Array<string>} artistUuids - Array of artist UUIDs
  * @body {Array<string>} [mediumUuids] - Array of medium UUIDs
  * @returns {Object} Created artwork object
@@ -136,7 +157,6 @@ router.get('/:uuid', asyncHandler(async (req, res) => {
 router.post(
   '/',
   decodeToken,
-  requireAdmin,
   validateRequiredFields(['title', 'artistUuids']),
   sanitizeText(['title', 'description', 'width', 'height', 'depth'], 1000),
   asyncHandler(async (req, res) => {
@@ -152,12 +172,14 @@ router.post(
       depth,
       artistUuids,
       mediumUuids: mediumUuids || []
-    });
+    }, req.user.uuid); // Pass creator UUID
 
     res.status(HTTP_STATUS.CREATED).json({
       success: true,
       data: artwork,
-      message: 'Artwork created successfully'
+      message: artwork.status === 'pending'
+        ? 'Artwork submitted for review'
+        : 'Artwork created successfully'
     });
   })
 );
@@ -165,26 +187,41 @@ router.post(
 /**
  * @route PUT /artworks/:uuid
  * @description Update an artwork
- * @access Protected (requires authentication)
+ * @access Protected (requires authentication, owner or admin)
  * @headers {string} Authorization - Bearer token
  * @param {string} uuid - Artwork UUID
  * @body {string} [title] - New title
  * @body {string} [description] - New description
- * @body {string} [size] - New size
+ * @body {string} [width] - New width
+ * @body {string} [height] - New height
+ * @body {string} [depth] - New depth
+ * @body {Array<string>} [artistUuids] - Array of artist UUIDs
+ * @body {Array<string>} [mediumUuids] - Array of medium UUIDs
  * @returns {Object} Updated artwork object
  * @throws {ValidationError} 400 - Invalid fields
  * @throws {AuthenticationError} 401 - Invalid or missing token
+ * @throws {ForbiddenError} 403 - Not authorized to modify this artwork
  * @throws {NotFoundError} 404 - Artwork not found
  */
 router.put(
   '/:uuid',
   decodeToken,
-  requireAdmin,
   sanitizeText(['title', 'description', 'width', 'height', 'depth'], 1000),
   asyncHandler(async (req, res) => {
 
     const { uuid } = req.params;
     const { title, description, width, height, depth, artistUuids, mediumUuids } = req.body;
+
+    const artworkService = container.get('artworkService');
+
+    // Check if user can modify this artwork
+    const canModify = await artworkService.canUserModifyArtwork(uuid, req.user.uuid);
+    if (!canModify) {
+      return res.status(HTTP_STATUS.FORBIDDEN).json({
+        success: false,
+        message: 'You do not have permission to modify this artwork'
+      });
+    }
 
     const updates = {};
     if (title !== undefined) updates.title = title;
@@ -195,12 +232,17 @@ router.put(
     if (artistUuids !== undefined) updates.artistUuids = artistUuids;
     if (mediumUuids !== undefined) updates.mediumUuids = mediumUuids;
 
-    const artworkService = container.get('artworkService');
-    const artwork = await artworkService.updateArtwork(uuid, updates);
+    // If non-admin editing declined artwork, reset to pending
+    const artwork = await artworkService.getArtworkByUuid(uuid);
+    if (!req.user.is_admin && artwork.status === 'declined') {
+      updates.status = 'pending';
+    }
+
+    const updatedArtwork = await artworkService.updateArtwork(uuid, updates);
 
     res.status(HTTP_STATUS.OK).json({
       success: true,
-      data: artwork,
+      data: updatedArtwork,
       message: 'Artwork updated successfully'
     });
   })
@@ -209,22 +251,32 @@ router.put(
 /**
  * @route DELETE /artworks/:uuid
  * @description Delete an artwork
- * @access Protected (requires authentication)
+ * @access Protected (requires authentication, owner or admin)
  * @headers {string} Authorization - Bearer token
  * @param {string} uuid - Artwork UUID
  * @returns {Object} Success message
  * @throws {AuthenticationError} 401 - Invalid or missing token
+ * @throws {ForbiddenError} 403 - Not authorized to delete this artwork
  * @throws {NotFoundError} 404 - Artwork not found
  */
 router.delete(
   '/:uuid',
   decodeToken,
-  requireAdmin,
   asyncHandler(async (req, res) => {
 
     const { uuid } = req.params;
 
     const artworkService = container.get('artworkService');
+
+    // Check if user can delete this artwork
+    const canDelete = await artworkService.canUserDeleteArtwork(uuid, req.user.uuid);
+    if (!canDelete) {
+      return res.status(HTTP_STATUS.FORBIDDEN).json({
+        success: false,
+        message: 'You do not have permission to delete this artwork'
+      });
+    }
+
     await artworkService.deleteArtwork(uuid);
 
     res.status(HTTP_STATUS.OK).json({
@@ -235,9 +287,49 @@ router.delete(
 );
 
 /**
+ * @route PUT /artworks/:uuid/status
+ * @description Update artwork status (approve/decline)
+ * @access Protected (admin only)
+ * @headers {string} Authorization - Bearer token
+ * @param {string} uuid - Artwork UUID
+ * @body {string} status - New status ('approved', 'pending', 'declined')
+ * @body {string} [review_notes] - Optional review notes
+ * @returns {Object} Updated artwork
+ * @throws {ValidationError} 400 - Invalid status
+ * @throws {AuthenticationError} 401 - Invalid or missing token
+ * @throws {ForbiddenError} 403 - Admin access required
+ * @throws {NotFoundError} 404 - Artwork not found
+ */
+router.put(
+  '/:uuid/status',
+  decodeToken,
+  requireAdmin,
+  validateRequiredFields(['status']),
+  sanitizeText(['review_notes'], 1000),
+  asyncHandler(async (req, res) => {
+    const { uuid } = req.params;
+    const { status, review_notes } = req.body;
+
+    const artworkService = container.get('artworkService');
+    const artwork = await artworkService.updateArtworkStatus(
+      uuid,
+      status,
+      req.user.uuid,
+      review_notes
+    );
+
+    res.status(HTTP_STATUS.OK).json({
+      success: true,
+      data: artwork,
+      message: `Artwork ${status}`
+    });
+  })
+);
+
+/**
  * @route POST /artworks/:uuid/images
  * @description Upload images for an artwork
- * @access Protected (requires authentication)
+ * @access Protected (requires authentication, owner or admin)
  * @headers {string} Authorization - Bearer token
  * @param {string} uuid - Artwork UUID
  * @form-data {File[]} images - Array of image files
@@ -249,12 +341,11 @@ router.delete(
 router.post(
   '/:uuid/images',
   decodeToken,
-  requireAdmin,
   upload.array('images', 10), // Allow up to 10 images
   asyncHandler(async (req, res) => {
     const { uuid } = req.params;
     const { descriptions } = req.body;
-    
+
     if (!req.files || req.files.length === 0) {
       return res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
@@ -263,6 +354,16 @@ router.post(
     }
 
     const artworkService = container.get('artworkService');
+
+    // Check if user can modify this artwork
+    const canModify = await artworkService.canUserModifyArtwork(uuid, req.user.uuid);
+    if (!canModify) {
+      return res.status(HTTP_STATUS.FORBIDDEN).json({
+        success: false,
+        message: 'You do not have permission to modify this artwork'
+      });
+    }
+
     const images = await artworkService.addArtworkImages(uuid, req.files, descriptions);
 
     res.status(HTTP_STATUS.CREATED).json({
@@ -276,22 +377,32 @@ router.post(
 /**
  * @route DELETE /artworks/:uuid/images/:imageUuid
  * @description Delete an artwork image
- * @access Protected (requires authentication)
+ * @access Protected (requires authentication, owner or admin)
  * @headers {string} Authorization - Bearer token
  * @param {string} uuid - Artwork UUID
  * @param {string} imageUuid - Image UUID
  * @returns {Object} Success message
  * @throws {NotFoundError} 404 - Artwork or image not found
  * @throws {AuthenticationError} 401 - Invalid or missing token
+ * @throws {ForbiddenError} 403 - Not authorized to modify this artwork
  */
 router.delete(
   '/:uuid/images/:imageUuid',
   decodeToken,
-  requireAdmin,
   asyncHandler(async (req, res) => {
     const { uuid, imageUuid } = req.params;
 
     const artworkService = container.get('artworkService');
+
+    // Check if user can modify this artwork
+    const canModify = await artworkService.canUserModifyArtwork(uuid, req.user.uuid);
+    if (!canModify) {
+      return res.status(HTTP_STATUS.FORBIDDEN).json({
+        success: false,
+        message: 'You do not have permission to modify this artwork'
+      });
+    }
+
     await artworkService.deleteArtworkImage(uuid, imageUuid);
 
     res.status(HTTP_STATUS.OK).json({
@@ -304,7 +415,7 @@ router.delete(
 /**
  * @route PUT /artworks/:uuid/images/:imageUuid
  * @description Update artwork image (description, sort order)
- * @access Protected (requires authentication)
+ * @access Protected (requires authentication, owner or admin)
  * @headers {string} Authorization - Bearer token
  * @param {string} uuid - Artwork UUID
  * @param {string} imageUuid - Image UUID
@@ -313,21 +424,31 @@ router.delete(
  * @returns {Object} Updated image object
  * @throws {NotFoundError} 404 - Artwork or image not found
  * @throws {AuthenticationError} 401 - Invalid or missing token
+ * @throws {ForbiddenError} 403 - Not authorized to modify this artwork
  */
 router.put(
   '/:uuid/images/:imageUuid',
   decodeToken,
-  requireAdmin,
   sanitizeText(['description'], 500),
   asyncHandler(async (req, res) => {
     const { uuid, imageUuid } = req.params;
     const { description, sort_order } = req.body;
 
+    const artworkService = container.get('artworkService');
+
+    // Check if user can modify this artwork
+    const canModify = await artworkService.canUserModifyArtwork(uuid, req.user.uuid);
+    if (!canModify) {
+      return res.status(HTTP_STATUS.FORBIDDEN).json({
+        success: false,
+        message: 'You do not have permission to modify this artwork'
+      });
+    }
+
     const updates = {};
     if (description !== undefined) updates.description = description;
     if (sort_order !== undefined) updates.sort_order = parseInt(sort_order);
 
-    const artworkService = container.get('artworkService');
     const image = await artworkService.updateArtworkImage(uuid, imageUuid, updates);
 
     res.status(HTTP_STATUS.OK).json({

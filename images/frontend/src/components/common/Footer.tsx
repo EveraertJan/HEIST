@@ -51,6 +51,7 @@ export default function Footer() {
             <h4 style={footerTitleStyle}>Visit</h4>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
               <li><Link to="/gallery" style={footerLinkStyle}>Gallery</Link></li>
+              <li><Link to="/artworks/create" style={footerLinkStyle}>Submit Artwork</Link></li>
               <li><Link to="/faq" style={footerLinkStyle}>FAQ</Link></li>
               <li><Link to="/contact" style={footerLinkStyle}>Contact</Link></li>
             </ul>
@@ -66,34 +67,27 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Connect Section */}
+          {/* Submit Artwork Section */}
           <div style={footerSectionStyle}>
-            <h4 style={footerTitleStyle}>Connect</h4>
+            <h4 style={footerTitleStyle}>Submit Artwork</h4>
             <p style={{ color: 'var(--secondary-text)', fontSize: '14px', marginBottom: '16px' }}>
-              Stay updated with our latest exhibitions and events.
+              Want to submit an artwork of your own available for rent?
             </p>
-            <div style={{ display: 'flex', gap: '16px' }}>
-              <a
-                href="#"
-                style={{
-                  ...footerLinkStyle,
-                  display: 'inline-block',
-                  marginBottom: 0
-                }}
-              >
-                Instagram
-              </a>
-              <a
-                href="#"
-                style={{
-                  ...footerLinkStyle,
-                  display: 'inline-block',
-                  marginBottom: 0
-                }}
-              >
-                Twitter
-              </a>
-            </div>
+            <Link 
+              to="/artworks/create" 
+              style={{
+                ...footerLinkStyle,
+                display: 'inline-block',
+                marginBottom: 0,
+                padding: '8px 16px',
+                border: '1px solid var(--accent-color)',
+                borderRadius: '4px',
+                color: 'var(--accent-color)',
+                fontWeight: '600'
+              }}
+            >
+              Submit Here
+            </Link>
           </div>
         </div>
 

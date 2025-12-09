@@ -99,7 +99,7 @@ function AppRoutes() {
             }
           />
           <Route
-            path="/admin/artworks"
+            path="/artworks"
             element={
               <PrivateRoute>
                 <AdminArtworks />
@@ -107,7 +107,7 @@ function AppRoutes() {
             }
           />
           <Route
-            path="/admin/artworks/create"
+            path="/artworks/create"
             element={
               <PrivateRoute>
                 <CreateArtwork />
@@ -115,7 +115,7 @@ function AppRoutes() {
             }
           />
           <Route
-            path="/admin/artworks/edit/:uuid"
+            path="/artworks/edit/:uuid"
             element={
               <PrivateRoute>
                 <CreateArtwork />

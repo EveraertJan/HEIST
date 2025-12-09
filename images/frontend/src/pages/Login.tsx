@@ -76,7 +76,7 @@ export default function Login() {
             </Button>
           </form>
           <p style={{ textAlign: 'center', marginTop: '30px', fontFamily: '"Crimson Text", serif' }}>
-            New to our museum? <Link to="/register" style={{ color: 'var(--museum-burgundy)' }}>Request membership</Link>
+            New to our museum? <Link to="/register" style={{ color: 'var(--museum-burgundy)' }}>Please register.</Link>
           </p>
         </div>
       </div>

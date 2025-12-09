@@ -23,13 +23,34 @@ class ArtworkService {
   }
 
   /**
-   * Get all artworks with pagination
+   * Get all artworks with pagination and filtering based on user permissions
    * @param {number} limit - Maximum number of results
    * @param {number} offset - Offset for pagination
+   * @param {Object} options - Filtering options
+   * @param {string} [options.userUuid] - User UUID for filtering own artworks
+   * @param {boolean} [options.isAdmin=false] - Whether user is admin
+   * @param {boolean} [options.includeAll=false] - Include all statuses (admin only)
    * @returns {Promise<Array>} Array of artworks
    */
-  async getAllArtworks(limit = 50, offset = 0) {
-    return await this.artworkRepository.findAll(limit, offset);
+  async getAllArtworks(limit = 50, offset = 0, options = {}) {
+    const { userUuid = null, isAdmin = false, includeAll = false } = options;
+
+    let filters = {};
+
+    if (includeAll && isAdmin) {
+      // Admins can see all artworks regardless of status
+      filters.includeAll = true;
+    } else if (userUuid) {
+      // Regular users see approved artworks + their own submissions
+      const user = await this.userRepository.findByUuid(userUuid);
+      filters.status = 'approved';
+      filters.userId = user?.id;
+    } else {
+      // Public view: only approved artworks
+      filters.status = 'approved';
+    }
+
+    return await this.artworkRepository.findAll(limit, offset, filters);
   }
 
   /**
@@ -73,10 +94,11 @@ class ArtworkService {
    * @param {string} [artworkData.depth] - Artwork depth
    * @param {Array<string>} artworkData.artistUuids - Array of artist UUIDs
    * @param {Array<string>} artworkData.mediumUuids - Array of medium UUIDs
+   * @param {string} creatorUuid - UUID of user creating the artwork
    * @returns {Promise<Object>} Created artwork with relations
    * @throws {Error} If validation fails or artists/mediums not found
    */
-  async createArtwork(artworkData) {
+  async createArtwork(artworkData, creatorUuid) {
     const { title, description, width, height, depth, artistUuids = [], mediumUuids = [] } = artworkData;
 
     // Validate required fields
@@ -92,6 +114,17 @@ class ArtworkService {
       throw error;
     }
 
+    // Get creator
+    const creator = await this.userRepository.findByUuid(creatorUuid);
+    if (!creator) {
+      const error = new Error('Creator not found');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    // Determine status based on creator's admin status
+    const status = creator.is_admin ? 'approved' : 'pending';
+
     // Use transaction to ensure data consistency
     const trx = await this.db.transaction();
 
@@ -104,7 +137,9 @@ class ArtworkService {
           description: description ? description.trim() : null,
           width: width ? width.trim() : null,
           height: height ? height.trim() : null,
-          depth: depth ? depth.trim() : null
+          depth: depth ? depth.trim() : null,
+          status: status,
+          created_by_user_id: creator.id
         })
         .returning('*')
         .then(rows => rows[0]);
@@ -419,6 +454,80 @@ class ArtworkService {
       .returning('*');
 
     return updatedImage;
+  }
+
+  /**
+   * Update artwork status (approve/decline) - Admin only
+   * @param {string} uuid - Artwork UUID
+   * @param {string} status - New status ('approved', 'pending', 'declined')
+   * @param {string} reviewerUuid - Reviewer's UUID (admin)
+   * @param {string} [reviewNotes] - Optional review notes
+   * @returns {Promise<Object>} Updated artwork
+   * @throws {Error} If artwork not found or invalid status
+   */
+  async updateArtworkStatus(uuid, status, reviewerUuid, reviewNotes = null) {
+    const artwork = await this.artworkRepository.findByUuid(uuid);
+
+    if (!artwork) {
+      const error = new Error('Artwork not found');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    // Validate status
+    const validStatuses = ['approved', 'pending', 'declined'];
+    if (!validStatuses.includes(status)) {
+      const error = new Error('Invalid status');
+      error.statusCode = 400;
+      throw error;
+    }
+
+    const reviewer = await this.userRepository.findByUuid(reviewerUuid);
+    if (!reviewer) {
+      const error = new Error('Reviewer not found');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    return await this.artworkRepository.updateStatus(uuid, {
+      status,
+      reviewed_by_user_id: reviewer.id,
+      review_notes: reviewNotes
+    });
+  }
+
+  /**
+   * Check if user can modify an artwork
+   * @param {string} artworkUuid - Artwork UUID
+   * @param {string} userUuid - User UUID
+   * @returns {Promise<boolean>} True if user can modify
+   */
+  async canUserModifyArtwork(artworkUuid, userUuid) {
+    const user = await this.userRepository.findByUuid(userUuid);
+    const artwork = await this.artworkRepository.findByUuid(artworkUuid);
+
+    if (!user || !artwork) {
+      return false;
+    }
+
+    // Admins can modify any artwork
+    if (user.is_admin) {
+      return true;
+    }
+
+    // Users can modify their own artworks
+    return artwork.created_by_user_id === user.id;
+  }
+
+  /**
+   * Check if user can delete an artwork
+   * @param {string} artworkUuid - Artwork UUID
+   * @param {string} userUuid - User UUID
+   * @returns {Promise<boolean>} True if user can delete
+   */
+  async canUserDeleteArtwork(artworkUuid, userUuid) {
+    // Same logic as modify for now
+    return await this.canUserModifyArtwork(artworkUuid, userUuid);
   }
 }
 

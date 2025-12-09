@@ -55,6 +55,23 @@ export interface Artwork {
   width?: string
   height?: string
   depth?: string
+  status: 'approved' | 'pending' | 'declined'
+  created_by_user_id?: number
+  reviewed_by_user_id?: number
+  reviewed_at?: string
+  review_notes?: string
+  creator?: {
+    uuid: string
+    first_name: string
+    last_name: string
+    email: string
+  }
+  reviewer?: {
+    uuid: string
+    first_name: string
+    last_name: string
+    email: string
+  }
   created_at: string
   updated_at: string
   artists?: Artist[]
