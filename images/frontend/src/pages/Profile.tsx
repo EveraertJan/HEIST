@@ -19,6 +19,7 @@ export default function Profile() {
   const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
   const [dateOfBirth, setDateOfBirth] = useState('')
+  const [isAdmin, setIsAdmin] = useState(false)
 
   // Password fields
   const [currentPassword, setCurrentPassword] = useState('')
@@ -43,6 +44,7 @@ export default function Profile() {
       setFirstName(response.data.first_name)
       setLastName(response.data.last_name)
       setEmail(response.data.email)
+      setIsAdmin(response.data.is_admin || false)
       // Format date to YYYY-MM-DD for HTML date input
       if (response.data.date_of_birth) {
         const date = new Date(response.data.date_of_birth)
@@ -152,7 +154,27 @@ export default function Profile() {
           {success && <p style={{ color: 'green' }}>{success}</p>}
 
           <div style={{ marginBottom: '30px', padding: '20px', border: '1px solid #ddd' }}>
-            <h4>Profile Information</h4>
+            <div style={{display: 'flex'}}>
+              <h4>Profile Information</h4>
+              
+              {/* Admin Status Display */}
+              <div style={{ 
+                marginBottom: '20px', 
+                padding: '12px 16px', 
+              }}>
+                <div style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '8px',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  color: isAdmin ? '#155724' : '#6c757d'
+                }}>
+                    {isAdmin ? 'Administrator' : 'Regular User'}
+                </div>
+              </div>
+            </div>
+
             <form onSubmit={handleUpdateProfile}>
               <div className="row">
                 <div className="six columns">

@@ -78,10 +78,30 @@ class ArtworkService {
    * @param {Array<string>} [filters.mediums] - Medium UUIDs
    * @param {number} [filters.limit] - Results limit
    * @param {number} [filters.offset] - Results offset
+   * @param {boolean} [filters.includeAll=false] - Include all statuses (admin only)
+   * @param {string} [filters.userUuid] - User UUID for filtering own artworks
+   * @param {boolean} [filters.isAdmin=false] - Whether user is admin
    * @returns {Promise<Array>} Array of matching artworks
    */
   async searchArtworks(filters) {
-    return await this.artworkRepository.search(filters);
+    const { includeAll = false, userUuid = null, isAdmin = false, ...searchFilters } = filters;
+
+    let repositoryFilters = { ...searchFilters };
+
+    if (includeAll && isAdmin) {
+      // Admins can see all artworks regardless of status
+      repositoryFilters.includeAll = true;
+    } else if (userUuid) {
+      // Regular users see approved artworks + their own submissions
+      const user = await this.userRepository.findByUuid(userUuid);
+      repositoryFilters.status = 'approved';
+      repositoryFilters.userId = user?.id;
+    } else {
+      // Public view: only approved artworks
+      repositoryFilters.status = 'approved';
+    }
+
+    return await this.artworkRepository.search(repositoryFilters);
   }
 
   /**

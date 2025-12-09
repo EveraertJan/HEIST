@@ -176,7 +176,7 @@ export default function CreateArtwork() {
       
       // Reset form after successful operation
       setTimeout(() => {
-        navigate('/admin/artworks')
+        navigate('/artworks')
       }, 2000)
     } catch (err: any) {
       setError(err.response?.data?.message || `Failed to ${isEditing ? 'update' : 'create'} artwork`)
@@ -275,7 +275,7 @@ export default function CreateArtwork() {
       <div className="container" style={{ padding: '48px 24px', maxWidth: '800px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '32px' }}>
           { user?.is_admin ? <Button 
-            onClick={() => navigate('/admin/artworks')} 
+            onClick={() => navigate('/artworks')} 
             variant="secondary" 
             size="small"
           >
@@ -540,7 +540,7 @@ export default function CreateArtwork() {
               </Button>
               <Button 
                 type="button" 
-                onClick={() => navigate('/admin/artworks')} 
+                onClick={() => navigate('/artworks')} 
                 variant="secondary" 
                 size="large"
                 disabled={isUploading}

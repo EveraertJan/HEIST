@@ -3,6 +3,7 @@ import { searchArtworks, getAllMediums } from '../services/api'
 import { ArtworkCard } from '../components/artworks'
 import { SearchBar, MediumFilter } from '../components/search'
 import EmptyState from '../components/common/EmptyState'
+import { useAuth } from '../contexts/AuthContext'
 import type { Artwork, Medium } from '../types'
 
 /**
@@ -19,6 +20,7 @@ import type { Artwork, Medium } from '../types'
  * @component
  */
 export default function Gallery() {
+  const { user } = useAuth()
   const [artworks, setArtworks] = useState<Artwork[]>([])
   const [mediums, setMediums] = useState<Medium[]>([])
   const [searchTerm, setSearchTerm] = useState('')

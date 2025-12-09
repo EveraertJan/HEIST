@@ -45,13 +45,28 @@ class ArtworkRepository {
 
     const artworks = await query.orderBy('a.created_at', 'desc');
 
-    // Get images for each artwork
+    // Get related data for each artwork
     for (const artwork of artworks) {
+      // Get images
       const images = await this.db('artwork_images')
         .where('artwork_id', artwork.id)
         .select('*')
         .orderBy('sort_order', 'asc');
       artwork.images = images;
+
+      // Get associated artists
+      const artists = await this.db('artworks_artists as aa')
+        .join('users as u', 'aa.artist_id', 'u.id')
+        .where('aa.artwork_id', artwork.id)
+        .select('u.uuid', 'u.first_name', 'u.last_name', 'u.email');
+      artwork.artists = artists;
+
+      // Get associated mediums
+      const mediums = await this.db('artworks_mediums as am')
+        .join('mediums as m', 'am.medium_id', 'm.id')
+        .where('am.artwork_id', artwork.id)
+        .select('m.uuid', 'm.name');
+      artwork.mediums = mediums;
     }
 
     return artworks;
@@ -124,10 +139,13 @@ class ArtworkRepository {
    * @param {Array<string>} [filters.mediums] - Array of medium UUIDs to filter by
    * @param {number} [filters.limit=50] - Maximum number of results
    * @param {number} [filters.offset=0] - Offset for pagination
+   * @param {boolean} [filters.includeAll=false] - Include all statuses (admin only)
+   * @param {string} [filters.status='approved'] - Status to filter by
+   * @param {number} [filters.userId=null] - User ID to include their own artworks
    * @returns {Promise<Array>} Array of artwork objects
    */
   async search(filters = {}) {
-    const { search, mediums, limit = 50, offset = 0 } = filters;
+    const { search, mediums, limit = 50, offset = 0, includeAll = false, status = 'approved', userId = null } = filters;
 
     let query = this.db('artworks as a')
       .distinct('a.*')
@@ -135,6 +153,18 @@ class ArtworkRepository {
       .leftJoin('users as u', 'aa.artist_id', 'u.id')
       .leftJoin('artworks_mediums as am', 'a.id', 'am.artwork_id')
       .leftJoin('mediums as m', 'am.medium_id', 'm.id')
+
+    // Filter by status, but if userId is provided, also show artworks created by that user
+    if (!includeAll) {
+      if (userId) {
+        query = query.where(function() {
+          this.where('a.status', status)
+            .orWhere('a.created_by_user_id', userId);
+        });
+      } else {
+        query = query.where('a.status', status);
+      }
+    }
 
     // Search by title or artist name
     if (search) {
@@ -155,13 +185,28 @@ class ArtworkRepository {
       .offset(offset)
       .orderBy('a.created_at', 'desc')
 
-    // Get images for each artwork
+    // Get related data for each artwork
     for (const artwork of artworks) {
+      // Get images
       const images = await this.db('artwork_images')
         .where('artwork_id', artwork.id)
         .select('*')
         .orderBy('sort_order', 'asc');
       artwork.images = images;
+
+      // Get associated artists
+      const artists = await this.db('artworks_artists as aa')
+        .join('users as u', 'aa.artist_id', 'u.id')
+        .where('aa.artwork_id', artwork.id)
+        .select('u.uuid', 'u.first_name', 'u.last_name', 'u.email');
+      artwork.artists = artists;
+
+      // Get associated mediums
+      const mediums = await this.db('artworks_mediums as am')
+        .join('mediums as m', 'am.medium_id', 'm.id')
+        .where('am.artwork_id', artwork.id)
+        .select('m.uuid', 'm.name');
+      artwork.mediums = mediums;
     }
 
     return artworks;

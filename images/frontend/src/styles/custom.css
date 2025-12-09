@@ -275,6 +275,16 @@ input::placeholder {
   color: var(--accent-pink);
 }
 
+.table-status.approved {
+  background-color: rgba(76, 175, 80, 0.2);
+  color: #4caf50;
+}
+
+.table-status.declined {
+  background-color: rgba(255, 107, 157, 0.2);
+  color: var(--accent-pink);
+}
+
 /* Grid Layouts */
 .grid {
   display: grid;

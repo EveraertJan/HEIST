@@ -73,19 +73,74 @@ router.get('/', asyncHandler(async (req, res) => {
 }));
 
 /**
+ * @route GET /artworks/my-artworks
+ * @description Get artworks created by the current user
+ * @access Protected (requires authentication)
+ * @query {number} limit - Maximum number of results (default: 50)
+ * @query {number} offset - Offset for pagination (default: 0)
+ * @returns {Array} Array of user's artwork objects
+ */
+router.get('/my-artworks', asyncHandler(async (req, res) => {
+  const limit = parseInt(req.query.limit) || 50;
+  const offset = parseInt(req.query.offset) || 0;
+
+  // Check if user is authenticated
+  let userUuid = null;
+  const authHeader = req.headers.authorization;
+  if (authHeader) {
+    try {
+      const jwt = require('jsonwebtoken');
+      const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : authHeader;
+      const decoded = jwt.verify(token, config.auth.jwtSecret);
+      userUuid = decoded.uuid;
+    } catch (err) {
+      return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+        success: false,
+        message: 'Invalid or missing authentication token'
+      });
+    }
+  }
+
+  if (!userUuid) {
+    return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+      success: false,
+      message: 'Authentication required'
+    });
+  }
+
+  const artworkService = container.get('artworkService');
+  const artworks = await artworkService.getAllArtworks(limit, offset, { 
+    userUuid, 
+    includeAll: true // Show all statuses for own artworks
+  });
+
+  res.status(HTTP_STATUS.OK).json({
+    success: true,
+    data: artworks,
+    pagination: {
+      limit,
+      offset,
+      count: artworks.length
+    }
+  });
+}));
+
+/**
  * @route GET /artworks/search
  * @description Search artworks by title, artist name, or filter by mediums
- * @access Public
+ * @access Public (with optional authentication for personalized results)
  * @query {string} search - Search term for title or artist name
  * @query {string} mediums - Comma-separated medium UUIDs
  * @query {number} limit - Maximum number of results (default: 50)
  * @query {number} offset - Offset for pagination (default: 0)
+ * @query {boolean} includeAll - Include all statuses (admin only)
  * @returns {Array} Array of matching artwork objects
  */
 router.get('/search', asyncHandler(async (req, res) => {
   const { search, mediums } = req.query;
   const limit = parseInt(req.query.limit) || 50;
   const offset = parseInt(req.query.offset) || 0;
+  const includeAll = req.query.includeAll === 'true';
   
   const filters = {
     limit,
@@ -100,6 +155,21 @@ router.get('/search', asyncHandler(async (req, res) => {
     filters.mediums = mediums.split(',').map(m => m.trim()).filter(m => m);
   }
 
+  // Check if user is authenticated (optional)
+  const authHeader = req.headers.authorization;
+  if (authHeader) {
+    try {
+      const jwt = require('jsonwebtoken');
+      const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : authHeader;
+      const decoded = jwt.verify(token, config.auth.jwtSecret);
+      filters.userUuid = decoded.uuid;
+      filters.isAdmin = decoded.is_admin;
+      filters.includeAll = includeAll && decoded.is_admin; // Only admins can request all
+    } catch (err) {
+      // Token invalid, treat as public request
+    }
+  }
+
   const artworkService = container.get('artworkService');
   const artworks = await artworkService.searchArtworks(filters);
   
@@ -108,7 +178,8 @@ router.get('/search', asyncHandler(async (req, res) => {
     data: artworks,
     filters: {
       search: filters.search || null,
-      mediums: filters.mediums || []
+      mediums: filters.mediums || [],
+      includeAll: filters.includeAll || false
     },
     pagination: {
       limit,

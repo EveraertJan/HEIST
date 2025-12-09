@@ -145,9 +145,12 @@ export default function Navbar() {
                 <Link to="/my-rentals" style={navLinkStyle(isActive('/my-rentals'))}>
                   My Rentals
                 </Link>
+                <Link to="/artworks" style={navLinkStyle(isActive('/artworks'))}>
+                  My Artworks
+                </Link>
                 {user.is_admin && (
                   <>
-                    <Link to="/admin/artworks" style={navLinkStyle(isActive('/admin/artworks'))}>
+                    <Link to="/artworks" style={navLinkStyle(isActive('/artworks'))}>
                       Manage Artworks
                     </Link>
                     <Link to="/admin/rentals" style={navLinkStyle(isActive('/admin/rentals'))}>
@@ -246,6 +249,9 @@ export default function Navbar() {
                 </Link>
                 <Link to="/my-rentals" style={mobileNavLinkStyle(isActive('/my-rentals'))} onClick={handleLinkClick}>
                   My Rentals
+                </Link>
+                <Link to="/my-artworks" style={mobileNavLinkStyle(isActive('/my-artworks'))} onClick={handleLinkClick}>
+                  My Artworks
                 </Link>
                 {user.is_admin && (
                   <>

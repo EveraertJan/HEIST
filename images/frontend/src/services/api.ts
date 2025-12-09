@@ -57,13 +57,17 @@ export const deleteAccount = () =>
 export const getAllArtworks = (limit = 50, offset = 0, includeAll = false) =>
   api.get<{ success: boolean; data: Artwork[]; pagination: any }>('/artworks', { params: { limit, offset, includeAll } })
 
-export const searchArtworks = (search?: string, mediums?: string[], limit = 50, offset = 0) =>
+export const getMyArtworks = (limit = 50, offset = 0) =>
+  api.get<{ success: boolean; data: Artwork[]; pagination: any }>('/artworks/my-artworks', { params: { limit, offset } })
+
+export const searchArtworks = (search?: string, mediums?: string[], limit = 50, offset = 0, includeAll = false) =>
   api.get<{ success: boolean; data: Artwork[]; filters: any; pagination: any }>('/artworks/search', {
     params: {
       search,
       mediums: mediums?.join(','),
       limit,
-      offset
+      offset,
+      includeAll
     }
   })
 

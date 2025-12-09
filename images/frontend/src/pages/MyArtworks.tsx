@@ -1,31 +1,11 @@
-/**
- * AdminArtworks Page
- *
- * Admin interface for managing artworks in the system.
- *
- * Structure:
- * - Header with "Create New Artwork" button
- * - Success/Error message notifications
- * - Artworks table displaying all artworks with:
- *   - Title, Description, Dimensions, Artists, Mediums, Availability
- *   - Edit button (navigates to CreateArtwork page in edit mode)
- *   - Delete button (with confirmation)
- *
- * Features:
- * - View all artworks in a table format
- * - Navigate to create new artwork
- * - Navigate to edit existing artwork
- * - Delete artwork with confirmation
- */
-
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { deleteArtwork, getAllArtworks, updateArtworkStatus } from '../services/api'
+import { getMyArtworks, getAllArtworks, deleteArtwork, updateArtworkStatus } from '../services/api'
 import type { Artwork } from '../types'
 import Button from '../components/common/Button'
 
-export default function AdminArtworks() {
+export default function MyArtworks() {
   const { user } = useAuth()
   const navigate = useNavigate()
 
@@ -35,15 +15,25 @@ export default function AdminArtworks() {
   const [success, setSuccess] = useState('')
 
   useEffect(() => {
-    
-    loadData()
+    if (!user) {
+      navigate('/login')
+      return
+    }
+    loadArtworks()
   }, [user])
 
-  const loadData = async () => {
+  const loadArtworks = async () => {
     try {
       setLoading(true)
-      const artworksRes = await getAllArtworks(100, 0, true) // Include all statuses for admin
-      setArtworks(artworksRes.data.data)
+      let response
+      if (user?.is_admin) {
+        // Admins see all artworks with all statuses
+        response = await getAllArtworks(100, 0, true)
+      } else {
+        // Regular users see only their own artworks
+        response = await getMyArtworks(100, 0)
+      }
+      setArtworks(response.data.data)
     } catch (err) {
       setError('Failed to load artworks')
       console.error(err)
@@ -57,37 +47,40 @@ export default function AdminArtworks() {
   }
 
   const handleDelete = async (uuid: string) => {
-    if (!confirm('Are you sure you want to delete this artwork?')) return
+    if (!confirm('Are you sure you want to delete this artwork? This action cannot be undone.')) return
 
     try {
       await deleteArtwork(uuid)
       setSuccess('Artwork deleted successfully')
-      loadData()
+      loadArtworks()
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to delete artwork')
     }
   }
 
-  const handleApprove = async (uuid: string) => {
-    try {
-      await updateArtworkStatus(uuid, 'approved')
-      setSuccess('Artwork approved successfully')
-      loadData()
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to approve artwork')
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return 'Pending Review'
+      case 'approved':
+        return 'Approved'
+      case 'declined':
+        return 'Declined'
+      default:
+        return status
     }
   }
 
-  const handleDecline = async (uuid: string) => {
-    const reviewNotes = prompt('Please provide review notes for declining this artwork:')
-    if (reviewNotes === null) return // User cancelled
-
-    try {
-      await updateArtworkStatus(uuid, 'declined', reviewNotes)
-      setSuccess('Artwork declined successfully')
-      loadData()
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to decline artwork')
+  const getStatusDescription = (status: string, reviewNotes?: string) => {
+    switch (status) {
+      case 'pending':
+        return 'Your artwork is waiting for admin review'
+      case 'approved':
+        return 'Your artwork has been approved and is visible in the gallery'
+      case 'declined':
+        return reviewNotes || 'Your artwork was not approved. Please review the feedback.'
+      default:
+        return ''
     }
   }
 
@@ -103,14 +96,14 @@ export default function AdminArtworks() {
     <div style={{ minHeight: '100vh', paddingTop: '80px' }}>
       <div className="container" style={{ padding: '48px 24px', maxWidth: '1200px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
-          <h1 style={{ margin: 0 }}>Manage Artworks</h1>
+          <h1 style={{ margin: 0 }}>My Artworks</h1>
           <Button onClick={() => navigate('/artworks/create')} variant="primary" size="large">
             + Create New Artwork
           </Button>
         </div>
 
         {error && (
-          <div className="error-message" style={{
+          <div style={{
             padding: '16px',
             backgroundColor: 'rgba(255, 107, 157, 0.1)',
             border: '1px solid var(--accent-pink)',
@@ -123,7 +116,7 @@ export default function AdminArtworks() {
         )}
 
         {success && (
-          <div className="success-message" style={{
+          <div style={{
             padding: '16px',
             backgroundColor: 'rgba(74, 158, 255, 0.1)',
             border: '1px solid var(--accent-yellow)',
@@ -135,11 +128,15 @@ export default function AdminArtworks() {
           </div>
         )}
 
-        {/* Artworks Table */}
         {artworks.length === 0 ? (
-          <p style={{ textAlign: 'center', color: 'var(--secondary-text)', padding: '40px' }}>
-            No artworks created yet. Click "Create New Artwork" to add your first artwork.
-          </p>
+          <div style={{ textAlign: 'center', padding: '64px 24px' }}>
+            <p style={{ color: 'var(--secondary-text)', marginBottom: '24px', fontSize: '18px' }}>
+              You haven't submitted any artworks yet
+            </p>
+            <Button onClick={() => navigate('/artworks/create')} variant="primary" size="large">
+              Submit Your First Artwork
+            </Button>
+          </div>
         ) : (
           <div className="table-container">
             <div className="table-responsive">
@@ -150,7 +147,7 @@ export default function AdminArtworks() {
                     <th>Dimensions</th>
                     <th>Artists</th>
                     <th>Status</th>
-                    <th>Availability</th>
+                    <th>Created</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -158,12 +155,17 @@ export default function AdminArtworks() {
                   {artworks.map(artwork => (
                     <tr key={artwork.uuid}>
                       <td>
-                        <div style={{ fontWeight: '600', color: 'var(--accent-color)' }}>
+                        <div style={{ fontWeight: '600', color: 'var(--accent-color)', marginBottom: '4px' }}>
                           {artwork.title}
                         </div>
                         <div style={{ fontSize: '12px', color: 'var(--secondary-text)' }}>
                           ID: {artwork.uuid.substring(0, 8)}
                         </div>
+                        {artwork.description && (
+                          <div style={{ fontSize: '12px', color: 'var(--secondary-text)', marginTop: '4px', maxWidth: '200px' }}>
+                            {artwork.description.length > 50 ? `${artwork.description.substring(0, 50)}...` : artwork.description}
+                          </div>
+                        )}
                       </td>
                       <td>
                         <div style={{ fontSize: '14px', color: 'var(--primary-text)' }}>
@@ -184,14 +186,29 @@ export default function AdminArtworks() {
                         </div>
                       </td>
                       <td>
-                        <span className={`table-status ${artwork.status}`}>
-                          {artwork.status.charAt(0).toUpperCase() + artwork.status.slice(1)}
-                        </span>
+                        <div>
+                          <span className={`table-status ${artwork.status}`}>
+                            {getStatusLabel(artwork.status)}
+                          </span>
+                          <div style={{ fontSize: '12px', color: 'var(--secondary-text)', marginTop: '4px', maxWidth: '200px' }}>
+                            {getStatusDescription(artwork.status, artwork.review_notes)}
+                          </div>
+                          {artwork.review_notes && artwork.status === 'declined' && (
+                            <div style={{ 
+                              fontSize: '11px', 
+                              color: 'var(--accent-pink)', 
+                              marginTop: '4px',
+                              fontStyle: 'italic'
+                            }}>
+                              Feedback: {artwork.review_notes}
+                            </div>
+                          )}
+                        </div>
                       </td>
                       <td>
-                        <span className="table-status active">
-                          Available
-                        </span>
+                        <div style={{ fontSize: '12px', color: 'var(--secondary-text)' }}>
+                          {new Date(artwork.created_at).toLocaleDateString()}
+                        </div>
                       </td>
                       <td>
                         <div className="table-actions" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -199,18 +216,19 @@ export default function AdminArtworks() {
                             Edit
                           </Button>
                           {artwork.status === 'pending' && (
-                            <>
-                              <Button onClick={() => handleApprove(artwork.uuid)} variant="success" size="small">
-                                Approve
-                              </Button>
-                              <Button onClick={() => handleDecline(artwork.uuid)} variant="warning" size="small">
-                                Decline
-                              </Button>
-                            </>
+                            <span style={{ 
+                              fontSize: '11px', 
+                              color: 'var(--secondary-text)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              padding: '4px 8px'
+                            }}>
+                              Under Review
+                            </span>
                           )}
                           {artwork.status === 'declined' && (
-                            <Button onClick={() => handleApprove(artwork.uuid)} variant="success" size="small">
-                              Approve
+                            <Button onClick={() => handleEdit(artwork)} variant="warning" size="small">
+                              Resubmit
                             </Button>
                           )}
                           <Button onClick={() => handleDelete(artwork.uuid)} variant="danger" size="small">
