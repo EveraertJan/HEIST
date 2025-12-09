@@ -31,17 +31,18 @@ class ArtworkRepository {
       .offset(offset)
       .leftJoin('rentals as r', 'r.artwork_id', 'a.id');
 
-    if (!includeAll) {
-      // Filter by status, but if userId is provided, also show artworks created by that user
-      if (userId) {
-        query = query.where(function() {
-          this.where('a.status', status)
-            .orWhere('a.created_by_user_id', userId);
-        });
-      } else {
+    if (userId) {
+      // If userId is provided, filter to only that user's artworks
+      query = query.where('a.created_by_user_id', userId);
+      // If not includeAll, also filter by status
+      if (!includeAll) {
         query = query.where('a.status', status);
       }
+    } else if (!includeAll) {
+      // No userId provided, filter by status only
+      query = query.where('a.status', status);
     }
+    // If includeAll and no userId, show all artworks (admin viewing all)
 
     const artworks = await query.orderBy('a.created_at', 'desc');
 

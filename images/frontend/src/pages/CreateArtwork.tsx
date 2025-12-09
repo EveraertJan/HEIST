@@ -39,7 +39,7 @@ import ExistingImagesSection from '../components/artworks/ExistingImagesSection'
 import NewImageUploadSection from '../components/artworks/NewImageUploadSection'
 
 export default function CreateArtwork() {
-  const { user } = useAuth()
+  const { user, refreshUser } = useAuth()
   const navigate = useNavigate()
   const { uuid } = useParams<{ uuid?: string }>()
   const isEditing = !!uuid
@@ -172,8 +172,11 @@ export default function CreateArtwork() {
             return
           }
         }
+
+        // Refresh user to update has_artworks flag in navbar
+        await refreshUser()
       }
-      
+
       // Reset form after successful operation
       setTimeout(() => {
         navigate('/artworks')

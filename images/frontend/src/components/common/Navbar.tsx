@@ -145,16 +145,14 @@ export default function Navbar() {
                 <Link to="/my-rentals" style={navLinkStyle(isActive('/my-rentals'))}>
                   My Rentals
                 </Link>
-                <Link to="/artworks" style={navLinkStyle(isActive('/artworks'))}>
-                  My Artworks
-                </Link>
-                {user.is_admin && (
+                {/* Show artwork management links for users with artworks OR admins */}
+                {(user.has_artworks || user.is_admin) && (
                   <>
                     <Link to="/artworks" style={navLinkStyle(isActive('/artworks'))}>
-                      Manage Artworks
+                      {user.is_admin ? 'Manage Artworks' : 'My Artworks'}
                     </Link>
                     <Link to="/admin/rentals" style={navLinkStyle(isActive('/admin/rentals'))}>
-                      Manage Rentals
+                      {user.is_admin ? 'Manage Rentals' : 'Rental Requests'}
                     </Link>
                   </>
                 )}
@@ -250,19 +248,17 @@ export default function Navbar() {
                 <Link to="/my-rentals" style={mobileNavLinkStyle(isActive('/my-rentals'))} onClick={handleLinkClick}>
                   My Rentals
                 </Link>
-                <Link to="/my-artworks" style={mobileNavLinkStyle(isActive('/my-artworks'))} onClick={handleLinkClick}>
-                  My Artworks
-                </Link>
-                {user.is_admin && (
+                {/* Show artwork management links for users with artworks OR admins */}
+                {(user.has_artworks || user.is_admin) && (
                   <>
                     <Link to="/artworks" style={mobileNavLinkStyle(isActive('/artworks'))} onClick={handleLinkClick}>
-                      Manage Artworks
+                      {user.is_admin ? 'Manage Artworks' : 'My Artworks'}
                     </Link>
                     <Link to="/admin/rentals" style={mobileNavLinkStyle(isActive('/admin/rentals'))} onClick={handleLinkClick}>
-                      Manage Rentals
+                      {user.is_admin ? 'Manage Rentals' : 'Rental Requests'}
                     </Link>
                   </>
-                )} 
+                )}
                 <Link to="/profile" style={mobileNavLinkStyle(isActive('/profile'))} onClick={handleLinkClick}>
                   {user.first_name} {user.last_name}
                 </Link>

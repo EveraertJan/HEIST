@@ -121,6 +121,9 @@ export const createMedium = (name: string) =>
 export const getMyRentals = () =>
   api.get<{ success: boolean; data: Rental[] }>('/rentals/my-rentals')
 
+export const getMyArtworksRentals = (limit = 50, offset = 0) =>
+  api.get<{ success: boolean; data: Rental[]; pagination: any }>('/rentals/my-artworks-rentals', { params: { limit, offset } })
+
 export const getAllRentals = (limit = 50, offset = 0) =>
   api.get<{ success: boolean; data: Rental[]; pagination: any }>('/rentals', { params: { limit, offset } })
 

@@ -3,6 +3,7 @@ const router = express.Router();
 const container = require('../container');
 const { decodeToken } = require('../helpers/authHelpers');
 const { requireAdmin } = require('../middleware/adminMiddleware');
+const { requireArtworkCreatorOrAdmin } = require('../middleware/artworkMiddleware');
 const { asyncHandler, HTTP_STATUS } = require('../middleware/errorHandler');
 const {
   validateRequiredFields,
@@ -20,7 +21,7 @@ router.get('/my-rentals', decodeToken, asyncHandler(async (req, res) => {
 
   const rentalService = container.get('rentalService');
   const userRepository = container.get('userRepository');
-  
+
   // Find user by UUID to get database ID
   const user = await userRepository.findByUuid(req.user.uuid);
   if (!user) {
@@ -29,12 +30,31 @@ router.get('/my-rentals', decodeToken, asyncHandler(async (req, res) => {
       message: 'User not found'
     });
   }
-  
+
   const rentals = await rentalService.getUserRentals(user.id, limit, offset);
 
   res.status(HTTP_STATUS.OK).json({
     success: true,
     data: rentals
+  });
+}));
+
+/**
+ * @route GET /rentals/my-artworks-rentals
+ * @description Get rental requests for artworks created by current user
+ * @access Protected
+ */
+router.get('/my-artworks-rentals', decodeToken, asyncHandler(async (req, res) => {
+  const limit = parseInt(req.query.limit) || 50;
+  const offset = parseInt(req.query.offset) || 0;
+
+  const rentalService = container.get('rentalService');
+  const rentals = await rentalService.getRentalsForUserArtworks(req.user.uuid, limit, offset);
+
+  res.status(HTTP_STATUS.OK).json({
+    success: true,
+    data: rentals,
+    pagination: { limit, offset, count: rentals.length }
   });
 }));
 
@@ -150,12 +170,12 @@ router.post('/',
 
 /**
  * @route PUT /rentals/:uuid/approve
- * @description Approve a rental request (admin)
- * @access Protected (admin only)
+ * @description Approve a rental request (admin or artwork creator)
+ * @access Protected (admin or artwork creator)
  */
 router.put('/:uuid/approve',
   decodeToken,
-  requireAdmin,
+  requireArtworkCreatorOrAdmin,
   asyncHandler(async (req, res) => {
     const { uuid } = req.params;
 
@@ -172,12 +192,12 @@ router.put('/:uuid/approve',
 
 /**
  * @route PUT /rentals/:uuid/reject
- * @description Reject a rental request (admin)
- * @access Protected (admin only)
+ * @description Reject a rental request (admin or artwork creator)
+ * @access Protected (admin or artwork creator)
  */
 router.put('/:uuid/reject',
   decodeToken,
-  requireAdmin,
+  requireArtworkCreatorOrAdmin,
   asyncHandler(async (req, res) => {
     const { uuid } = req.params;
 
@@ -194,12 +214,12 @@ router.put('/:uuid/reject',
 
 /**
  * @route PUT /rentals/:uuid/finalize
- * @description Mark rental as finalized (admin)
- * @access Protected (admin only)
+ * @description Mark rental as finalized (admin or artwork creator)
+ * @access Protected (admin or artwork creator)
  */
 router.put('/:uuid/finalize',
   decodeToken,
-  requireAdmin,
+  requireArtworkCreatorOrAdmin,
   asyncHandler(async (req, res) => {
     const { uuid } = req.params;
 

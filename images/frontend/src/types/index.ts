@@ -7,6 +7,7 @@ export interface User {
   date_of_birth?: string | null
   user_type: 'student' | 'teacher'
   is_admin?: boolean
+  has_artworks?: boolean
   token?: string
 }
 
@@ -16,6 +17,7 @@ export interface AuthContextType {
   register: (first_name: string, last_name: string, email: string, password: string, user_type: 'student' | 'teacher') => Promise<void>
   logout: () => void
   loading: boolean
+  refreshUser: () => Promise<void>
 }
 
 export interface Medium {

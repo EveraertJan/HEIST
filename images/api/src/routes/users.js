@@ -48,9 +48,17 @@ router.get('/validate_token', decodeToken, asyncHandler(async (req, res) => {
   const userService = container.get('userService');
   const user = await userService.getProfile(req.user.uuid);
 
+  // Check if user has submitted any artworks
+  const db = pg.get();
+  const userArtworks = await db('artworks')
+    .where('created_by_user_id', user.id)
+    .limit(1);
+  const has_artworks = userArtworks.length > 0;
+
   res.status(HTTP_STATUS.OK).json({
     success: true,
-    ...user
+    ...user,
+    has_artworks
   });
 }))
 

@@ -55,8 +55,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(null)
   }
 
+  const refreshUser = async () => {
+    const token = localStorage.getItem('token')
+    if (token) {
+      try {
+        const response = await validateToken()
+        setUser(response.data)
+      } catch (err) {
+        console.error('Failed to refresh user:', err)
+      }
+    }
+  }
+
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, register, logout, loading, refreshUser }}>
       {children}
     </AuthContext.Provider>
   )

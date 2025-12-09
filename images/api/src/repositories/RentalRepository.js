@@ -158,6 +158,27 @@ class RentalRepository {
       .where('rentals.status', 'requested')
       .orderBy('rentals.created_at', 'asc');
   }
+
+  /**
+   * Find rentals for artworks created by a specific user
+   */
+  async findByArtworkCreator(userId, limit = 50, offset = 0) {
+    return await this.db('rentals')
+      .select(
+        'rentals.*',
+        'artworks.title as artwork_title',
+        'artworks.uuid as artwork_uuid',
+        'users.first_name as user_first_name',
+        'users.last_name as user_last_name',
+        'users.email as user_email'
+      )
+      .leftJoin('artworks', 'rentals.artwork_id', 'artworks.id')
+      .leftJoin('users', 'rentals.user_id', 'users.id')
+      .where('artworks.created_by_user_id', userId)
+      .orderBy('rentals.created_at', 'desc')
+      .limit(limit)
+      .offset(offset);
+  }
 }
 
 module.exports = RentalRepository;

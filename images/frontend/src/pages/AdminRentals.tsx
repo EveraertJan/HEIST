@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { getAllRentals, approveRental, rejectRental, finalizeRental } from '../services/api'
+import { getAllRentals, getMyArtworksRentals, approveRental, rejectRental, finalizeRental } from '../services/api'
 import type { Rental } from '../types'
 import Button from '../components/common/Button'
 
@@ -16,17 +16,16 @@ export default function AdminRentals() {
   const [filter, setFilter] = useState<'all' | 'requested' | 'approved' | 'finalized'>('all')
 
   useEffect(() => {
-    if (!user?.is_admin) {
-      navigate('/')
-      return
-    }
     loadRentals()
   }, [user])
 
   const loadRentals = async () => {
     try {
       setLoading(true)
-      const response = await getAllRentals()
+      // Admins get all rentals, creators get rentals for their artworks
+      const response = user?.is_admin
+        ? await getAllRentals()
+        : await getMyArtworksRentals()
       setRentals(response.data.data)
     } catch (err) {
       setError('Failed to load rentals')
@@ -103,7 +102,9 @@ export default function AdminRentals() {
   return (
     <div style={{ minHeight: '100vh', paddingTop: '80px' }}>
       <div className="container" style={{ padding: '48px 24px', maxWidth: '1400px' }}>
-        <h1 style={{ marginBottom: '32px' }}>Admin: Manage Rentals</h1>
+        <h1 style={{ marginBottom: '32px' }}>
+          {user?.is_admin ? 'Admin: Manage Rentals' : 'Manage Rental Requests'}
+        </h1>
 
         {error && (
           <div style={{

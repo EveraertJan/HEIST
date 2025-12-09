@@ -41,10 +41,17 @@ class ArtworkService {
       // Admins can see all artworks regardless of status
       filters.includeAll = true;
     } else if (userUuid) {
-      // Regular users see approved artworks + their own submissions
+      // User viewing their own artworks
       const user = await this.userRepository.findByUuid(userUuid);
-      filters.status = 'approved';
       filters.userId = user?.id;
+
+      if (includeAll) {
+        // Show all statuses for user's own artworks
+        filters.includeAll = true;
+      } else {
+        // Show approved artworks + user's own submissions (any status)
+        filters.status = 'approved';
+      }
     } else {
       // Public view: only approved artworks
       filters.status = 'approved';

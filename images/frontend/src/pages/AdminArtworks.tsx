@@ -21,7 +21,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { deleteArtwork, getAllArtworks, updateArtworkStatus } from '../services/api'
+import { deleteArtwork, getAllArtworks, getMyArtworks, updateArtworkStatus } from '../services/api'
 import type { Artwork } from '../types'
 import Button from '../components/common/Button'
 
@@ -42,7 +42,10 @@ export default function AdminArtworks() {
   const loadData = async () => {
     try {
       setLoading(true)
-      const artworksRes = await getAllArtworks(100, 0, true) // Include all statuses for admin
+      // Admins get all artworks, creators get only their own
+      const artworksRes = user?.is_admin
+        ? await getAllArtworks(100, 0, true) // Admin: all statuses
+        : await getMyArtworks(100, 0) // Creator: own artworks only
       setArtworks(artworksRes.data.data)
     } catch (err) {
       setError('Failed to load artworks')
@@ -103,7 +106,9 @@ export default function AdminArtworks() {
     <div style={{ minHeight: '100vh', paddingTop: '80px' }}>
       <div className="container" style={{ padding: '48px 24px', maxWidth: '1200px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
-          <h1 style={{ margin: 0 }}>Manage Artworks</h1>
+          <h1 style={{ margin: 0 }}>
+            {user?.is_admin ? 'Manage Artworks' : 'My Artworks'}
+          </h1>
           <Button onClick={() => navigate('/artworks/create')} variant="primary" size="large">
             + Create New Artwork
           </Button>
@@ -198,7 +203,8 @@ export default function AdminArtworks() {
                           <Button onClick={() => handleEdit(artwork)} variant="info" size="small">
                             Edit
                           </Button>
-                          {artwork.status === 'pending' && (
+                          {/* Only admins can approve/decline */}
+                          {user?.is_admin && artwork.status === 'pending' && (
                             <>
                               <Button onClick={() => handleApprove(artwork.uuid)} variant="success" size="small">
                                 Approve
@@ -208,7 +214,7 @@ export default function AdminArtworks() {
                               </Button>
                             </>
                           )}
-                          {artwork.status === 'declined' && (
+                          {user?.is_admin && artwork.status === 'declined' && (
                             <Button onClick={() => handleApprove(artwork.uuid)} variant="success" size="small">
                               Approve
                             </Button>
