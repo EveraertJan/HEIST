@@ -3,7 +3,6 @@ import { searchArtworks, getAllMediums } from '../services/api'
 import { ArtworkCard } from '../components/artworks'
 import { SearchBar, MediumFilter } from '../components/search'
 import EmptyState from '../components/common/EmptyState'
-import { useAuth } from '../contexts/AuthContext'
 import type { Artwork, Medium } from '../types'
 
 /**
